@@ -1,0 +1,386 @@
+{
+  "type": "FeatureCollection",
+  "name": "Sundarban Pilot Land-Cover Training Dataset",
+  "crs": {
+    "type": "name",
+    "properties": {
+      "name": "urn:ogc:def:crs:OGC:1.3:CRS84"
+    }
+  },
+  "metadata": {
+    "title": "Sundarban Pilot Land-Cover Training Points",
+    "trainingDataSource": "pilot_demo",
+    "disclaimer": "This dataset validates the ML pipeline and software architecture; it does not establish production-level land-cover accuracy without authoritative field survey reference data.",
+    "classes": {
+      "0": "Mangrove",
+      "1": "Water",
+      "2": "Aquaculture",
+      "3": "Bare Land",
+      "4": "Other Vegetation"
+    },
+    "featureList": ["B2", "B3", "B4", "B8", "B11", "B12", "NDVI", "NDWI"],
+    "coordinateOrder": "[longitude, latitude]"
+  },
+  "features": [
+    {
+      "type": "Feature",
+      "id": "sample_mng_01",
+      "properties": {
+        "classId": 0,
+        "className": "Mangrove",
+        "trainingDataSource": "pilot_demo",
+        "sector": "Gosaba",
+        "spectral": {"B2": 420, "B3": 580, "B4": 380, "B8": 2850, "B11": 950, "B12": 480, "NDVI": 0.7647, "NDWI": -0.6618}
+      },
+      "geometry": {"type": "Point", "coordinates": [88.792, 22.175]}
+    },
+    {
+      "type": "Feature",
+      "id": "sample_mng_02",
+      "properties": {
+        "classId": 0,
+        "className": "Mangrove",
+        "trainingDataSource": "pilot_demo",
+        "sector": "Gosaba",
+        "spectral": {"B2": 440, "B3": 610, "B4": 395, "B8": 2920, "B11": 980, "B12": 510, "NDVI": 0.7617, "NDWI": -0.6544}
+      },
+      "geometry": {"type": "Point", "coordinates": [88.815, 22.185]}
+    },
+    {
+      "type": "Feature",
+      "id": "sample_mng_03",
+      "properties": {
+        "classId": 0,
+        "className": "Mangrove",
+        "trainingDataSource": "pilot_demo",
+        "sector": "Gosaba",
+        "spectral": {"B2": 410, "B3": 560, "B4": 360, "B8": 2780, "B11": 920, "B12": 460, "NDVI": 0.7707, "NDWI": -0.6647}
+      },
+      "geometry": {"type": "Point", "coordinates": [88.825, 22.155]}
+    },
+    {
+      "type": "Feature",
+      "id": "sample_mng_04",
+      "properties": {
+        "classId": 0,
+        "className": "Mangrove",
+        "trainingDataSource": "pilot_demo",
+        "sector": "Satjelia",
+        "spectral": {"B2": 450, "B3": 620, "B4": 410, "B8": 2650, "B11": 1020, "B12": 540, "NDVI": 0.7320, "NDWI": -0.6208}
+      },
+      "geometry": {"type": "Point", "coordinates": [88.835, 22.145]}
+    },
+    {
+      "type": "Feature",
+      "id": "sample_mng_05",
+      "properties": {
+        "classId": 0,
+        "className": "Mangrove",
+        "trainingDataSource": "pilot_demo",
+        "sector": "Satjelia",
+        "spectral": {"B2": 430, "B3": 590, "B4": 375, "B8": 2810, "B11": 940, "B12": 490, "NDVI": 0.7645, "NDWI": -0.6529}
+      },
+      "geometry": {"type": "Point", "coordinates": [88.855, 22.165]}
+    },
+    {
+      "type": "Feature",
+      "id": "sample_mng_06",
+      "properties": {
+        "classId": 0,
+        "className": "Mangrove",
+        "trainingDataSource": "pilot_demo",
+        "sector": "Satjelia",
+        "spectral": {"B2": 460, "B3": 640, "B4": 420, "B8": 2720, "B11": 1050, "B12": 560, "NDVI": 0.7325, "NDWI": -0.6190}
+      },
+      "geometry": {"type": "Point", "coordinates": [88.875, 22.175]}
+    },
+    {
+      "type": "Feature",
+      "id": "sample_mng_07",
+      "properties": {
+        "classId": 0,
+        "className": "Mangrove",
+        "trainingDataSource": "pilot_demo",
+        "sector": "Gosaba",
+        "spectral": {"B2": 395, "B3": 545, "B4": 350, "B8": 2980, "B11": 890, "B12": 440, "NDVI": 0.7898, "NDWI": -0.6908}
+      },
+      "geometry": {"type": "Point", "coordinates": [88.788, 22.160]}
+    },
+    {
+      "type": "Feature",
+      "id": "sample_mng_08",
+      "properties": {
+        "classId": 0,
+        "className": "Mangrove",
+        "trainingDataSource": "pilot_demo",
+        "sector": "Satjelia",
+        "spectral": {"B2": 435, "B3": 605, "B4": 385, "B8": 2890, "B11": 960, "B12": 505, "NDVI": 0.7649, "NDWI": -0.6538}
+      },
+      "geometry": {"type": "Point", "coordinates": [88.860, 22.135]}
+    },
+    {
+      "type": "Feature",
+      "id": "sample_wat_01",
+      "properties": {
+        "classId": 1,
+        "className": "Water",
+        "trainingDataSource": "pilot_demo",
+        "sector": "Gosaba",
+        "spectral": {"B2": 720, "B3": 780, "B4": 520, "B8": 210, "B11": 140, "B12": 110, "NDVI": -0.4247, "NDWI": 0.5758}
+      },
+      "geometry": {"type": "Point", "coordinates": [88.810, 22.195]}
+    },
+    {
+      "type": "Feature",
+      "id": "sample_wat_02",
+      "properties": {
+        "classId": 1,
+        "className": "Water",
+        "trainingDataSource": "pilot_demo",
+        "sector": "Gosaba",
+        "spectral": {"B2": 760, "B3": 820, "B4": 560, "B8": 240, "B11": 160, "B12": 120, "NDVI": -0.4000, "NDWI": 0.5472}
+      },
+      "geometry": {"type": "Point", "coordinates": [88.815, 22.170]}
+    },
+    {
+      "type": "Feature",
+      "id": "sample_wat_03",
+      "properties": {
+        "classId": 1,
+        "className": "Water",
+        "trainingDataSource": "pilot_demo",
+        "sector": "Gosaba",
+        "spectral": {"B2": 690, "B3": 740, "B4": 490, "B8": 180, "B11": 120, "B12": 95, "NDVI": -0.4627, "NDWI": 0.6087}
+      },
+      "geometry": {"type": "Point", "coordinates": [88.810, 22.140]}
+    },
+    {
+      "type": "Feature",
+      "id": "sample_wat_04",
+      "properties": {
+        "classId": 1,
+        "className": "Water",
+        "trainingDataSource": "pilot_demo",
+        "sector": "Satjelia",
+        "spectral": {"B2": 740, "B3": 790, "B4": 540, "B8": 220, "B11": 150, "B12": 115, "NDVI": -0.4211, "NDWI": 0.5644}
+      },
+      "geometry": {"type": "Point", "coordinates": [88.825, 22.110]}
+    },
+    {
+      "type": "Feature",
+      "id": "sample_wat_05",
+      "properties": {
+        "classId": 1,
+        "className": "Water",
+        "trainingDataSource": "pilot_demo",
+        "sector": "Satjelia",
+        "spectral": {"B2": 710, "B3": 760, "B4": 510, "B8": 195, "B11": 130, "B12": 100, "NDVI": -0.4468, "NDWI": 0.5916}
+      },
+      "geometry": {"type": "Point", "coordinates": [88.835, 22.125]}
+    },
+    {
+      "type": "Feature",
+      "id": "sample_wat_06",
+      "properties": {
+        "classId": 1,
+        "className": "Water",
+        "trainingDataSource": "pilot_demo",
+        "sector": "Gosaba",
+        "spectral": {"B2": 780, "B3": 850, "B4": 590, "B8": 260, "B11": 170, "B12": 130, "NDVI": -0.3882, "NDWI": 0.5315}
+      },
+      "geometry": {"type": "Point", "coordinates": [88.830, 22.190]}
+    },
+    {
+      "type": "Feature",
+      "id": "sample_aqu_01",
+      "properties": {
+        "classId": 2,
+        "className": "Aquaculture",
+        "trainingDataSource": "pilot_demo",
+        "sector": "Gosaba",
+        "spectral": {"B2": 610, "B3": 890, "B4": 650, "B8": 780, "B11": 480, "B12": 320, "NDVI": 0.0909, "NDWI": 0.0659}
+      },
+      "geometry": {"type": "Point", "coordinates": [88.770, 22.182]}
+    },
+    {
+      "type": "Feature",
+      "id": "sample_aqu_02",
+      "properties": {
+        "classId": 2,
+        "className": "Aquaculture",
+        "trainingDataSource": "pilot_demo",
+        "sector": "Gosaba",
+        "spectral": {"B2": 580, "B3": 860, "B4": 620, "B8": 740, "B11": 450, "B12": 290, "NDVI": 0.0882, "NDWI": 0.0750}
+      },
+      "geometry": {"type": "Point", "coordinates": [88.785, 22.192]}
+    },
+    {
+      "type": "Feature",
+      "id": "sample_aqu_03",
+      "properties": {
+        "classId": 2,
+        "className": "Aquaculture",
+        "trainingDataSource": "pilot_demo",
+        "sector": "Satjelia",
+        "spectral": {"B2": 630, "B3": 920, "B4": 680, "B8": 810, "B11": 510, "B12": 340, "NDVI": 0.0872, "NDWI": 0.0636}
+      },
+      "geometry": {"type": "Point", "coordinates": [88.835, 22.138]}
+    },
+    {
+      "type": "Feature",
+      "id": "sample_aqu_04",
+      "properties": {
+        "classId": 2,
+        "className": "Aquaculture",
+        "trainingDataSource": "pilot_demo",
+        "sector": "Satjelia",
+        "spectral": {"B2": 595, "B3": 875, "B4": 635, "B8": 760, "B11": 465, "B12": 305, "NDVI": 0.0896, "NDWI": 0.0703}
+      },
+      "geometry": {"type": "Point", "coordinates": [88.850, 22.148]}
+    },
+    {
+      "type": "Feature",
+      "id": "sample_aqu_05",
+      "properties": {
+        "classId": 2,
+        "className": "Aquaculture",
+        "trainingDataSource": "pilot_demo",
+        "sector": "Satjelia",
+        "spectral": {"B2": 620, "B3": 905, "B4": 660, "B8": 795, "B11": 490, "B12": 330, "NDVI": 0.0928, "NDWI": 0.0647}
+      },
+      "geometry": {"type": "Point", "coordinates": [88.860, 22.135]}
+    },
+    {
+      "type": "Feature",
+      "id": "sample_aqu_06",
+      "properties": {
+        "classId": 2,
+        "className": "Aquaculture",
+        "trainingDataSource": "pilot_demo",
+        "sector": "Gosaba",
+        "spectral": {"B2": 640, "B3": 940, "B4": 690, "B8": 830, "B11": 520, "B12": 350, "NDVI": 0.0921, "NDWI": 0.0621}
+      },
+      "geometry": {"type": "Point", "coordinates": [88.795, 22.180]}
+    },
+    {
+      "type": "Feature",
+      "id": "sample_bar_01",
+      "properties": {
+        "classId": 3,
+        "className": "Bare Land",
+        "trainingDataSource": "pilot_demo",
+        "sector": "Gosaba",
+        "spectral": {"B2": 820, "B3": 1150, "B4": 1380, "B8": 1620, "B11": 2150, "B12": 1780, "NDVI": 0.0800, "NDWI": -0.1697}
+      },
+      "geometry": {"type": "Point", "coordinates": [88.760, 22.160]}
+    },
+    {
+      "type": "Feature",
+      "id": "sample_bar_02",
+      "properties": {
+        "classId": 3,
+        "className": "Bare Land",
+        "trainingDataSource": "pilot_demo",
+        "sector": "Gosaba",
+        "spectral": {"B2": 850, "B3": 1190, "B4": 1420, "B8": 1680, "B11": 2240, "B12": 1840, "NDVI": 0.0839, "NDWI": -0.1707}
+      },
+      "geometry": {"type": "Point", "coordinates": [88.772, 22.168]}
+    },
+    {
+      "type": "Feature",
+      "id": "sample_bar_03",
+      "properties": {
+        "classId": 3,
+        "className": "Bare Land",
+        "trainingDataSource": "pilot_demo",
+        "sector": "Satjelia",
+        "spectral": {"B2": 790, "B3": 1110, "B4": 1340, "B8": 1580, "B11": 2080, "B12": 1720, "NDVI": 0.0822, "NDWI": -0.1747}
+      },
+      "geometry": {"type": "Point", "coordinates": [88.840, 22.125]}
+    },
+    {
+      "type": "Feature",
+      "id": "sample_bar_04",
+      "properties": {
+        "classId": 3,
+        "className": "Bare Land",
+        "trainingDataSource": "pilot_demo",
+        "sector": "Satjelia",
+        "spectral": {"B2": 830, "B3": 1160, "B4": 1390, "B8": 1640, "B11": 2180, "B12": 1790, "NDVI": 0.0825, "NDWI": -0.1714}
+      },
+      "geometry": {"type": "Point", "coordinates": [88.850, 22.120]}
+    },
+    {
+      "type": "Feature",
+      "id": "sample_bar_05",
+      "properties": {
+        "classId": 3,
+        "className": "Bare Land",
+        "trainingDataSource": "pilot_demo",
+        "sector": "Gosaba",
+        "spectral": {"B2": 810, "B3": 1130, "B4": 1360, "B8": 1600, "B11": 2120, "B12": 1750, "NDVI": 0.0811, "NDWI": -0.1722}
+      },
+      "geometry": {"type": "Point", "coordinates": [88.778, 22.158]}
+    },
+    {
+      "type": "Feature",
+      "id": "sample_veg_01",
+      "properties": {
+        "classId": 4,
+        "className": "Other Vegetation",
+        "trainingDataSource": "pilot_demo",
+        "sector": "Gosaba",
+        "spectral": {"B2": 490, "B3": 820, "B4": 620, "B8": 2150, "B11": 1380, "B12": 790, "NDVI": 0.5523, "NDWI": -0.4478}
+      },
+      "geometry": {"type": "Point", "coordinates": [88.790, 22.210]}
+    },
+    {
+      "type": "Feature",
+      "id": "sample_veg_02",
+      "properties": {
+        "classId": 4,
+        "className": "Other Vegetation",
+        "trainingDataSource": "pilot_demo",
+        "sector": "Gosaba",
+        "spectral": {"B2": 510, "B3": 850, "B4": 650, "B8": 2210, "B11": 1420, "B12": 820, "NDVI": 0.5455, "NDWI": -0.4444}
+      },
+      "geometry": {"type": "Point", "coordinates": [88.805, 22.215]}
+    },
+    {
+      "type": "Feature",
+      "id": "sample_veg_03",
+      "properties": {
+        "classId": 4,
+        "className": "Other Vegetation",
+        "trainingDataSource": "pilot_demo",
+        "sector": "Satjelia",
+        "spectral": {"B2": 480, "B3": 800, "B4": 600, "B8": 2080, "B11": 1340, "B12": 760, "NDVI": 0.5522, "NDWI": -0.4444}
+      },
+      "geometry": {"type": "Point", "coordinates": [88.845, 22.170]}
+    },
+    {
+      "type": "Feature",
+      "id": "sample_veg_04",
+      "properties": {
+        "classId": 4,
+        "className": "Other Vegetation",
+        "trainingDataSource": "pilot_demo",
+        "sector": "Satjelia",
+        "spectral": {"B2": 520, "B3": 870, "B4": 670, "B8": 2260, "B11": 1460, "B12": 850, "NDVI": 0.5427, "NDWI": -0.4441}
+      },
+      "geometry": {"type": "Point", "coordinates": [88.865, 22.180]}
+    },
+    {
+      "type": "Feature",
+      "id": "sample_veg_05",
+      "properties": {
+        "classId": 4,
+        "className": "Other Vegetation",
+        "trainingDataSource": "pilot_demo",
+        "sector": "Gosaba",
+        "spectral": {"B2": 495, "B3": 830, "B4": 630, "B8": 2180, "B11": 1400, "B12": 805, "NDVI": 0.5516, "NDWI": -0.4485}
+      },
+      "geometry": {"type": "Point", "coordinates": [88.798, 22.205]}
+    }
+  ]
+}

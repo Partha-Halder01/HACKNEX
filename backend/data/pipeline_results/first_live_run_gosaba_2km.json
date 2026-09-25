@@ -1,0 +1,865 @@
+{
+ "request": {
+  "lat": 22.165,
+  "lon": 88.805,
+  "radiusKm": 2.0,
+  "startDate": "2020-01-01",
+  "endDate": "2026-03-31",
+  "windowDays": 90,
+  "language": "en",
+  "aoiAreaHa": 1256.64,
+  "spanYears": 6.245,
+  "scaleM": 10,
+  "insideSundarban": true
+ },
+ "dataSource": {
+  "id": "sentinel2_gee_random_forest_on_demand",
+  "isRealData": true,
+  "label": "Live Sentinel-2 + Random Forest",
+  "modelVersion": "rf-gee-ondemand-v1-0fb5926b",
+  "engineNote": "Live Sentinel-2 composites classified by a Random Forest trained on CGMD reference labels."
+ },
+ "warnings": [],
+ "summary": {
+  "start": {
+   "label": "Start (2020-01-01)",
+   "startDate": "2020-01-01",
+   "endDate": "2020-03-31",
+   "mangroveHa": 40.82,
+   "mangrovePct": 3.3,
+   "imageCount": 12
+  },
+  "end": {
+   "label": "End (2026-03-31)",
+   "startDate": "2025-12-31",
+   "endDate": "2026-03-31",
+   "mangroveHa": 55.73,
+   "mangrovePct": 4.5,
+   "imageCount": 18
+  }
+ },
+ "timeline": [
+  {
+   "key": "start",
+   "label": "Start (2020-01-01)",
+   "startDate": "2020-01-01",
+   "endDate": "2020-03-31",
+   "midDate": "2020-02-15",
+   "decimalYear": 2020.123,
+   "mangroveHa": 40.82,
+   "nonMangroveHa": 1197.6,
+   "totalHa": 1238.42,
+   "lowConfidenceHa": 18.92,
+   "imageCount": 12,
+   "mangrovePct": 3.3
+  },
+  {
+   "key": "y2021",
+   "label": "2021 dry season",
+   "startDate": "2021-01-01",
+   "endDate": "2021-03-31",
+   "midDate": "2021-02-14",
+   "decimalYear": 2021.1205,
+   "mangroveHa": 33.9,
+   "nonMangroveHa": 1204.52,
+   "totalHa": 1238.42,
+   "lowConfidenceHa": 13.4,
+   "imageCount": 15,
+   "mangrovePct": 2.7
+  },
+  {
+   "key": "y2022",
+   "label": "2022 dry season",
+   "startDate": "2022-01-01",
+   "endDate": "2022-03-31",
+   "midDate": "2022-02-14",
+   "decimalYear": 2022.1205,
+   "mangroveHa": 43.63,
+   "nonMangroveHa": 1194.79,
+   "totalHa": 1238.42,
+   "lowConfidenceHa": 17.36,
+   "imageCount": 11,
+   "mangrovePct": 3.5
+  },
+  {
+   "key": "y2023",
+   "label": "2023 dry season",
+   "startDate": "2023-01-01",
+   "endDate": "2023-03-31",
+   "midDate": "2023-02-14",
+   "decimalYear": 2023.1205,
+   "mangroveHa": 26.84,
+   "nonMangroveHa": 1211.58,
+   "totalHa": 1238.42,
+   "lowConfidenceHa": 15.74,
+   "imageCount": 12,
+   "mangrovePct": 2.2
+  },
+  {
+   "key": "y2024",
+   "label": "2024 dry season",
+   "startDate": "2024-01-01",
+   "endDate": "2024-03-31",
+   "midDate": "2024-02-15",
+   "decimalYear": 2024.123,
+   "mangroveHa": 32.23,
+   "nonMangroveHa": 1206.19,
+   "totalHa": 1238.42,
+   "lowConfidenceHa": 20.29,
+   "imageCount": 9,
+   "mangrovePct": 2.6
+  },
+  {
+   "key": "y2025",
+   "label": "2025 dry season",
+   "startDate": "2025-01-01",
+   "endDate": "2025-03-31",
+   "midDate": "2025-02-14",
+   "decimalYear": 2025.1205,
+   "mangroveHa": 18.8,
+   "nonMangroveHa": 1219.62,
+   "totalHa": 1238.42,
+   "lowConfidenceHa": 12.76,
+   "imageCount": 16,
+   "mangrovePct": 1.5
+  },
+  {
+   "key": "end",
+   "label": "End (2026-03-31)",
+   "startDate": "2025-12-31",
+   "endDate": "2026-03-31",
+   "midDate": "2026-02-14",
+   "decimalYear": 2026.1205,
+   "mangroveHa": 55.73,
+   "nonMangroveHa": 1182.69,
+   "totalHa": 1238.42,
+   "lowConfidenceHa": 21.33,
+   "imageCount": 18,
+   "mangrovePct": 4.5
+  }
+ ],
+ "change": {
+  "gainHa": 2.44,
+  "lossHa": 0.41,
+  "uncertainHa": 0.0,
+  "stableMangroveHa": 26.13,
+  "minMappingUnitHa": 0.5,
+  "confidenceThreshold": 0.6,
+  "netChangeHa": 2.03,
+  "rawAreaDifferenceHa": 14.91,
+  "annualNetChangeHa": 0.33,
+  "percentChange": 36.5
+ },
+ "carbon": {
+  "areaUncertaintyPct": 6.28,
+  "start": {
+   "mangroveHa": 40.82,
+   "carbonMgC": 11556.1,
+   "co2eMg": 42372.5,
+   "uncertaintyPct": 19.1,
+   "carbonRangeMgC": [
+    9353.1,
+    13759.2
+   ],
+   "co2eRangeMg": [
+    34294.6,
+    50450.4
+   ],
+   "pools": [
+    {
+     "id": "aboveground_biomass",
+     "name": "Aboveground Biomass (AGB)",
+     "densityMgCPerHa": 74.2,
+     "carbonMgC": 3028.84,
+     "sharePct": 26.2,
+     "source": "IPCC 2013 Wetlands Supplement (Table 4.3: Aboveground biomass in tropical wet mangroves)"
+    },
+    {
+     "id": "belowground_biomass",
+     "name": "Belowground Biomass (BGB)",
+     "densityMgCPerHa": 28.9,
+     "carbonMgC": 1179.7,
+     "sharePct": 10.2,
+     "source": "IPCC 2013 Wetlands Supplement (Table 4.5: Root-to-shoot ratio R=0.39 applied to AGB)"
+    },
+    {
+     "id": "soil_organic_carbon",
+     "name": "Soil Organic Carbon (SOC 0–1m)",
+     "densityMgCPerHa": 180.0,
+     "carbonMgC": 7347.6,
+     "sharePct": 63.6,
+     "source": "IPCC 2013 Wetlands Supplement (Table 4.11) & Kauffman et al. 2011 (Top 1m estuarine mangrove sediment)"
+    }
+   ]
+  },
+  "end": {
+   "mangroveHa": 55.73,
+   "carbonMgC": 15777.2,
+   "co2eMg": 57849.6,
+   "uncertaintyPct": 19.1,
+   "carbonRangeMgC": [
+    12769.4,
+    18784.9
+   ],
+   "co2eRangeMg": [
+    46821.1,
+    68878.1
+   ],
+   "pools": [
+    {
+     "id": "aboveground_biomass",
+     "name": "Aboveground Biomass (AGB)",
+     "densityMgCPerHa": 74.2,
+     "carbonMgC": 4135.17,
+     "sharePct": 26.2,
+     "source": "IPCC 2013 Wetlands Supplement (Table 4.3: Aboveground biomass in tropical wet mangroves)"
+    },
+    {
+     "id": "belowground_biomass",
+     "name": "Belowground Biomass (BGB)",
+     "densityMgCPerHa": 28.9,
+     "carbonMgC": 1610.6,
+     "sharePct": 10.2,
+     "source": "IPCC 2013 Wetlands Supplement (Table 4.5: Root-to-shoot ratio R=0.39 applied to AGB)"
+    },
+    {
+     "id": "soil_organic_carbon",
+     "name": "Soil Organic Carbon (SOC 0–1m)",
+     "densityMgCPerHa": 180.0,
+     "carbonMgC": 10031.4,
+     "sharePct": 63.6,
+     "source": "IPCC 2013 Wetlands Supplement (Table 4.11) & Kauffman et al. 2011 (Top 1m estuarine mangrove sediment)"
+    }
+   ]
+  },
+  "change": {
+   "netAreaChangeHa": 14.91,
+   "carbonChangeMgC": 4221.0,
+   "co2eChangeMg": 15477.1,
+   "carbonChangeRangeMgC": [
+    3459.5,
+    4982.5
+   ],
+   "co2eChangeRangeMg": [
+    12685.0,
+    18269.1
+   ],
+   "grossLossCarbonMgC": 116.1,
+   "grossGainCarbonMgC": 690.8,
+   "annualCo2eChangeMg": 2478.3,
+   "note": "Carbon associated with loss is the stock held in the lost area, not an immediate emission; gain is the Tier 1 stock a mature stand would hold."
+  },
+  "series": [
+   {
+    "key": "start",
+    "label": "Start (2020-01-01)",
+    "midDate": "2020-02-15",
+    "decimalYear": 2020.123,
+    "carbonMgC": 11556.1,
+    "carbonLowMgC": 9353.1,
+    "carbonHighMgC": 13759.2,
+    "co2eMg": 42372.5
+   },
+   {
+    "key": "y2021",
+    "label": "2021 dry season",
+    "midDate": "2021-02-14",
+    "decimalYear": 2021.1205,
+    "carbonMgC": 9597.1,
+    "carbonLowMgC": 7767.5,
+    "carbonHighMgC": 11426.7,
+    "co2eMg": 35189.3
+   },
+   {
+    "key": "y2022",
+    "label": "2022 dry season",
+    "midDate": "2022-02-14",
+    "decimalYear": 2022.1205,
+    "carbonMgC": 12351.7,
+    "carbonLowMgC": 9996.9,
+    "carbonHighMgC": 14706.4,
+    "co2eMg": 45289.4
+   },
+   {
+    "key": "y2023",
+    "label": "2023 dry season",
+    "midDate": "2023-02-14",
+    "decimalYear": 2023.1205,
+    "carbonMgC": 7598.4,
+    "carbonLowMgC": 6149.8,
+    "carbonHighMgC": 9047.0,
+    "co2eMg": 27860.8
+   },
+   {
+    "key": "y2024",
+    "label": "2024 dry season",
+    "midDate": "2024-02-15",
+    "decimalYear": 2024.123,
+    "carbonMgC": 9124.3,
+    "carbonLowMgC": 7384.9,
+    "carbonHighMgC": 10863.8,
+    "co2eMg": 33455.8
+   },
+   {
+    "key": "y2025",
+    "label": "2025 dry season",
+    "midDate": "2025-02-14",
+    "decimalYear": 2025.1205,
+    "carbonMgC": 5322.3,
+    "carbonLowMgC": 4307.6,
+    "carbonHighMgC": 6336.9,
+    "co2eMg": 19515.0
+   },
+   {
+    "key": "end",
+    "label": "End (2026-03-31)",
+    "midDate": "2026-02-14",
+    "decimalYear": 2026.1205,
+    "carbonMgC": 15777.2,
+    "carbonLowMgC": 12769.4,
+    "carbonHighMgC": 18784.9,
+    "co2eMg": 57849.6
+   }
+  ],
+  "methodology": {
+   "tier": "IPCC 2013 Wetlands Supplement, Tier 1 (indicative)",
+   "densityMgCPerHa": 283.1,
+   "co2ToCRatio": 3.6667,
+   "factorUncertaintyPct": 18.0,
+   "defaultAreaUncertaintyPct": 3.5,
+   "monetaryValue": null,
+   "disclaimer": "Model-based indicative estimates; not field-measured carbon and not certified carbon credits."
+  }
+ },
+ "projection": {
+  "method": "Linear trend + what-if rate scenarios (illustrative, not a forecast)",
+  "trendHaPerYear": 0.11,
+  "trendStdErrHaPerYear": 2.49,
+  "observedGrossGainHaPerYear": 0.39,
+  "observedGrossLossHaPerYear": 0.07,
+  "horizonYears": 5,
+  "scenarios": [
+   {
+    "id": "current_trend",
+    "name": "Current trend",
+    "nameBn": "বর্তমান প্রবণতা",
+    "description": "Straight-line continuation of the observed change.",
+    "annualNetChangeHa": 0.11,
+    "points": [
+     {
+      "yearsAhead": 0,
+      "decimalYear": 2026.12,
+      "year": 2026,
+      "mangroveHa": 55.73,
+      "lowHa": 52.23,
+      "highHa": 59.23,
+      "carbonMgC": 15777.2,
+      "carbonLowMgC": 12769.4,
+      "carbonHighMgC": 18784.9
+     },
+     {
+      "yearsAhead": 1,
+      "decimalYear": 2027.12,
+      "year": 2027,
+      "mangroveHa": 55.84,
+      "lowHa": 49.83,
+      "highHa": 61.85,
+      "carbonMgC": 15808.8,
+      "carbonLowMgC": 12493.7,
+      "carbonHighMgC": 19124.0
+     },
+     {
+      "yearsAhead": 2,
+      "decimalYear": 2028.12,
+      "year": 2028,
+      "mangroveHa": 55.95,
+      "lowHa": 45.58,
+      "highHa": 66.33,
+      "carbonMgC": 15840.5,
+      "carbonLowMgC": 11747.1,
+      "carbonHighMgC": 19934.0
+     },
+     {
+      "yearsAhead": 3,
+      "decimalYear": 2029.12,
+      "year": 2029,
+      "mangroveHa": 56.07,
+      "lowHa": 41.0,
+      "highHa": 71.13,
+      "carbonMgC": 15872.2,
+      "carbonLowMgC": 10739.5,
+      "carbonHighMgC": 21005.0
+     },
+     {
+      "yearsAhead": 4,
+      "decimalYear": 2030.12,
+      "year": 2030,
+      "mangroveHa": 56.18,
+      "lowHa": 36.33,
+      "highHa": 76.02,
+      "carbonMgC": 15903.9,
+      "carbonLowMgC": 9598.7,
+      "carbonHighMgC": 22209.1
+     },
+     {
+      "yearsAhead": 5,
+      "decimalYear": 2031.12,
+      "year": 2031,
+      "mangroveHa": 56.29,
+      "lowHa": 31.62,
+      "highHa": 80.96,
+      "carbonMgC": 15935.6,
+      "carbonLowMgC": 8386.4,
+      "carbonHighMgC": 23484.7
+     }
+    ]
+   },
+   {
+    "id": "higher_loss",
+    "name": "Higher loss",
+    "nameBn": "বেশি ক্ষতি",
+    "description": "Loss doubles (e.g. stronger erosion or clearing); gain continues as observed.",
+    "annualNetChangeHa": 0.26,
+    "points": [
+     {
+      "yearsAhead": 0,
+      "decimalYear": 2026.12,
+      "year": 2026,
+      "mangroveHa": 55.73,
+      "lowHa": 52.23,
+      "highHa": 59.23,
+      "carbonMgC": 15777.2,
+      "carbonLowMgC": 12769.4,
+      "carbonHighMgC": 18784.9
+     },
+     {
+      "yearsAhead": 1,
+      "decimalYear": 2027.12,
+      "year": 2027,
+      "mangroveHa": 55.99,
+      "lowHa": 49.98,
+      "highHa": 62.0,
+      "carbonMgC": 15850.6,
+      "carbonLowMgC": 12528.9,
+      "carbonHighMgC": 19172.3
+     },
+     {
+      "yearsAhead": 2,
+      "decimalYear": 2028.12,
+      "year": 2028,
+      "mangroveHa": 56.25,
+      "lowHa": 45.87,
+      "highHa": 66.62,
+      "carbonMgC": 15924.0,
+      "carbonLowMgC": 11819.9,
+      "carbonHighMgC": 20028.1
+     },
+     {
+      "yearsAhead": 3,
+      "decimalYear": 2029.12,
+      "year": 2029,
+      "mangroveHa": 56.51,
+      "lowHa": 41.44,
+      "highHa": 71.57,
+      "carbonMgC": 15997.5,
+      "carbonLowMgC": 10851.9,
+      "carbonHighMgC": 21143.1
+     },
+     {
+      "yearsAhead": 4,
+      "decimalYear": 2030.12,
+      "year": 2030,
+      "mangroveHa": 56.77,
+      "lowHa": 36.92,
+      "highHa": 76.61,
+      "carbonMgC": 16070.9,
+      "carbonLowMgC": 9751.5,
+      "carbonHighMgC": 22390.3
+     },
+     {
+      "yearsAhead": 5,
+      "decimalYear": 2031.12,
+      "year": 2031,
+      "mangroveHa": 57.03,
+      "lowHa": 32.36,
+      "highHa": 81.7,
+      "carbonMgC": 16144.4,
+      "carbonLowMgC": 8580.3,
+      "carbonHighMgC": 23708.4
+     }
+    ]
+   },
+   {
+    "id": "recovery",
+    "name": "Recovery",
+    "nameBn": "পুনরুদ্ধার",
+    "description": "Loss halves and gain rises by half (e.g. protection plus planting).",
+    "annualNetChangeHa": 0.55,
+    "points": [
+     {
+      "yearsAhead": 0,
+      "decimalYear": 2026.12,
+      "year": 2026,
+      "mangroveHa": 55.73,
+      "lowHa": 52.23,
+      "highHa": 59.23,
+      "carbonMgC": 15777.2,
+      "carbonLowMgC": 12769.4,
+      "carbonHighMgC": 18784.9
+     },
+     {
+      "yearsAhead": 1,
+      "decimalYear": 2027.12,
+      "year": 2027,
+      "mangroveHa": 56.28,
+      "lowHa": 50.27,
+      "highHa": 62.29,
+      "carbonMgC": 15933.8,
+      "carbonLowMgC": 12599.1,
+      "carbonHighMgC": 19268.5
+     },
+     {
+      "yearsAhead": 2,
+      "decimalYear": 2028.12,
+      "year": 2028,
+      "mangroveHa": 56.84,
+      "lowHa": 46.46,
+      "highHa": 67.21,
+      "carbonMgC": 16090.4,
+      "carbonLowMgC": 11964.7,
+      "carbonHighMgC": 20216.1
+     },
+     {
+      "yearsAhead": 3,
+      "decimalYear": 2029.12,
+      "year": 2029,
+      "mangroveHa": 57.39,
+      "lowHa": 42.32,
+      "highHa": 72.46,
+      "carbonMgC": 16247.0,
+      "carbonLowMgC": 11075.1,
+      "carbonHighMgC": 21419.0
+     },
+     {
+      "yearsAhead": 4,
+      "decimalYear": 2030.12,
+      "year": 2030,
+      "mangroveHa": 57.94,
+      "lowHa": 38.09,
+      "highHa": 77.79,
+      "carbonMgC": 16403.7,
+      "carbonLowMgC": 10055.1,
+      "carbonHighMgC": 22752.2
+     },
+     {
+      "yearsAhead": 5,
+      "decimalYear": 2031.12,
+      "year": 2031,
+      "mangroveHa": 58.5,
+      "lowHa": 33.82,
+      "highHa": 83.17,
+      "carbonMgC": 16560.3,
+      "carbonLowMgC": 8965.2,
+      "carbonHighMgC": 24155.4
+     }
+    ]
+   }
+  ]
+ },
+ "accuracy": {
+  "sampleCount": 400,
+  "overallAccuracy": 0.94,
+  "kappa": 0.88,
+  "f1Macro": 0.9399,
+  "confusionMatrix": {
+   "classes": [
+    "Non-Mangrove",
+    "Mangrove"
+   ],
+   "matrix": [
+    [
+     197,
+     3
+    ],
+    [
+     21,
+     179
+    ]
+   ],
+   "orientation": "rows=reference, cols=predicted"
+  },
+  "classMetrics": [
+   {
+    "classId": 0,
+    "className": "Non-Mangrove",
+    "referenceCount": 200,
+    "predictedCount": 218,
+    "producersAccuracy": 0.985,
+    "usersAccuracy": 0.9037,
+    "f1": 0.9426
+   },
+   {
+    "classId": 1,
+    "className": "Mangrove",
+    "referenceCount": 200,
+    "predictedCount": 182,
+    "producersAccuracy": 0.895,
+    "usersAccuracy": 0.9835,
+    "f1": 0.9372
+   }
+  ],
+  "testYear": 2023,
+  "referenceSource": "projects/mangrovedatahub2/assets/CGMD-AFCC30",
+  "region": "AOI + 5 km",
+  "note": "Held-out test: 2023 composite vs the 2023 CGMD reference map (never used in training). Agreement with a 30 m reference, not field truth."
+ },
+ "historical": [
+  {
+   "year": 1990,
+   "mangroveHa": 4.13
+  },
+  {
+   "year": 1995,
+   "mangroveHa": 2.49
+  },
+  {
+   "year": 2000,
+   "mangroveHa": 0.76
+  },
+  {
+   "year": 2005,
+   "mangroveHa": 0.63
+  },
+  {
+   "year": 2010,
+   "mangroveHa": 0.47
+  },
+  {
+   "year": 2015,
+   "mangroveHa": 1.26
+  },
+  {
+   "year": 2018,
+   "mangroveHa": 1.66
+  }
+ ],
+ "tiles": {
+  "trueColorEnd": "https://earthengine.googleapis.com/v1/projects/sundarban-blue-carbon/maps/78acd001456c0acf500fc2d54895edf4-fa5d1cdd270e71549eefc4a2130d4841/tiles/{z}/{x}/{y}",
+  "classStart": "https://earthengine.googleapis.com/v1/projects/sundarban-blue-carbon/maps/c202254cc9f90e667cddde0428c6469b-0c6b377d96e94b9e118d23b9c38eb5fe/tiles/{z}/{x}/{y}",
+  "classEnd": "https://earthengine.googleapis.com/v1/projects/sundarban-blue-carbon/maps/69e1b8ce4276967eba8ab32ce1cdebe8-a35991d729d381ef824fa5b6248899b1/tiles/{z}/{x}/{y}",
+  "change": "https://earthengine.googleapis.com/v1/projects/sundarban-blue-carbon/maps/51c2f439bcb601f6f6a6809d0d925478-77944c74ff3017e453e0f7263af4a0cd/tiles/{z}/{x}/{y}"
+ },
+ "training": {
+  "trainingRegion": "AOI + 5 km",
+  "trainYears": [
+   2019,
+   2020,
+   2021,
+   2022
+  ],
+  "samplesByClass": {
+   "Non-Mangrove": 1200,
+   "Mangrove": 1200
+  },
+  "trees": 200,
+  "features": [
+   "B2",
+   "B3",
+   "B4",
+   "B8",
+   "B11",
+   "B12",
+   "NDVI",
+   "NDWI"
+  ],
+  "referenceAsset": "projects/mangrovedatahub2/assets/CGMD-AFCC30"
+ },
+ "methodology": {
+  "composite": "Cloud-masked Sentinel-2 L2A median, 90-day windows; dry season (Jan–Mar) for in-between years",
+  "features": [
+   "B2",
+   "B3",
+   "B4",
+   "B8",
+   "B11",
+   "B12",
+   "NDVI",
+   "NDWI"
+  ],
+  "classifier": "Random Forest (2 classes: mangrove / other) trained on stable CGMD-AFCC30 pixels",
+  "change": "Post-classification comparison; patches < 0.5 ha dropped; pixels with confidence < 0.6 reported as uncertain",
+  "scaleM": 10
+ },
+ "analysisId": "an_5af1ad30b0747248_f05b8a",
+ "generatedAt": "2026-09-25T14:32:14.888685+00:00",
+ "narrative": {
+  "source": "template",
+  "model": null,
+  "en": [
+   "Within 2.0 km of the chosen point (1,257 ha), mangrove covered 40.8 ha (3.3%) at the start (2020-01-01) and 55.7 ha (4.5%) at the end (2026-03-31).",
+   "Over 6.2 years the forest grew by 2.0 ha: 2.4 ha new mangrove and 0.4 ha lost. A further 0.0 ha changed but the model was not confident, so it is not counted.",
+   "The mangrove at the end holds about 15,777 tonnes of carbon (range 12,769–18,785, ±19.1%), equal to 57,850 tonnes of CO2. The stock changed by 15,477 tonnes CO2e.",
+   "If the recent pattern continues, mangrove would be about 56.3 ha in 5 years (31.6–81.0 ha). With doubled loss it could fall to 57.0 ha; with protection and planting it could reach 58.5 ha. These are scenarios, not forecasts.",
+   "On a held-out year the classifier agreed with the reference map 94.0% of the time (kappa 0.88). Field checks are still needed before acting on specific patches."
+  ],
+  "bn": [
+   "নির্বাচিত বিন্দুর ২.০ কিমি এলাকায় (১,২৫৭ হেক্টর) শুরুতে (২০২০-০১-০১) ম্যানগ্রোভ ছিল ৪০.৮ হেক্টর (৩.৩%), শেষে (২০২৬-০৩-৩১) ৫৫.৭ হেক্টর (৪.৫%)।",
+   "৬.২ বছরে বন বেড়েছে ২.০ হেক্টর: নতুন ম্যানগ্রোভ ২.৪ হেক্টর, হারিয়েছে ০.৪ হেক্টর। আরও ০.০ হেক্টরে পরিবর্তন দেখা গেলেও মডেল নিশ্চিত নয়, তাই তা গণনায় ধরা হয়নি।",
+   "শেষে ম্যানগ্রোভে আনুমানিক ১৫,৭৭৭ টন কার্বন জমা আছে (পরিসর ১২,৭৬৯–১৮,৭৮৫, ±১৯.১%), যা ৫৭,৮৫০ টন CO২-এর সমান। মজুতের পরিবর্তন ১৫,৪৭৭ টন CO২e।",
+   "সাম্প্রতিক ধারা চললে ৫ বছরে ম্যানগ্রোভ হবে প্রায় ৫৬.৩ হেক্টর (৩১.৬–৮১.০)। ক্ষতি দ্বিগুণ হলে কমে ৫৭.০ হেক্টর হতে পারে; সুরক্ষা ও রোপণে বেড়ে ৫৮.৫ হেক্টর হতে পারে। এগুলি সম্ভাব্য চিত্র, পূর্বাভাস নয়।",
+   "আলাদা রাখা একটি বছরে মডেল রেফারেন্স মানচিত্রের সঙ্গে ৯৪.০% মিলেছে (কাপ্পা ০.৮৮)। নির্দিষ্ট জায়গায় ব্যবস্থা নেওয়ার আগে মাঠে যাচাই দরকার।"
+  ],
+  "disclaimerEn": "Indicative model estimates for monitoring and planning — not field-measured carbon and not carbon credits.",
+  "disclaimerBn": "পর্যবেক্ষণ ও পরিকল্পনার জন্য মডেল-ভিত্তিক আনুমানিক হিসাব — মাঠে মাপা কার্বন বা কার্বন ক্রেডিট নয়।",
+  "aiStatus": "not_requested"
+ },
+ "evidence": [
+  {
+   "id": "E1",
+   "metric": "mangrove_start_ha",
+   "label": "Mangrove area at start",
+   "value": 40.82,
+   "unit": "ha"
+  },
+  {
+   "id": "E2",
+   "metric": "mangrove_end_ha",
+   "label": "Mangrove area at end",
+   "value": 55.73,
+   "unit": "ha"
+  },
+  {
+   "id": "E3",
+   "metric": "mangrove_start_pct",
+   "label": "Mangrove share of area at start",
+   "value": 3.3,
+   "unit": "%"
+  },
+  {
+   "id": "E4",
+   "metric": "mangrove_end_pct",
+   "label": "Mangrove share of area at end",
+   "value": 4.5,
+   "unit": "%"
+  },
+  {
+   "id": "E5",
+   "metric": "net_change_ha",
+   "label": "Net mangrove change",
+   "value": 2.03,
+   "unit": "ha"
+  },
+  {
+   "id": "E6",
+   "metric": "gain_ha",
+   "label": "Gross mangrove gain",
+   "value": 2.44,
+   "unit": "ha"
+  },
+  {
+   "id": "E7",
+   "metric": "loss_ha",
+   "label": "Gross mangrove loss",
+   "value": 0.41,
+   "unit": "ha"
+  },
+  {
+   "id": "E8",
+   "metric": "uncertain_ha",
+   "label": "Change area too uncertain to count",
+   "value": 0.0,
+   "unit": "ha"
+  },
+  {
+   "id": "E9",
+   "metric": "carbon_end_mgc",
+   "label": "Carbon stock at end",
+   "value": 15777.2,
+   "unit": "Mg C"
+  },
+  {
+   "id": "E10",
+   "metric": "carbon_end_low_mgc",
+   "label": "Carbon stock at end, low",
+   "value": 12769.4,
+   "unit": "Mg C"
+  },
+  {
+   "id": "E11",
+   "metric": "carbon_end_high_mgc",
+   "label": "Carbon stock at end, high",
+   "value": 18784.9,
+   "unit": "Mg C"
+  },
+  {
+   "id": "E12",
+   "metric": "carbon_uncertainty_pct",
+   "label": "Carbon stock uncertainty",
+   "value": 19.1,
+   "unit": "%"
+  },
+  {
+   "id": "E13",
+   "metric": "co2e_end_mg",
+   "label": "CO2-equivalent stock at end",
+   "value": 57849.6,
+   "unit": "Mg CO2e"
+  },
+  {
+   "id": "E14",
+   "metric": "co2e_change_mg",
+   "label": "CO2-equivalent stock change",
+   "value": 15477.1,
+   "unit": "Mg CO2e"
+  },
+  {
+   "id": "E15",
+   "metric": "span_years",
+   "label": "Years between start and end",
+   "value": 6.245,
+   "unit": "years"
+  },
+  {
+   "id": "E16",
+   "metric": "aoi_area_ha",
+   "label": "Area analysed",
+   "value": 1256.64,
+   "unit": "ha"
+  },
+  {
+   "id": "E17",
+   "metric": "overall_accuracy_pct",
+   "label": "Overall accuracy on held-out year",
+   "value": 94.0,
+   "unit": "%"
+  },
+  {
+   "id": "E18",
+   "metric": "kappa",
+   "label": "Kappa on held-out year",
+   "value": 0.88,
+   "unit": ""
+  },
+  {
+   "id": "E19",
+   "metric": "proj_current_trend_ha",
+   "label": "Current trend scenario area in 5 years",
+   "value": 56.29,
+   "unit": "ha"
+  },
+  {
+   "id": "E20",
+   "metric": "proj_higher_loss_ha",
+   "label": "Higher loss scenario area in 5 years",
+   "value": 57.03,
+   "unit": "ha"
+  },
+  {
+   "id": "E21",
+   "metric": "proj_recovery_ha",
+   "label": "Recovery scenario area in 5 years",
+   "value": 58.5,
+   "unit": "ha"
+  }
+ ]
+}

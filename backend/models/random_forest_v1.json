@@ -1,0 +1,182 @@
+{
+  "modelName": "RandomForestClassifier",
+  "modelVersion": "rf-v1",
+  "featureVersion": "sentinel2-v1",
+  "classMapping": {
+    "0": "Mangrove",
+    "1": "Water",
+    "2": "Aquaculture",
+    "3": "Bare Land",
+    "4": "Other Vegetation"
+  },
+  "features": [
+    "B2",
+    "B3",
+    "B4",
+    "B8",
+    "B11",
+    "B12",
+    "NDVI",
+    "NDWI"
+  ],
+  "hyperparameters": {
+    "nEstimators": 200,
+    "randomState": 42,
+    "classWeight": "balanced",
+    "nJobs": -1
+  },
+  "trainingDataSource": "pilot_demo",
+  "totalSamples": 1250,
+  "trainingSampleCount": 937,
+  "validationSampleCount": 313,
+  "classDistribution": {
+    "Mangrove": {
+      "classId": 0,
+      "count": 250,
+      "percentage": 20.0
+    },
+    "Water": {
+      "classId": 1,
+      "count": 250,
+      "percentage": 20.0
+    },
+    "Aquaculture": {
+      "classId": 2,
+      "count": 250,
+      "percentage": 20.0
+    },
+    "Bare Land": {
+      "classId": 3,
+      "count": 250,
+      "percentage": 20.0
+    },
+    "Other Vegetation": {
+      "classId": 4,
+      "count": 250,
+      "percentage": 20.0
+    }
+  },
+  "validationMetrics": {
+    "validationStatus": "validated",
+    "sampleCount": 313,
+    "overallAccuracy": 1.0,
+    "precisionMacro": 1.0,
+    "recallMacro": 1.0,
+    "f1Macro": 1.0,
+    "f1Weighted": 1.0,
+    "confusionMatrix": {
+      "classes": [
+        "Mangrove",
+        "Water",
+        "Aquaculture",
+        "Bare Land",
+        "Other Vegetation"
+      ],
+      "matrix": [
+        [
+          63,
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          62,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          63,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          63,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          0,
+          62
+        ]
+      ]
+    },
+    "classMetrics": {
+      "Mangrove": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "support": 63
+      },
+      "Water": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "support": 62
+      },
+      "Aquaculture": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "support": 63
+      },
+      "Bare Land": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "support": 63
+      },
+      "Other Vegetation": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "support": 62
+      }
+    },
+    "featureImportances": [
+      {
+        "feature": "NDWI",
+        "importance": 0.167
+      },
+      {
+        "feature": "B12",
+        "importance": 0.1358
+      },
+      {
+        "feature": "B4",
+        "importance": 0.1313
+      },
+      {
+        "feature": "B8",
+        "importance": 0.131
+      },
+      {
+        "feature": "B11",
+        "importance": 0.1158
+      },
+      {
+        "feature": "NDVI",
+        "importance": 0.11
+      },
+      {
+        "feature": "B2",
+        "importance": 0.1099
+      },
+      {
+        "feature": "B3",
+        "importance": 0.0991
+      }
+    ]
+  },
+  "trainingTimestamp": "2026-09-20T20:04:48.857980+00:00",
+  "disclaimer": "This dataset validates the ML pipeline and software architecture; it does not establish production-level land-cover accuracy without authoritative field survey reference data."
+}

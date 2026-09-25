@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+  <meta charset="UTF-8">
+  <title>{{ report.village_name }} — সুন্দরবন ব্লু কার্বন গ্রামীণ পরিবেশগত প্রতিবেদন</title>
+  <style>
+    @page {
+      size: A4 portrait;
+      margin: 20mm;
+    }
+    body {
+      font-family: 'Helvetica Neue', 'Noto Sans Bengali', Arial, sans-serif;
+      color: #123f38;
+      background: #ffffff;
+      line-height: 1.6;
+      font-size: 10.5pt;
+    }
+    .header-table {
+      width: 100%;
+      border-bottom: 2px solid #16845f;
+      padding-bottom: 12px;
+      margin-bottom: 16px;
+    }
+    .title {
+      font-size: 18pt;
+      font-weight: bold;
+      color: #062f29;
+      margin: 0;
+    }
+    .subtitle {
+      font-size: 9pt;
+      color: #16845f;
+      font-weight: bold;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+    }
+    .data-badge {
+      display: inline-block;
+      padding: 3px 8px;
+      border-radius: 4px;
+      font-size: 8pt;
+      font-weight: bold;
+      background: #e7f4ec;
+      color: #0b5445;
+      margin-top: 4px;
+    }
+    .meta-box {
+      background: #f7faf7;
+      border: 1px solid #d6e6de;
+      border-radius: 8px;
+      padding: 12px 16px;
+      margin-bottom: 16px;
+    }
+    .kpi-grid {
+      display: table;
+      width: 100%;
+      margin-bottom: 16px;
+    }
+    .kpi-cell {
+      display: table-cell;
+      width: 33.33%;
+      background: #fcfdfc;
+      border: 1px solid #d6e6de;
+      padding: 10px;
+      text-align: center;
+    }
+    .kpi-val {
+      font-size: 15pt;
+      font-weight: bold;
+      color: #073d34;
+    }
+    .kpi-label {
+      font-size: 8.5pt;
+      color: #6c817a;
+    }
+    .section-title {
+      font-size: 12pt;
+      font-weight: bold;
+      color: #062f29;
+      border-bottom: 1px solid #d6e6de;
+      padding-bottom: 4px;
+      margin-top: 16px;
+      margin-bottom: 8px;
+    }
+    .action-card {
+      background: #f7faf7;
+      border-left: 4px solid #16845f;
+      padding: 8px 12px;
+      margin-bottom: 8px;
+      border-radius: 0 6px 6px 0;
+    }
+    .disclaimer {
+      font-size: 7.5pt;
+      color: #6c817a;
+      margin-top: 24px;
+      border-top: 1px solid #e2e8f0;
+      padding-top: 8px;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+  <div class="header-table">
+    <div class="subtitle">SUNDARBAN BLUE CARBON · গ্রামীণ পরিবেশগত মূল্যায়ন</div>
+    <div class="title">{{ report.bengali_village_name }} ({{ report.village_name }})</div>
+    <div style="font-size: 8.5pt; color: #6c817a; margin-top: 4px;">
+      অঞ্চল: {{ report.region }} · পর্যবেক্ষণকাল: {{ report.period }} · তারিখ: {{ report.report_date }}
+    </div>
+    <div class="data-badge">
+      উৎস: সেন্টিনেল-২ উপগ্রহ তথ্য ও র্যান্ডম ফরেস্ট শ্রেণিবিন্যাস (টিয়ার-১ মডেল)
+    </div>
+  </div>
+
+  <div class="meta-box">
+    <strong>সারাংশ (Executive Summary):</strong>
+    <p style="margin: 6px 0 0 0;">{{ report.summary_text }}</p>
+  </div>
+
+  <div class="kpi-grid">
+    <div class="kpi-cell">
+      <div class="kpi-val">{{ report.land_cover_findings.mangrove_area_ha }} ha</div>
+      <div class="kpi-label">ম্যানগ্রোভ আচ্ছাদন ({{ report.land_cover_findings.mangrove_percentage }}%)</div>
+    </div>
+    <div class="kpi-cell">
+      <div class="kpi-val">+{{ report.change_findings.net_change_ha }} ha</div>
+      <div class="kpi-label">৫-বছরের নেট পরিবর্তন</div>
+    </div>
+    <div class="kpi-cell">
+      <div class="kpi-val">{{ "{:,.0f}".format(report.carbon_estimate.estimated_tons) }} tCO₂e</div>
+      <div class="kpi-label">মডেল-ভিত্তিক আনুমানিক কার্বন</div>
+    </div>
+  </div>
+
+  <div class="section-title">
+    মূল পর্যবেক্ষণ ও গতিশীলতা (Key Observations & Dynamics)
+  </div>
+  <ul>
+    {% for obs in report.key_observations %}
+    <li style="margin-bottom: 6px;"><strong>{{ obs.title }}:</strong> {{ obs.detail }}</li>
+    {% endfor %}
+  </ul>
+
+  <div class="section-title">
+    সুপারিশকৃত পদক্ষেপ (Recommended Stakeholder Considerations)
+  </div>
+  {% for action in report.recommended_actions %}
+  <div class="action-card">
+    <strong>{{ action.title }}</strong> <span style="font-size: 8pt; color: #16845f;">[অগ্রাধিকার: {{ action.priority|upper }} | দায়িত্বপ্রাপ্ত: {{ action.stakeholder|upper }}]</span>
+    <div style="font-size: 9.5pt; margin-top: 3px;">{{ action.description }}</div>
+  </div>
+  {% endfor %}
+
+  <div class="disclaimer">
+    সুন্দরবন ব্লু কার্বন · এই ফলাফলগুলি স্যাটেলাইট/ভূ-স্থানিক শ্রেণিবিন্যাস এবং প্রকাশিত কার্বন ফ্যাক্টরের ভিত্তিতে তৈরি মডেল-ভিত্তিক পরিবেশগত অনুমান। মাঠ পর্যায়ে যাচাইকৃত কার্বন পরিমাপ, প্রত্যয়িত কার্বন ক্রেডিট বা নিশ্চিত আর্থিক আয় হিসেবে বিবেচনা করা যাবে না।
+  </div>
+</body>
+</html>
