@@ -61,7 +61,7 @@ CGMD history and map layers are left empty rather than invented.
   - Stock: `u_C/C = √(u_area² + u_factor²)`, factor ±18 % → ±18.3 % by default.
   - Change: `u_Δarea = √(uncertain_ha² + (u_area·(gain+loss))²)`, `u_ΔC = √((D·u_Δarea)² + (u_factor·ΔC)²)`.
 - **Scenarios** (`analysis/projection.py`), 1–5 years from the end date, clamped to [0, AOI area]:
-  - *Current trend*: least-squares slope through all windows, band ±1.96·SE·h.
+  - *Current trend*: start→end yearly rate (same basis as the headline), band ±1.96·SE·h using the least-squares slope error; the fitted slope is reported as `fittedTrendHaPerYear`.
   - *Higher loss*: trend minus one more observed loss rate (loss doubles).
   - *Recovery*: trend plus half the loss rate and half the gain rate. What-ifs are offsets from the trend, so they never cross it.
   - What-if bands add ±25 % of the assumed change; all bands add the end-area measurement error.

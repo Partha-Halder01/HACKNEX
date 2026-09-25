@@ -70,13 +70,18 @@ export function Card({
   return (
     <section
       className={cn(
-        'rounded-2xl border border-[#d6e6de] bg-white p-4 sm:p-5 shadow-[0_4px_16px_rgba(7,61,52,0.04)] break-inside-avoid',
+        'glass-panel rounded-2xl p-4 sm:p-5.5 transition-all duration-300 hover:shadow-[0_12px_36px_rgba(7,61,52,0.08)] break-inside-avoid relative overflow-hidden',
         className,
       )}
     >
+      <div className="absolute top-0 right-0 h-16 w-16 bg-gradient-to-bl from-emerald-500/5 to-transparent pointer-events-none rounded-tr-2xl" />
       {(title || right) && (
-        <header className="mb-3 flex flex-wrap items-center justify-between gap-2">
-          {title && <h2 className="text-sm font-bold tracking-tight text-[#123f38]">{title}</h2>}
+        <header className="mb-3.5 flex flex-wrap items-center justify-between gap-2 border-b border-[#e5efe9]/80 pb-2.5">
+          {title && (
+            <h2 className="font-display text-base font-bold tracking-tight text-[#123f38] flex items-center gap-2">
+              {title}
+            </h2>
+          )}
           {right}
         </header>
       )}
@@ -101,13 +106,14 @@ export function Kpi({
   const accent =
     tone === 'red' ? 'text-[#dc2626]' : tone === 'blue' ? 'text-[#2563eb]' : tone === 'neutral' ? 'text-[#123f38]' : 'text-[#16865f]'
   return (
-    <article className="rounded-2xl border border-[#d6e6de] bg-white p-4 shadow-[0_4px_16px_rgba(7,61,52,0.04)]">
-      <p className="text-[11px] font-bold uppercase tracking-wider text-[#6c817a]">{label}</p>
-      <p className={cn('mt-1 font-display text-2xl font-extrabold font-tabular', accent)}>
+    <article className="glass-panel group relative rounded-2xl p-4.5 transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_12px_32px_rgba(7,61,52,0.08)]">
+      <div className="absolute top-0 left-0 right-0 h-0.5 bg-gradient-to-r from-emerald-500/0 via-emerald-500/30 to-emerald-500/0 opacity-0 group-hover:opacity-100 transition-opacity" />
+      <p className="font-mono text-[10.5px] font-semibold uppercase tracking-wider text-[#6c817a]">{label}</p>
+      <p className={cn('mt-1.5 font-display text-2xl font-extrabold font-tabular tracking-tight', accent)}>
         {value}
         {unit && <span className="ml-1 text-sm font-semibold text-[#6c817a]">{unit}</span>}
       </p>
-      {detail && <p className="mt-1 text-xs text-[#6c817a]">{detail}</p>}
+      {detail && <div className="mt-1.5 text-xs text-[#526a63]">{detail}</div>}
     </article>
   )
 }
@@ -115,12 +121,13 @@ export function Kpi({
 export function Badge({ tone, children }: { tone: 'live' | 'demo' | 'info'; children: ReactNode }) {
   const cls =
     tone === 'live'
-      ? 'bg-[#dcfce7] text-[#166534] border-[#86efac]'
+      ? 'bg-[#dcfce7] text-[#166534] border-[#86efac]/80 shadow-[0_0_12px_rgba(34,197,94,0.15)]'
       : tone === 'demo'
-      ? 'bg-[#fef3c7] text-[#92400e] border-[#fcd34d]'
-      : 'bg-[#eff6ff] text-[#1e40af] border-[#bfdbfe]'
+      ? 'bg-[#fef3c7] text-[#92400e] border-[#fcd34d]/80'
+      : 'bg-[#eff6ff] text-[#1e40af] border-[#bfdbfe]/80'
   return (
-    <span className={cn('inline-flex items-center gap-1 rounded-full border px-2.5 py-0.5 text-[11px] font-bold', cls)}>
+    <span className={cn('inline-flex items-center gap-1.5 rounded-full border px-2.5 py-0.5 font-mono text-[11px] font-bold tracking-tight', cls)}>
+      {tone === 'live' && <span className="size-1.5 rounded-full bg-[#16a34a] beacon-pulse inline-block" />}
       {children}
     </span>
   )

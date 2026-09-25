@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { Circle, CircleMarker, MapContainer, TileLayer, useMap, useMapEvents } from 'react-leaflet'
+import { Compass, Crosshair, Layers, MapPin } from 'lucide-react'
 import type { AnalysisBundle } from '../../types/analysis'
 import type { Lang } from './ui'
 import { t } from './ui'
@@ -7,10 +8,10 @@ import { t } from './ui'
 type Overlay = 'none' | 'trueColorEnd' | 'classStart' | 'classEnd' | 'change'
 
 const OVERLAY_LABELS: Record<Exclude<Overlay, 'none'>, { en: string; bn: string }> = {
-  trueColorEnd: { en: 'Satellite (end)', bn: 'উপগ্রহ ছবি (শেষ)' },
-  classStart: { en: 'Mangrove map (start)', bn: 'ম্যানগ্রোভ মানচিত্র (শুরু)' },
-  classEnd: { en: 'Mangrove map (end)', bn: 'ম্যানগ্রোভ মানচিত্র (শেষ)' },
-  change: { en: 'Gain / loss', bn: 'বৃদ্ধি / ক্ষতি' },
+  trueColorEnd: { en: 'Photo from space (latest)', bn: 'মহাকাশ থেকে ছবি (সর্বশেষ)' },
+  classStart: { en: 'Forest then (green)', bn: 'তখনকার বন (সবুজ)' },
+  classEnd: { en: 'Forest now (green)', bn: 'এখনকার বন (সবুজ)' },
+  change: { en: 'Where forest changed', bn: 'কোথায় বন বদলেছে' },
 }
 
 function ClickToMove({ onPick }: { onPick: (lat: number, lon: number) => void }) {
@@ -66,7 +67,10 @@ export function LocationMap({
   const overlayUrl = analysed && overlay !== 'none' ? tiles?.[overlay] : undefined
 
   return (
-    <div className="relative h-[340px] sm:h-[440px] overflow-hidden rounded-2xl border border-[#d6e6de]">
+    <div className="hud-corner group relative h-[360px] sm:h-[460px] overflow-hidden rounded-2xl border border-[#c4ded2] shadow-[0_8px_30px_rgba(7,61,52,0.06)]">
+      {/* Sci-fi corner brackets */}
+      <div className="pointer-events-none absolute inset-0 z-[500] border-2 border-emerald-600/10 rounded-2xl" />
+
       <MapContainer center={[lat, lon]} zoom={12} minZoom={5} maxZoom={17} scrollWheelZoom={false} className="h-full w-full">
         {base === 'satellite' ? (
           <TileLayer
@@ -83,47 +87,63 @@ export function LocationMap({
         <Circle
           center={[lat, lon]}
           radius={radiusKm * 1000}
-          pathOptions={{ color: '#facc15', weight: 2, fillOpacity: overlayUrl ? 0 : 0.08 }}
+          pathOptions={{ color: '#10b981', weight: 2.5, dashArray: '6 6', fillOpacity: overlayUrl ? 0 : 0.12 }}
         />
-        <CircleMarker center={[lat, lon]} radius={6} pathOptions={{ color: '#ffffff', weight: 2, fillColor: '#16865f', fillOpacity: 1 }} />
+        <CircleMarker center={[lat, lon]} radius={7} pathOptions={{ color: '#ffffff', weight: 2.5, fillColor: '#16865f', fillOpacity: 1 }} />
         <ClickToMove onPick={onPick} />
         <Recenter lat={lat} lon={lon} radiusKm={radiusKm} />
       </MapContainer>
 
-      <div className="pointer-events-none absolute right-3 top-3 z-[500] rounded-lg bg-white/90 px-2.5 py-1 text-[11px] font-semibold text-[#123f38] shadow">
+      {/* Top Telemetry HUD Pill */}
+      <div className="pointer-events-none absolute left-3 top-3 z-[500] flex items-center gap-2 rounded-xl bg-[#062f29]/90 px-3 py-1.5 backdrop-blur-md border border-emerald-500/30 text-white shadow-lg">
+        <span className="size-2 rounded-full bg-emerald-400 beacon-pulse" />
+        <span className="font-mono text-[11px] font-semibold tracking-wider text-emerald-200">
+          {lat >= 0 ? `${lat.toFixed(4)}°N` : `${Math.abs(lat).toFixed(4)}°S`} · {lon >= 0 ? `${lon.toFixed(4)}°E` : `${Math.abs(lon).toFixed(4)}°W`}
+        </span>
+        <span className="text-[10px] text-emerald-400/80 font-mono">[{radiusKm}km AOI]</span>
+      </div>
+
+      <div className="pointer-events-none absolute right-3 top-3 z-[500] hidden sm:flex items-center gap-1.5 rounded-xl bg-white/90 px-2.5 py-1 text-[11px] font-semibold text-[#123f38] shadow backdrop-blur-sm border border-[#d6e6de]">
+        <Crosshair className="size-3 text-[#16865f]" />
         {t('clickMap', lang)}
       </div>
 
-      <div className="absolute bottom-3 left-3 z-[500] flex flex-wrap gap-1.5 print:hidden">
+      {/* Bottom Floating Control Deck */}
+      <div className="absolute bottom-3 left-3 z-[500] flex flex-wrap items-center gap-2 print:hidden">
         <button
           type="button"
           onClick={() => setBase(base === 'satellite' ? 'streets' : 'satellite')}
-          className="rounded-lg bg-white/95 px-2.5 py-1 text-[11px] font-bold text-[#123f38] shadow hover:bg-white"
+          className="flex items-center gap-1.5 rounded-xl bg-white/95 px-3 py-1.5 text-xs font-bold text-[#123f38] shadow-md border border-[#d6e6de] hover:bg-white hover:border-[#16865f] transition-colors"
         >
+          <Compass className="size-3.5 text-[#16865f]" />
           {base === 'satellite' ? (lang === 'bn' ? 'রাস্তার মানচিত্র' : 'Streets') : lang === 'bn' ? 'উপগ্রহ' : 'Satellite'}
         </button>
+
         {analysed && available.length > 0 && (
-          <select
-            value={overlay}
-            onChange={(e) => setOverlay(e.target.value as Overlay)}
-            className="rounded-lg bg-white/95 px-2 py-1 text-[11px] font-bold text-[#123f38] shadow"
-            aria-label="Map layer"
-          >
-            <option value="none">{lang === 'bn' ? 'কোনো স্তর নয়' : 'No layer'}</option>
-            {available.map((k) => (
-              <option key={k} value={k}>
-                {OVERLAY_LABELS[k][lang]}
-              </option>
-            ))}
-          </select>
+          <div className="flex items-center gap-1.5 rounded-xl bg-white/95 px-2.5 py-1 text-xs font-bold text-[#123f38] shadow-md border border-[#d6e6de]">
+            <Layers className="size-3.5 text-[#16865f]" />
+            <select
+              value={overlay}
+              onChange={(e) => setOverlay(e.target.value as Overlay)}
+              className="bg-transparent text-xs font-bold text-[#123f38] focus:outline-none cursor-pointer"
+              aria-label="Map layer"
+            >
+              <option value="none">{lang === 'bn' ? 'কোনো স্তর নয়' : 'No layer'}</option>
+              {available.map((k) => (
+                <option key={k} value={k}>
+                  {OVERLAY_LABELS[k][lang]}
+                </option>
+              ))}
+            </select>
+          </div>
         )}
       </div>
 
       {overlayUrl && overlay === 'change' && (
-        <div className="absolute bottom-3 right-3 z-[500] rounded-lg bg-white/95 px-2.5 py-1.5 text-[11px] text-[#123f38] shadow">
-          <span className="mr-2"><span className="mr-1 inline-block size-2.5 rounded-sm bg-[#22c55e]" />{t('gain', lang)}</span>
-          <span className="mr-2"><span className="mr-1 inline-block size-2.5 rounded-sm bg-[#ef4444]" />{t('loss', lang)}</span>
-          <span><span className="mr-1 inline-block size-2.5 rounded-sm bg-[#f59e0b]" />{t('uncertain', lang)}</span>
+        <div className="absolute bottom-3 right-3 z-[500] flex items-center gap-3 rounded-xl bg-[#062f29]/95 px-3 py-1.5 font-mono text-[11px] text-white shadow-lg backdrop-blur border border-emerald-500/30">
+          <span className="flex items-center gap-1"><span className="size-2 rounded-full bg-[#22c55e]" />{lang === 'bn' ? 'নতুন বন' : 'New'}</span>
+          <span className="flex items-center gap-1"><span className="size-2 rounded-full bg-[#ef4444]" />{lang === 'bn' ? 'ক্ষতি' : 'Loss'}</span>
+          <span className="flex items-center gap-1"><span className="size-2 rounded-full bg-[#f59e0b]" />{lang === 'bn' ? 'অনিশ্চিত' : 'Uncertain'}</span>
         </div>
       )}
     </div>

@@ -85,7 +85,14 @@ def templated_narrative(bundle: Dict[str, Any]) -> Dict[str, Any]:
     hl = proj["higher_loss"]["points"][-1]
     rec = proj["recovery"]["points"][-1]
 
+    rel = bundle.get("reliability") or {}
+    unreliable = rel.get("level") == "low"
+    reasons_en = " ".join(p["en"] for p in rel.get("problems", []) if p["severity"] == "high")
+    reasons_bn = " ".join(p["bn"] for p in rel.get("problems", []) if p["severity"] == "high")
+
     en: List[str] = []
+    if unreliable:
+        en.append(f"Caution: these results are NOT reliable. {reasons_en}")
     if demo:
         en.append("Demo data: Earth Engine is not connected, so the numbers below are synthetic and only show how the analysis works.")
     en.append(
@@ -117,6 +124,8 @@ def templated_narrative(bundle: Dict[str, Any]) -> Dict[str, Any]:
         en.append("Classifier accuracy is not available for this run; treat the numbers as indicative.")
 
     bn_parts: List[str] = []
+    if unreliable:
+        bn_parts.append(f"সতর্কতা: এই ফলাফল নির্ভরযোগ্য নয়। {reasons_bn}")
     if demo:
         bn_parts.append("ডেমো তথ্য: আর্থ ইঞ্জিন যুক্ত নেই, তাই নিচের সংখ্যাগুলি কৃত্রিম — শুধু বিশ্লেষণ কীভাবে কাজ করে তা দেখানোর জন্য।")
     bn_parts.append(bn(
@@ -211,10 +220,12 @@ def _gemini_rewrite(bundle: Dict[str, Any], evidence: List[Dict[str, Any]]) -> O
         "You explain mangrove monitoring results to village councils in the Sundarbans.\n"
         "Use ONLY the numbers in the evidence list; do not compute or invent any number. "
         "Never claim carbon credits, revenue, exact measurement, or confirmed causes. "
-        "Say scenarios are not forecasts. If isRealData is false, say clearly it is demo data.\n"
+        "Say scenarios are not forecasts. If isRealData is false, say clearly it is demo data. "
+        "If reliability.level is low, begin by saying the results are not reliable and why.\n"
         "Return JSON: {\"en\": [4-6 short paragraphs], \"bn\": [same in simple Bengali], "
         "\"evidenceReferences\": [ids used]}.\n\n"
         f"isRealData: {bundle['dataSource']['isRealData']}\n"
+        f"reliability: {json.dumps(bundle.get('reliability'), ensure_ascii=False)}\n"
         f"period: {bundle['request']['startDate']} to {bundle['request']['endDate']}\n"
         f"evidence: {json.dumps(evidence, ensure_ascii=False)}"
     )

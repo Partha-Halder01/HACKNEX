@@ -224,6 +224,12 @@ export interface AnalysisBundle {
     aiIssues?: string[]
   }
   evidence: { id: string; metric: string; label: string; value: number; unit: string }[]
+  reliability: Reliability
+}
+
+export interface Reliability {
+  level: 'high' | 'medium' | 'low' | 'demo'
+  problems: { id: string; severity: 'high' | 'medium'; en: string; bn: string }[]
 }
 
 export interface FieldPoint {

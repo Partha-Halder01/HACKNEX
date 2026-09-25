@@ -391,3 +391,38 @@ def test_api_field_points_roundtrip(monkeypatch, tmp_path):
     listed = client.get("/api/analysis/field-points").json()
     assert listed[0]["note"] == "dense Avicennia"
 
+
+
+# --------------------------------------------------------------------------- #
+# Reliability ("how sure are we?")
+# --------------------------------------------------------------------------- #
+from app.analysis.reliability import assess  # noqa: E402
+
+
+def _real_bundle(start_ha=700.0, end_ha=705.0, images=(20, 20), agrees=True, oa=0.93):
+    return {
+        "dataSource": {"isRealData": True},
+        "timeline": [{"imageCount": images[0]}, {"imageCount": images[1]}],
+        "summary": {"start": {"mangroveHa": start_ha}, "end": {"mangroveHa": end_ha}},
+        "change": {"percentChange": round(100 * (end_ha - start_ha) / start_ha, 1)},
+        "accuracy": {"overallAccuracy": oa, "areaCheck": {"agrees": agrees}},
+    }
+
+
+def test_reliability_levels():
+    assert assess(_req(), _real_bundle())["level"] == "high"
+    # different seasons -> low, with a plain reason
+    low = assess(_req(end_date=date(2022, 7, 8)), _real_bundle())
+    assert low["level"] == "low" and low["problems"][0]["id"] == "season"
+    # model disagrees with reference map -> low
+    assert assess(_req(), _real_bundle(agrees=False))["level"] == "low"
+    # few images or very fast change -> medium
+    assert assess(_req(), _real_bundle(images=(4, 20)))["level"] == "medium"
+    assert assess(_req(), _real_bundle(end_ha=300.0))["level"] == "medium"
+
+
+def test_demo_bundle_has_demo_reliability_and_low_warns_in_text():
+    b = run_analysis(_req())
+    assert b["reliability"]["level"] == "demo"
+    b2 = run_analysis(_req(end_date=date(2024, 7, 31)))
+    assert b2["reliability"]["level"] == "demo"

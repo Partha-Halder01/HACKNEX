@@ -12,6 +12,7 @@ from . import demo_engine
 from .carbon import area_uncertainty_pct, carbon_change, carbon_stock, methodology as carbon_methodology
 from .narrative import build_narrative
 from .projection import project_scenarios
+from .reliability import assess as assess_reliability
 from .request import (
     MAX_RADIUS_KM,
     MAX_WINDOW_DAYS,
@@ -28,7 +29,8 @@ logger = logging.getLogger("sundarban.analysis.service")
 _cache: "OrderedDict[str, Dict[str, Any]]" = OrderedDict()
 _cache_lock = threading.Lock()
 
-DEFAULT_POINT = {"lat": 22.165, "lon": 88.805, "name": "Gosaba"}
+# Forest default: near villages (e.g. Gosaba, 22.165/88.805) the model over-counts mangrove.
+DEFAULT_POINT = {"lat": 22.1, "lon": 88.85, "name": "Sajnekhali forest"}
 
 
 def _gee_ready() -> Tuple[bool, str, Optional[str]]:
@@ -56,7 +58,7 @@ def analysis_capabilities() -> Dict[str, Any]:
         },
         "defaults": {
             **DEFAULT_POINT,
-            "radiusKm": 3.0,
+            "radiusKm": 2.0,
             "startDate": "2020-01-01",
             # Latest completed Jan–Mar dry season, to match the start season.
             "endDate": date(today.year if today >= date(today.year, 3, 31) else today.year - 1, 3, 31).isoformat(),
@@ -141,7 +143,7 @@ def build_bundle(req: AnalysisRequest, obs: Dict[str, Any], warnings: List[str])
     )
 
     real = bool(obs["isRealData"])
-    return {
+    bundle = {
         "request": req.to_dict(),
         "dataSource": {
             "id": obs["dataSource"],
@@ -172,6 +174,8 @@ def build_bundle(req: AnalysisRequest, obs: Dict[str, Any], warnings: List[str])
             "scaleM": req.scale_m,
         },
     }
+    bundle["reliability"] = assess_reliability(req, bundle)
+    return bundle
 
 
 def run_analysis(req: AnalysisRequest) -> Dict[str, Any]:
