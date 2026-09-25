@@ -8,12 +8,18 @@ over the empty left side of each frame.
 | # | Clip | Project stage it explains | Status |
 |---|------|---------------------------|--------|
 | 1 | Tree → dive into water (10s) | Hero / intro | ✅ Done (`gemini_generated_video_8a2eed7f.mp4`, used from 1.5s, after the labels fade) |
-| 2 | Satellite scan beam (8s) | Sentinel-2 imagery + Random Forest 5-class classification | ⏳ |
+| 2 | Satellite scan beam (10s) | Sentinel-2 imagery + Random Forest 5-class classification | ✅ Done (`gemini_generated_video_d1ba5ad8.mp4` = clip 1 + clip 2 extended, 20s, seamless at 10s) |
 | 3 | Roots grow & fade (8s) | Change detection 2020 → now (gain / loss) | ⏳ |
 | 4 | Carbon sinks into seabed layers (8s) | IPCC Tier 1 blue carbon (AGB → BGB → SOC) | ⏳ |
 | 5 | Particles form a delta map, rise to surface (8s) | Gemini AI insights + community reports → CTA | ⏳ |
 
 ## Rules for every clip (important)
+
+**Best method: Gemini's "Extend" feature.** Clip 2 was made by extending clip 1,
+so the result is one continuous 20s video with a perfect join. Keep doing this:
+open the latest video in Gemini, choose Extend, and paste the next clip's
+prompt. The final result is one ~40–50s video. If Extend isn't available, use
+the starting-frame method below with `docs/clip2-last-frame.png`.
 
 1. **Chain the clips.** For every clip, attach the **last frame of the previous
    clip** as the starting image. For clip 2, use `docs/clip1-last-frame.png`.
