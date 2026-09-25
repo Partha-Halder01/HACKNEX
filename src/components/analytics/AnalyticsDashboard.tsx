@@ -25,6 +25,7 @@ import { LocationMap } from './LocationMap'
 import { CarbonPanel, ChangeBreakdown, ScenarioChart, ScenarioTable, TimelineChart } from './charts'
 import { AccuracyPanel, MethodPanel, NarrativePanel } from './panels'
 import { AnswerCard, FutureBoxes, SimpleCards, YearsChart } from './SimpleView'
+import { OrbitalRadarHUD } from './AnimatedWidgets'
 import { Badge, Card, fmt, t, type Lang } from './ui'
 
 // Forest spots first: near villages the model over-counts mangrove (see the reliability check).
@@ -410,6 +411,10 @@ export function AnalyticsDashboard({ onNavigate }: { onNavigate?: (path: string)
 
       {/* Main Content Area - Widescreen Utilized */}
       <main className="relative z-10 mx-auto max-w-[1720px] space-y-6 px-4 sm:px-6 lg:px-8 xl:px-12 py-5 sm:py-7">
+        {/* Ambient atmospheric background glows */}
+        <div className="ambient-glow-emerald -top-24 -left-48" />
+        <div className="ambient-glow-teal top-[450px] -right-48" />
+
         {/* SECTION 1: HERO COCKPIT & MISSION CONTROL */}
         <section id="cockpit" className="scroll-mt-20 space-y-4">
           {/* Eye-Catching Mission Hero Banner with Bebas Neue & Montserrat Font Pairing */}
@@ -445,6 +450,16 @@ export function AnalyticsDashboard({ onNavigate }: { onNavigate?: (path: string)
                   : 'ORBITAL MULTISPECTRAL VERIFICATION · BLUE CARBON SEQUESTRATION · ECOSYSTEM RESILIENCE'}
               </p>
             </div>
+          </div>
+
+          {/* Animated Orbital Radar Telemetry HUD */}
+          <div className="print:hidden">
+            <OrbitalRadarHUD
+              lat={params.lat}
+              lon={params.lon}
+              radiusKm={params.radiusKm}
+              lang={lang}
+            />
           </div>
 
           {/* Widescreen Cockpit: Map & Controls with Wide Screen Utilization */}
@@ -746,8 +761,18 @@ export function AnalyticsDashboard({ onNavigate }: { onNavigate?: (path: string)
 
             {/* SECTION 4: ANNUAL DYNAMICS & 5-YEAR PROJECTIONS */}
             <div id="trends" className="scroll-mt-28 space-y-3">
-              <div className="grid gap-4 lg:grid-cols-2">
-                <Card title={bn ? 'প্রতি বছর কতটা বন' : 'Annual Mangrove Canopy Area'}>
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="font-light-sub text-[11px] font-bold tracking-[0.22em] text-[#6c817a]">
+                    {bn ? 'কালক্রমিক ও ভবিষ্যৎ পূর্বাভাস' : 'TEMPORAL DYNAMICS & HORIZON SCENARIOS'}
+                  </p>
+                  <h3 className="font-condensed text-2xl sm:text-3xl font-bold tracking-wide text-[#0f352e]">
+                    {bn ? 'বার্ষিক বন পরিবর্তন ও ৫ বছরের সম্ভাব্য চিত্র' : 'ANNUAL CANOPY EVOLUTION & 5-YEAR PROJECTIONS'}
+                  </h3>
+                </div>
+              </div>
+              <div className="grid gap-5 lg:grid-cols-2">
+                <Card title={bn ? 'বার্ষিক ম্যানগ্রোভ আয়তন' : 'Annual Mangrove Canopy Area'}>
                   <YearsChart bundle={b} lang={lang} />
                 </Card>
                 <Card title={bn ? 'আগামী ৫ বছরের প্রক্ষেপণ চিত্র' : 'Next 5-Year Horizon Scenarios'}>
@@ -758,7 +783,17 @@ export function AnalyticsDashboard({ onNavigate }: { onNavigate?: (path: string)
 
             {/* SECTION 5: COMMUNITY NARRATIVE */}
             <div id="narrative" className="scroll-mt-28 space-y-3">
-              <Card title={bn ? 'সহজ কথায় পরিবেশ বিবরণী' : 'Plain-Language Narrative Summary'}>
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="font-light-sub text-[11px] font-bold tracking-[0.22em] text-[#6c817a]">
+                    {bn ? 'সহজ কথায় পরিবেশ প্রতিবেদন' : 'COMMUNITY INTELLIGENCE REPORT'}
+                  </p>
+                  <h3 className="font-condensed text-2xl sm:text-3xl font-bold tracking-wide text-[#0f352e]">
+                    {bn ? 'ম্যানগ্রোভ ও জলবায়ু প্রভাব বিবরণী' : 'PLAIN-LANGUAGE ECOSYSTEM NARRATIVE'}
+                  </h3>
+                </div>
+              </div>
+              <Card>
                 <NarrativePanel
                   bundle={b}
                   lang={lang}

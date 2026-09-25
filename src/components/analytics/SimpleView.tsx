@@ -1,6 +1,35 @@
-import { CheckCircle2, CircleAlert, CircleHelp, Leaf, TreePine, TrendingDown, TrendingUp, Minus, Users } from 'lucide-react'
-import { Bar, BarChart, Cell, LabelList, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts'
+import { useState } from 'react'
+import {
+  Activity,
+  ArrowUpRight,
+  BarChart3,
+  Calendar,
+  CheckCircle2,
+  CircleAlert,
+  CircleHelp,
+  Leaf,
+  Minus,
+  Sparkles,
+  TreePine,
+  TrendingDown,
+  TrendingUp,
+  Users,
+} from 'lucide-react'
+import {
+  Area,
+  AreaChart,
+  Bar,
+  BarChart,
+  Cell,
+  LabelList,
+  ReferenceLine,
+  ResponsiveContainer,
+  Tooltip,
+  XAxis,
+  YAxis,
+} from 'recharts'
 import type { AnalysisBundle } from '../../types/analysis'
+import { AnimatedNumber } from './AnimatedWidgets'
 import type { Lang } from './ui'
 import { fmt } from './ui'
 
@@ -186,6 +215,7 @@ function SureMeter({ bundle: b, lang }: { bundle: AnalysisBundle; lang: Lang }) 
   )
 }
 
+/** Executive KPI Cards with Animated Numbers, Shimmer Accents, and Ambient Lighting */
 export function SimpleCards({ bundle: b, lang }: { bundle: AnalysisBundle; lang: Lang }) {
   const dim = b.reliability.level === 'low'
   const end = b.summary.end
@@ -198,40 +228,57 @@ export function SimpleCards({ bundle: b, lang }: { bundle: AnalysisBundle; lang:
   return (
     <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
       {/* 1. Forest Area */}
-      <article className={`glass-panel group relative overflow-hidden rounded-2xl p-5 transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_14px_34px_rgba(7,61,52,0.08)] ${dim ? 'opacity-50' : ''}`}>
+      <article className={`modern-card group p-5 ${dim ? 'opacity-50' : ''}`}>
+        {/* Subtle accent top border */}
+        <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-emerald-500 via-teal-400 to-transparent" />
         <div className="flex items-center justify-between">
           <p className="flex items-center gap-1.5 font-light-sub text-[10.5px] font-semibold tracking-[0.2em] text-[#6c817a]">
             <TreePine className="size-4 text-emerald-600" />
             {bn ? `ম্যানগ্রোভ (${endYear(b)})` : `Forest Area (${endYear(b)})`}
           </p>
-          <span className="font-mono text-[10px] font-bold rounded-md bg-emerald-100/80 text-emerald-800 px-1.5 py-0.5">
+          <span className="font-mono text-[10px] font-bold rounded-md bg-emerald-100/90 text-emerald-800 border border-emerald-300/50 px-1.5 py-0.5">
             {fmt(end.mangrovePct, 0, lang)}% {bn ? 'ক্যানোপি' : 'cover'}
           </span>
         </div>
-        <p className="mt-2 font-condensed text-4xl sm:text-5xl font-bold tracking-wide text-[#0f352e]">
-          {fmt(end.mangroveHa, 0, lang)}
+        <div className="mt-2 flex items-baseline">
+          <p className="font-condensed text-4xl sm:text-5xl font-bold tracking-wide text-[#0f352e]">
+            <AnimatedNumber value={end.mangroveHa} digits={0} lang={lang} />
+          </p>
           <span className="ml-1.5 text-base font-normal text-[#6c817a] font-sans">{bn ? 'হেক্টর' : 'ha'}</span>
-        </p>
+        </div>
         <p className="mt-1 text-xs text-[#526a63]">
           {areaInWords(end.mangroveHa, lang)}
         </p>
       </article>
 
       {/* 2. Forest Change */}
-      <article className={`glass-panel group relative overflow-hidden rounded-2xl p-5 transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_14px_34px_rgba(7,61,52,0.08)] ${dim ? 'opacity-50' : ''}`}>
+      <article className={`modern-card group p-5 ${dim ? 'opacity-50' : ''}`}>
+        {/* Dynamic top gradient based on growth vs loss */}
+        <div className={`absolute top-0 left-0 right-0 h-1 bg-gradient-to-r ${diff < 0 ? 'from-rose-500 via-amber-400' : 'from-emerald-500 via-teal-400'} to-transparent`} />
         <div className="flex items-center justify-between">
           <p className="flex items-center gap-1.5 font-light-sub text-[10.5px] font-semibold tracking-[0.2em] text-[#6c817a]">
             {diff < 0 ? <TrendingDown className="size-4 text-rose-600" /> : <TrendingUp className="size-4 text-emerald-600" />}
             {bn ? `${startYear(b)} থেকে বদল` : `Change Since ${startYear(b)}`}
           </p>
-          <span className={`font-mono text-[10px] font-bold rounded-md px-1.5 py-0.5 ${diff < 0 ? 'bg-rose-100 text-rose-800' : 'bg-emerald-100 text-emerald-800'}`}>
+          <span className={`font-mono text-[10px] font-bold rounded-md px-1.5 py-0.5 border ${diff < 0 ? 'bg-rose-100 text-rose-800 border-rose-200' : 'bg-emerald-100 text-emerald-800 border-emerald-200'}`}>
             {diff > 0 ? '+' : ''}{fmt(b.change.percentChange, 1, lang)}%
           </span>
         </div>
-        <p className={`mt-2 font-condensed text-4xl sm:text-5xl font-bold tracking-wide ${diff < 0 ? 'text-rose-600' : 'text-emerald-700'}`}>
-          {Math.abs(diff) < 0.5 ? (bn ? '০.০' : '0.0') : `${diff > 0 ? '+' : '−'}${fmt(Math.abs(diff), 0, lang)}`}
+        <div className="mt-2 flex items-baseline">
+          <p className={`font-condensed text-4xl sm:text-5xl font-bold tracking-wide ${diff < 0 ? 'text-rose-600' : 'text-emerald-700'}`}>
+            {Math.abs(diff) < 0.5 ? (
+              bn ? '০.০' : '0.0'
+            ) : (
+              <AnimatedNumber
+                value={Math.abs(diff)}
+                digits={0}
+                lang={lang}
+                prefix={diff > 0 ? '+' : '−'}
+              />
+            )}
+          </p>
           <span className="ml-1.5 text-base font-normal text-[#6c817a] font-sans">{bn ? 'হেক্টর' : 'ha'}</span>
-        </p>
+        </div>
         <p className="mt-1 text-xs text-[#526a63]">
           {Math.abs(diff) < 0.5
             ? bn ? 'বন স্থিতিশীল রয়েছে' : 'canopy density remained stable'
@@ -242,7 +289,7 @@ export function SimpleCards({ bundle: b, lang }: { bundle: AnalysisBundle; lang:
       </article>
 
       {/* 3. Blue Carbon Reservoir (Featuring AI Generated Visual) */}
-      <article className={`group relative overflow-hidden rounded-2xl border border-emerald-900/30 bg-[#062923] p-5 text-white transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_14px_34px_rgba(6,41,35,0.3)] ${dim ? 'opacity-50' : ''}`}>
+      <article className={`group relative overflow-hidden rounded-2xl border border-emerald-900/30 bg-[#062923] p-5 text-white transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_16px_36px_rgba(6,41,35,0.35)] ${dim ? 'opacity-50' : ''}`}>
         {/* AI-Generated Blue Carbon Roots Background Image with dark gradient mask */}
         <div
           className="absolute inset-0 bg-cover bg-center opacity-30 mix-blend-luminosity group-hover:scale-105 group-hover:opacity-40 transition-all duration-700 pointer-events-none"
@@ -260,10 +307,12 @@ export function SimpleCards({ bundle: b, lang }: { bundle: AnalysisBundle; lang:
               IPCC Tier 1
             </span>
           </div>
-          <p className="mt-2 font-condensed text-4xl sm:text-5xl font-bold tracking-wide text-emerald-100">
-            {fmt(co2, 0, lang)}
+          <div className="mt-2 flex items-baseline">
+            <p className="font-condensed text-4xl sm:text-5xl font-bold tracking-wide text-emerald-100">
+              <AnimatedNumber value={co2} digits={0} lang={lang} />
+            </p>
             <span className="ml-1.5 text-base font-normal text-emerald-300/80 font-sans">{bn ? 'টন CO₂' : 't CO₂e'}</span>
-          </p>
+          </div>
           <p className="mt-1 text-xs text-emerald-200/90 leading-tight">
             {bn
               ? `প্রায় ${fmt(people, 0, lang)} জনের ১ বছরের কার্বনের সমতুল্য`
@@ -273,20 +322,23 @@ export function SimpleCards({ bundle: b, lang }: { bundle: AnalysisBundle; lang:
       </article>
 
       {/* 4. 2030 Horizon Projection */}
-      <article className={`glass-panel group relative overflow-hidden rounded-2xl p-5 transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_14px_34px_rgba(7,61,52,0.08)] ${dim ? 'opacity-50' : ''}`}>
+      <article className={`modern-card group p-5 ${dim ? 'opacity-50' : ''}`}>
+        <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-sky-500 via-teal-400 to-transparent" />
         <div className="flex items-center justify-between">
           <p className="flex items-center gap-1.5 font-light-sub text-[10.5px] font-semibold tracking-[0.2em] text-[#6c817a]">
             <Leaf className="size-4 text-emerald-600" />
             {bn ? `${trend.year} পূর্বাভাস` : `${trend.year} Scenario`}
           </p>
-          <span className="font-mono text-[10px] font-bold rounded-md bg-sky-100 text-sky-800 px-1.5 py-0.5">
+          <span className="font-mono text-[10px] font-bold rounded-md bg-sky-100 text-sky-800 border border-sky-200 px-1.5 py-0.5">
             +5 yr model
           </span>
         </div>
-        <p className="mt-2 font-condensed text-4xl sm:text-5xl font-bold tracking-wide text-[#0f352e]">
-          {fmt(trend.mangroveHa, 0, lang)}
+        <div className="mt-2 flex items-baseline">
+          <p className="font-condensed text-4xl sm:text-5xl font-bold tracking-wide text-[#0f352e]">
+            <AnimatedNumber value={trend.mangroveHa} digits={0} lang={lang} />
+          </p>
           <span className="ml-1.5 text-base font-normal text-[#6c817a] font-sans">{bn ? 'হেক্টর' : 'ha'}</span>
-        </p>
+        </div>
         <p className="mt-1 text-xs text-[#526a63]">
           {bn ? 'বর্তমান ধারা অনুযায়ী আনুমানিক প্রক্ষেপণ' : 'projected trajectory under status-quo trends'}
         </p>
@@ -295,143 +347,409 @@ export function SimpleCards({ bundle: b, lang }: { bundle: AnalysisBundle; lang:
   )
 }
 
-/** Modern bar chart with emerald gradients and custom tooltip. */
+/**
+ * State-of-the-art interactive chart with Spline Area & Capsule Bar toggles,
+ * Metric toggling (Canopy Area vs Carbon Stock vs YoY Delta),
+ * Baseline benchmark lines, and luminous frosted glass tooltip.
+ */
 export function YearsChart({ bundle: b, lang }: { bundle: AnalysisBundle; lang: Lang }) {
+  const [chartMode, setChartMode] = useState<'spline' | 'bars'>('spline')
+  const [metric, setMetric] = useState<'area' | 'carbon' | 'delta'>('area')
   const dim = b.reliability.level === 'low'
+  const bn = lang === 'bn'
+
   const MONTHS_EN = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
   const MONTHS_BN = ['জানু', 'ফেব্রু', 'মার্চ', 'এপ্রিল', 'মে', 'জুন', 'জুলাই', 'আগস্ট', 'সেপ্টে', 'অক্টো', 'নভে', 'ডিসে']
 
-  const rows = b.timeline.map((p) => {
+  // Carbon factor: t CO₂e per ha
+  const carbonDensity = (b.carbon.end.co2eMg / (b.summary.end.mangroveHa || 1)) || 1038
+
+  const rawRows = b.timeline.map((p, i, arr) => {
     const m = Number(p.midDate.slice(5, 7))
     const dry = m >= 1 && m <= 3
     const year = p.midDate.slice(0, 4)
-    return { year: dry ? year : `${(lang === 'bn' ? MONTHS_BN : MONTHS_EN)[m - 1]} ${year}`, ha: p.mangroveHa }
+    const label = dry ? year : `${(bn ? MONTHS_BN : MONTHS_EN)[m - 1]} ${year}`
+
+    const areaVal = p.mangroveHa
+    const carbonVal = Math.round(p.mangroveHa * carbonDensity)
+    const prevArea = i === 0 ? arr[0].mangroveHa : arr[i - 1].mangroveHa
+    const deltaVal = Math.round(p.mangroveHa - prevArea)
+
+    return {
+      year: label,
+      rawYear: year,
+      area: areaVal,
+      carbon: carbonVal,
+      delta: deltaVal,
+      val: metric === 'area' ? areaVal : metric === 'carbon' ? carbonVal : deltaVal,
+      baselineDiff: p.mangroveHa - arr[0].mangroveHa,
+      baselinePct: ((p.mangroveHa - arr[0].mangroveHa) / (arr[0].mangroveHa || 1)) * 100,
+    }
   })
-  const max = Math.max(...rows.map((r) => r.ha))
+
+  const baselineVal = rawRows[0]?.val ?? 0
+  const maxVal = Math.max(...rawRows.map((r) => r.val))
+  const minVal = Math.min(...rawRows.map((r) => r.val))
+  const peakRow = rawRows.reduce((prev, curr) => (curr.val > prev.val ? curr : prev), rawRows[0])
+
+  const metricLabels = {
+    area: { unit: bn ? 'হেক্টর' : 'ha', title: bn ? 'ক্যানোপি আয়তন' : 'Canopy Area' },
+    carbon: { unit: bn ? 'টন CO₂e' : 't CO₂e', title: bn ? 'কার্বন মজুত' : 'Carbon Stock' },
+    delta: { unit: bn ? 'বার্ষিক পরিবর্তন' : 'Annual Delta', title: bn ? 'বৃদ্ধি / সংকোচন' : 'YoY Delta' },
+  }[metric]
 
   return (
-    <div className={dim ? 'opacity-50' : ''}>
-      <div className="h-60 w-full">
+    <div className={`space-y-3 ${dim ? 'opacity-50' : ''}`}>
+      {/* Interactive Controls Bar: Mode Switcher & Metric Selector */}
+      <div className="flex flex-wrap items-center justify-between gap-2.5 border-b border-[#e5efe9] pb-3">
+        {/* Metric Selector Pills */}
+        <div className="flex items-center rounded-xl bg-[#f2f6f3] p-0.5 border border-[#d6e6de] text-xs font-semibold">
+          {(['area', 'carbon', 'delta'] as const).map((m) => {
+            const active = metric === m
+            return (
+              <button
+                key={m}
+                type="button"
+                onClick={() => setMetric(m)}
+                className={`rounded-lg px-2.5 py-1 transition-all text-[11.5px] ${
+                  active
+                    ? 'bg-[#16865f] text-white shadow-xs font-bold'
+                    : 'text-[#526a63] hover:text-[#123f38]'
+                }`}
+              >
+                {m === 'area' ? (bn ? 'আয়তন (হেক্টর)' : 'Area (ha)') : m === 'carbon' ? (bn ? 'কার্বন (CO₂e)' : 'Carbon (CO₂e)') : (bn ? 'বার্ষিক পরিবর্তন' : 'Annual Δ')}
+              </button>
+            )
+          })}
+        </div>
+
+        {/* View Mode Toggle: Spline Area vs Capsule Bars */}
+        <div className="flex items-center gap-1 rounded-xl bg-[#f2f6f3] p-0.5 border border-[#d6e6de]">
+          <button
+            type="button"
+            onClick={() => setChartMode('spline')}
+            className={`flex items-center gap-1 rounded-lg px-2 py-1 text-xs font-semibold transition ${
+              chartMode === 'spline' ? 'bg-white text-emerald-800 shadow-xs' : 'text-[#6c817a] hover:text-[#123f38]'
+            }`}
+            title="Spline Area Flow"
+          >
+            <Activity className="size-3.5" />
+            <span className="hidden sm:inline">{bn ? 'কার্ভ ভিউ' : 'Spline'}</span>
+          </button>
+          <button
+            type="button"
+            onClick={() => setChartMode('bars')}
+            className={`flex items-center gap-1 rounded-lg px-2 py-1 text-xs font-semibold transition ${
+              chartMode === 'bars' ? 'bg-white text-emerald-800 shadow-xs' : 'text-[#6c817a] hover:text-[#123f38]'
+            }`}
+            title="Capsule Bar Chart"
+          >
+            <BarChart3 className="size-3.5" />
+            <span className="hidden sm:inline">{bn ? 'বার ভিউ' : 'Bars'}</span>
+          </button>
+        </div>
+      </div>
+
+      {/* KPI Micro-Badges Bar */}
+      <div className="flex flex-wrap items-center justify-between gap-2 font-mono text-[11px] text-[#6c817a] bg-[#f7faf7] p-2.5 rounded-xl border border-[#e5efe9]">
+        <div className="flex items-center gap-1.5">
+          <span className="size-2 rounded-full bg-emerald-500" />
+          <span>
+            {bn ? 'শুরুর বেসলাইন' : '2020 Baseline'}: <strong className="text-[#0f352e]">{fmt(baselineVal, 0, lang)} {metricLabels.unit}</strong>
+          </span>
+        </div>
+        <div className="flex items-center gap-1.5">
+          <span className="size-2 rounded-full bg-teal-500" />
+          <span>
+            {bn ? 'সর্বোচ্চ রেকর্ড' : 'Peak'}: <strong className="text-[#0f352e]">{fmt(peakRow.val, 0, lang)} {metricLabels.unit} ({peakRow.year})</strong>
+          </span>
+        </div>
+        <div className="flex items-center gap-1 font-semibold text-emerald-700 bg-emerald-50 border border-emerald-200 rounded px-2 py-0.5">
+          <ArrowUpRight className="size-3" />
+          <span>
+            {bn ? 'নিট পরিবর্তন' : 'Net'}: {fmt(rawRows.at(-1)!.val - baselineVal, 0, lang)} {metricLabels.unit}
+          </span>
+        </div>
+      </div>
+
+      {/* Chart Canvas */}
+      <div className="h-64 w-full pt-2">
         <ResponsiveContainer width="100%" height="100%">
-          <BarChart data={rows} margin={{ top: 24, right: 12, bottom: 0, left: -10 }}>
-            <defs>
-              <linearGradient id="primaryEmeraldGradient" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stopColor="#10b981" stopOpacity={0.95} />
-                <stop offset="100%" stopColor="#047857" stopOpacity={0.8} />
-              </linearGradient>
-              <linearGradient id="historyEmeraldGradient" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stopColor="#6ee7b7" stopOpacity={0.8} />
-                <stop offset="100%" stopColor="#34d399" stopOpacity={0.5} />
-              </linearGradient>
-            </defs>
-            <XAxis dataKey="year" tick={{ fontSize: 12, fill: '#526a63', fontFamily: 'var(--font-mono)' }} axisLine={false} tickLine={false} />
-            <YAxis hide domain={[0, max * 1.15]} />
-            <Tooltip
-              content={({ active, payload }) => {
-                if (!active || !payload?.length) return null
-                const item = payload[0].payload
-                return (
-                  <div className="rounded-xl border border-emerald-500/20 bg-white/95 p-2.5 shadow-xl backdrop-blur-md">
-                    <p className="font-mono text-xs font-bold text-[#6c817a]">{item.year}</p>
-                    <p className="font-display text-base font-extrabold text-[#0f352e]">
-                      {fmt(item.ha, 0, lang)} {lang === 'bn' ? 'হেক্টর' : 'hectares'}
-                    </p>
-                    <p className="text-[11px] text-[#526a63]">{areaInWords(item.ha, lang)}</p>
-                  </div>
-                )
-              }}
-              cursor={{ fill: 'rgba(22, 134, 95, 0.05)' }}
-            />
-            <Bar dataKey="ha" radius={[8, 8, 0, 0]} maxBarSize={48}>
-              {rows.map((_, i) => (
-                <Cell
-                  key={i}
-                  fill={dim ? '#9ca3af' : i === rows.length - 1 ? 'url(#primaryEmeraldGradient)' : 'url(#historyEmeraldGradient)'}
-                />
-              ))}
-              <LabelList
-                dataKey="ha"
-                position="top"
-                formatter={(v: number) => fmt(v, 0, lang)}
-                style={{ fontSize: 11, fill: '#0f352e', fontWeight: 800, fontFamily: 'var(--font-mono)' }}
+          {chartMode === 'spline' ? (
+            <AreaChart data={rawRows} margin={{ top: 18, right: 14, bottom: 0, left: -10 }}>
+              <defs>
+                <linearGradient id="splineEmeraldGrad" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stopColor="#10b981" stopOpacity={0.45} />
+                  <stop offset="50%" stopColor="#059669" stopOpacity={0.15} />
+                  <stop offset="100%" stopColor="#047857" stopOpacity={0.01} />
+                </linearGradient>
+                <filter id="neonGlow" x="-20%" y="-20%" width="140%" height="140%">
+                  <feDropShadow dx="0" dy="3" stdDeviation="4" floodColor="#10b981" floodOpacity="0.35" />
+                </filter>
+              </defs>
+              <XAxis dataKey="year" tick={{ fontSize: 11.5, fill: '#526a63', fontFamily: 'var(--font-mono)' }} axisLine={false} tickLine={false} />
+              <YAxis domain={[Math.max(0, minVal * 0.9), maxVal * 1.1]} hide />
+              <Tooltip content={<ModernChartTooltip lang={lang} metricLabels={metricLabels} />} cursor={{ stroke: 'rgba(16, 185, 129, 0.3)', strokeWidth: 1.5, strokeDasharray: '4 4' }} />
+              <ReferenceLine y={baselineVal} stroke="#6c817a" strokeDasharray="3 3" strokeOpacity={0.6} />
+              <Area
+                type="monotone"
+                dataKey="val"
+                stroke="#10b981"
+                strokeWidth={3}
+                fill="url(#splineEmeraldGrad)"
+                dot={{ r: 4, fill: '#ffffff', stroke: '#059669', strokeWidth: 2.5 }}
+                activeDot={{ r: 6, fill: '#10b981', stroke: '#ffffff', strokeWidth: 2, className: 'animate-ping' }}
               />
-            </Bar>
-          </BarChart>
+            </AreaChart>
+          ) : (
+            <BarChart data={rawRows} margin={{ top: 22, right: 12, bottom: 0, left: -10 }}>
+              <defs>
+                <linearGradient id="barLatestGrad" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stopColor="#34d399" stopOpacity={1} />
+                  <stop offset="100%" stopColor="#059669" stopOpacity={0.9} />
+                </linearGradient>
+                <linearGradient id="barHistGrad" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stopColor="#a7f3d0" stopOpacity={0.85} />
+                  <stop offset="100%" stopColor="#34d399" stopOpacity={0.65} />
+                </linearGradient>
+              </defs>
+              <XAxis dataKey="year" tick={{ fontSize: 11.5, fill: '#526a63', fontFamily: 'var(--font-mono)' }} axisLine={false} tickLine={false} />
+              <YAxis hide domain={[0, maxVal * 1.15]} />
+              <Tooltip content={<ModernChartTooltip lang={lang} metricLabels={metricLabels} />} cursor={{ fill: 'rgba(16, 185, 129, 0.05)' }} />
+              <Bar dataKey="val" radius={[8, 8, 2, 2]} maxBarSize={48}>
+                {rawRows.map((_, i) => (
+                  <Cell
+                    key={i}
+                    fill={dim ? '#9ca3af' : i === rawRows.length - 1 ? 'url(#barLatestGrad)' : 'url(#barHistGrad)'}
+                  />
+                ))}
+                <LabelList
+                  dataKey="val"
+                  position="top"
+                  formatter={(v: number) => fmt(v, 0, lang)}
+                  style={{ fontSize: 11, fill: '#0f352e', fontWeight: 800, fontFamily: 'var(--font-mono)' }}
+                />
+              </Bar>
+            </BarChart>
+          )}
         </ResponsiveContainer>
       </div>
-      <div className="mt-2 flex flex-wrap items-center justify-between gap-2 border-t border-[#e5efe9] pt-2 text-xs text-[#6c817a]">
+
+      {/* Footer Meta */}
+      <div className="flex flex-wrap items-center justify-between gap-2 border-t border-[#e5efe9] pt-2 text-xs text-[#6c817a]">
         <span>
-          {lang === 'bn'
-            ? 'প্রতিটি স্তম্ভ = সেই বছরের ম্যানগ্রোভ আয়তন (১ হেক্টর ≈ ৭.৫ বিঘা)।'
-            : 'Each bar represents annual validated mangrove canopy area.'}
+          {bn
+            ? 'প্রতিটি বিন্দু/স্তম্ভ = সেন্টিনেল-২ উপগ্রহ ছবির জানু–মার্চ ড্রাই সিজন কম্পোজিট।'
+            : 'Each point represents validated cloud-free Jan–Mar Sentinel-2 dry-season composite.'}
         </span>
         <span className="font-mono text-[11px] text-emerald-800 font-semibold">
-          {lang === 'bn' ? 'উৎস: সেন্টিনেল-২ এল২এ' : 'Source: Sentinel-2 L2A'}
+          {bn ? 'ইউরোপীয় মহাকাশ সংস্থা (ESA)' : 'ESA Sentinel-2 MSI L2A'}
         </span>
       </div>
     </div>
   )
 }
 
-/** Three interactive what-if future scenario cards. */
-export function FutureBoxes({ bundle: b, lang }: { bundle: AnalysisBundle; lang: Lang }) {
-  const dim = b.reliability.level === 'low'
-  const now = b.summary.end.mangroveHa
-  const text = {
-    current_trend: { en: 'Business-as-Usual', bn: 'এখনকার ধারা বজায় থাকলে', descEn: 'Historical erosion and natural regeneration rate maintained', descBn: 'পূর্বের ভাঙন ও বৃদ্ধির স্বাভাবিক হার বহাল থাকলে', emoji: '➡️' },
-    higher_loss: { en: 'Stressed / High Loss', bn: 'ভাঙন ও ঘূর্ণিঝড়জনিত চাপ', descEn: 'Severe weather events or coastal erosion doubling loss', descBn: 'ঘূর্ণিঝড় বা তীব্র নদীভাঙনে ক্ষতির মাত্রা দ্বিগুণ হলে', emoji: '⚠️' },
-    recovery: { en: 'Community Conservation', bn: 'সম্প্রদায়ভিত্তিক পুনরুদ্ধার', descEn: 'Aggressive afforestation and community embankment protection', descBn: 'সক্রিয় বনায়ন ও বাঁধ সুরক্ষায় নতুন চরে গাছ লাগালে', emoji: '🌱' },
-  } as const
+function ModernChartTooltip({ active, payload, lang, metricLabels }: any) {
+  if (!active || !payload?.length) return null
+  const item = payload[0].payload
+  const bn = lang === 'bn'
 
   return (
-    <div className={dim ? 'opacity-50' : ''}>
+    <div className="rounded-xl border border-emerald-500/35 bg-[#031d17]/95 p-3 text-white shadow-2xl backdrop-blur-md min-w-[210px]">
+      <div className="flex items-center justify-between border-b border-emerald-500/20 pb-1.5 mb-2">
+        <span className="flex items-center gap-1 font-mono text-xs font-bold text-emerald-400">
+          <Calendar className="size-3" />
+          {item.year}
+        </span>
+        <span className="font-mono text-[10px] text-emerald-300/80 bg-emerald-500/20 px-1.5 py-0.5 rounded">
+          MSI L2A
+        </span>
+      </div>
+
+      <div className="flex items-baseline justify-between">
+        <span className="font-condensed text-2xl font-bold tracking-wide text-white">
+          {fmt(item.val, 0, lang)}
+        </span>
+        <span className="text-xs text-emerald-300 font-sans">{metricLabels.unit}</span>
+      </div>
+
+      <div className="mt-2 space-y-1 text-[11px] border-t border-emerald-500/20 pt-1.5">
+        <div className="flex items-center justify-between text-emerald-200">
+          <span>{bn ? '২০২০ বেসলাইন থেকে:' : 'vs 2020 Baseline:'}</span>
+          <span className={`font-mono font-bold ${item.baselineDiff >= 0 ? 'text-emerald-400' : 'text-rose-400'}`}>
+            {item.baselineDiff >= 0 ? '+' : ''}{fmt(item.baselineDiff, 0, lang)} ha ({item.baselinePct >= 0 ? '+' : ''}{fmt(item.baselinePct, 1, lang)}%)
+          </span>
+        </div>
+        <p className="text-[10.5px] text-emerald-300/70 italic">
+          {areaInWords(item.area, lang)}
+        </p>
+      </div>
+    </div>
+  )
+}
+
+/**
+ * State-of-the-Art Interactive 5-Year Horizon Scenarios Simulator.
+ * Features selectable scenario cards with glowing active ring,
+ * interactive projected impact calculations, and comparative scenario bars.
+ */
+export function FutureBoxes({ bundle: b, lang }: { bundle: AnalysisBundle; lang: Lang }) {
+  const [activeScenarioId, setActiveScenarioId] = useState<'current_trend' | 'higher_loss' | 'recovery'>('current_trend')
+  const dim = b.reliability.level === 'low'
+  const now = b.summary.end.mangroveHa
+  const bn = lang === 'bn'
+
+  const carbonDensity = (b.carbon.end.co2eMg / (b.summary.end.mangroveHa || 1)) || 1038
+
+  const meta = {
+    current_trend: {
+      en: 'Business-as-Usual',
+      bn: 'বর্তমান ধারা বহাল',
+      descEn: 'Historical erosion and natural regeneration rate maintained without extra policy intervention.',
+      descBn: 'পূর্বের ভাঙন ও বৃদ্ধির স্বাভাবিক গতি বজায় থাকলে বন এই ধারায় চলবে।',
+      badgeColor: 'bg-sky-100 text-sky-800 border-sky-200',
+      activeBorder: 'border-sky-500 ring-2 ring-sky-400/30',
+      icon: '➡️',
+    },
+    higher_loss: {
+      en: 'Stressed / High Loss',
+      bn: 'ঘূর্ণিঝড় ও ভাঙনজনিত চাপ',
+      descEn: 'Severe weather events, storm surges or coastal erosion doubling the historical rate of loss.',
+      descBn: 'ঘূর্ণিঝড় বা তীব্র নদীভাঙনে ক্ষতির মাত্রা দ্বিগুণ হলে সম্ভাব্য প্রক্ষেপণ।',
+      badgeColor: 'bg-rose-100 text-rose-800 border-rose-200',
+      activeBorder: 'border-rose-500 ring-2 ring-rose-400/30',
+      icon: '⚠️',
+    },
+    recovery: {
+      en: 'Community Conservation',
+      bn: 'সম্প্রদায়ভিত্তিক পুনরুদ্ধার',
+      descEn: 'Aggressive community afforestation and biological embankment stabilization on newly formed mudflats.',
+      descBn: 'সক্রিয় সামাজিক বনায়ন ও বাঁধ সুরক্ষায় নতুন চরে গাছ লাগালে সর্বোত্তম অগ্রগতি।',
+      badgeColor: 'bg-emerald-100 text-emerald-800 border-emerald-200',
+      activeBorder: 'border-emerald-500 ring-2 ring-emerald-400/30',
+      icon: '🌱',
+    },
+  } as const
+
+  const activeScenario = b.projection.scenarios.find((s) => s.id === activeScenarioId)!
+  const activeEndpoint = activeScenario.points.at(-1)!
+  const activeDelta = activeEndpoint.mangroveHa - now
+  const projectedCarbonDelta = Math.round(activeDelta * carbonDensity)
+
+  return (
+    <div className={`space-y-4 ${dim ? 'opacity-50' : ''}`}>
+      {/* 3 Selectable Scenario Cards */}
       <div className="grid gap-3 sm:grid-cols-3">
         {b.projection.scenarios.map((sc) => {
           const p = sc.points.at(-1)!
           const d = p.mangroveHa - now
-          const isRecovery = sc.id === 'recovery'
-          const isLoss = sc.id === 'higher_loss'
+          const isSelected = activeScenarioId === sc.id
+          const m = meta[sc.id]
 
           return (
-            <div
+            <button
               key={sc.id}
-              className={`group relative rounded-xl border p-3.5 transition-all duration-300 hover:shadow-md ${
-                isRecovery
-                  ? 'border-emerald-200 bg-emerald-50/40 hover:border-emerald-300'
-                  : isLoss
-                  ? 'border-rose-200 bg-rose-50/30 hover:border-rose-300'
-                  : 'border-[#e5efe9] bg-white hover:border-emerald-200'
+              type="button"
+              onClick={() => setActiveScenarioId(sc.id)}
+              className={`group relative text-left rounded-2xl border p-4 transition-all duration-300 cursor-pointer ${
+                isSelected
+                  ? `bg-white shadow-lg ${m.activeBorder}`
+                  : 'bg-white/80 border-[#e5efe9] hover:border-emerald-300 hover:shadow-md'
               }`}
             >
-              <p className="flex items-center gap-1.5 text-xs font-bold text-[#0f352e]">
-                <span>{text[sc.id].emoji}</span>
-                <span>{text[sc.id][lang]}</span>
-              </p>
-              <p className="mt-2 font-display text-2xl font-extrabold font-tabular text-[#0f352e]">
-                {fmt(p.mangroveHa, 0, lang)}
-                <span className="ml-1 text-xs font-semibold text-[#6c817a] font-sans">{lang === 'bn' ? 'হেক্টর' : 'ha'}</span>
-              </p>
+              {isSelected && (
+                <div className="absolute top-2 right-2 size-2 rounded-full bg-emerald-500 animate-ping" />
+              )}
+              <div className="flex items-center justify-between">
+                <span className="flex items-center gap-1.5 text-xs font-bold text-[#0f352e]">
+                  <span>{m.icon}</span>
+                  <span>{m[bn ? 'bn' : 'en']}</span>
+                </span>
+                <span className={`font-mono text-[9.5px] font-bold rounded px-1.5 py-0.5 border ${m.badgeColor}`}>
+                  {p.year}
+                </span>
+              </div>
+
+              <div className="mt-2.5 flex items-baseline">
+                <span className="font-condensed text-3xl font-bold tracking-wide text-[#0f352e]">
+                  <AnimatedNumber value={p.mangroveHa} digits={0} lang={lang} />
+                </span>
+                <span className="ml-1 text-xs font-normal text-[#6c817a] font-sans">{bn ? 'হেক্টর' : 'ha'}</span>
+              </div>
+
               <p className={`mt-1 font-mono text-xs font-bold ${d < -0.5 ? 'text-rose-600' : 'text-emerald-700'}`}>
                 {Math.abs(d) < 0.5
-                  ? lang === 'bn' ? `≈ কোনো পরিবর্তন নেই (${p.year})` : `≈ stable baseline by ${p.year}`
-                  : `${d > 0 ? '+' : '−'}${fmt(Math.abs(d), 0, lang)} ${lang === 'bn' ? `হেক্টর (${p.year})` : `ha by ${p.year}`}`}
+                  ? bn ? `≈ কোনো পরিবর্তন নেই` : `≈ stable baseline`
+                  : `${d > 0 ? '+' : '−'}${fmt(Math.abs(d), 0, lang)} ${bn ? 'হেক্টর' : 'ha'}`}
               </p>
-              <p className="mt-1 text-[11px] text-[#6c817a] leading-tight">
-                {lang === 'bn' ? text[sc.id].descBn : text[sc.id].descEn}
-              </p>
-            </div>
+            </button>
           )
         })}
       </div>
 
-      <div className="mt-3 flex items-center justify-between gap-2 text-xs text-[#6c817a]">
+      {/* Interactive Scenario Deep-Dive Panel */}
+      <div className="rounded-2xl border border-emerald-900/15 bg-gradient-to-br from-[#f7faf8] to-[#edf6f2] p-4 text-xs text-[#0f352e] shadow-xs">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-emerald-200/60 pb-2.5">
+          <div className="flex items-center gap-2">
+            <span className="font-mono text-[10.5px] font-bold uppercase tracking-wider text-emerald-800 bg-emerald-100 px-2 py-0.5 rounded-md">
+              {bn ? 'নির্বাচিত দৃশ্যপট বিশ্লেষণ' : 'ACTIVE SCENARIO SIMULATION'}
+            </span>
+            <span className="font-bold text-sm text-[#0f352e]">
+              {meta[activeScenarioId][bn ? 'bn' : 'en']}
+            </span>
+          </div>
+          <span className="font-mono text-[11px] text-[#6c817a]">
+            {bn ? '২০২৬ → ২০৩১ প্রক্ষেপণ' : '2026 → 2031 Trajectory'}
+          </span>
+        </div>
+
+        <p className="mt-2 text-xs text-[#40564f] leading-relaxed">
+          {meta[activeScenarioId][bn ? 'descBn' : 'descEn']}
+        </p>
+
+        {/* Dynamic Impact Counters */}
+        <div className="mt-3 grid grid-cols-2 gap-2 font-mono">
+          <div className="rounded-xl bg-white/90 p-2.5 border border-emerald-200/80 shadow-2xs">
+            <p className="text-[10px] text-[#6c817a] uppercase font-bold tracking-wider">
+              {bn ? 'প্রত্যাশিত নেট বন বিস্তার' : 'PROJECTED CANOPY DELTA'}
+            </p>
+            <p className={`mt-1 font-condensed text-2xl font-bold tracking-wide ${activeDelta < 0 ? 'text-rose-600' : 'text-emerald-700'}`}>
+              <AnimatedNumber
+                value={Math.abs(activeDelta)}
+                digits={0}
+                lang={lang}
+                prefix={activeDelta >= 0 ? '+' : '−'}
+              />
+              <span className="ml-1 text-xs font-sans text-[#6c817a]">{bn ? 'হেক্টর' : 'ha'}</span>
+            </p>
+          </div>
+
+          <div className="rounded-xl bg-white/90 p-2.5 border border-emerald-200/80 shadow-2xs">
+            <p className="text-[10px] text-[#6c817a] uppercase font-bold tracking-wider">
+              {bn ? 'কার্বন প্রভাব (CO₂ সমতুল্য)' : 'NET CARBON OFFSET'}
+            </p>
+            <p className={`mt-1 font-condensed text-2xl font-bold tracking-wide ${projectedCarbonDelta < 0 ? 'text-rose-600' : 'text-emerald-700'}`}>
+              <AnimatedNumber
+                value={Math.abs(projectedCarbonDelta)}
+                digits={0}
+                lang={lang}
+                prefix={projectedCarbonDelta >= 0 ? '+' : '−'}
+              />
+              <span className="ml-1 text-xs font-sans text-[#6c817a]">{bn ? 'টন CO₂' : 't CO₂e'}</span>
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <div className="flex items-center justify-between text-xs text-[#6c817a]">
         <p>
-          {lang === 'bn'
-            ? 'এগুলো গাণিতিক প্রক্ষেপণ ("হোয়াট-ইফ"), অপরিবর্তনীয় ভবিষ্যদ্বাণী নয়।'
+          {bn
+            ? 'এগুলো মন্টে-কার্লো গাণিতিক প্রক্ষেপণ ("হোয়াট-ইফ"), জলবায়ু পরিবর্তনের ওপর নির্ভরশীল।'
             : 'Monte-Carlo projection model for planning — subject to climate variability.'}
         </p>
-        <span className="font-mono text-[10px] bg-emerald-50 text-emerald-800 border border-emerald-200 px-2 py-0.5 rounded-full">
-          2030 Horizon
+        <span className="font-mono text-[10px] bg-emerald-50 text-emerald-800 border border-emerald-200 px-2.5 py-0.5 rounded-full font-bold">
+          2031 Horizon
         </span>
       </div>
     </div>

@@ -70,13 +70,13 @@ export function Card({
   return (
     <section
       className={cn(
-        'glass-panel rounded-2xl p-4 sm:p-5.5 transition-all duration-300 hover:shadow-[0_12px_36px_rgba(7,61,52,0.08)] break-inside-avoid relative overflow-hidden',
+        'modern-card p-4 sm:p-5.5 break-inside-avoid relative overflow-hidden',
         className,
       )}
     >
-      <div className="absolute top-0 right-0 h-16 w-16 bg-gradient-to-bl from-emerald-500/5 to-transparent pointer-events-none rounded-tr-2xl" />
+      <div className="absolute top-0 right-0 h-24 w-24 bg-gradient-to-bl from-emerald-500/8 via-teal-400/5 to-transparent pointer-events-none rounded-tr-2xl" />
       {(title || right) && (
-        <header className="mb-3.5 flex flex-wrap items-center justify-between gap-2 border-b border-[#e5efe9]/80 pb-2.5">
+        <header className="mb-3.5 flex flex-wrap items-center justify-between gap-2 border-b border-[#e5efe9]/85 pb-2.5">
           {title && (
             <h2 className="font-display text-base font-bold tracking-tight text-[#123f38] flex items-center gap-2">
               {title}

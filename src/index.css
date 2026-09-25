@@ -299,6 +299,89 @@ body {
   }
 }
 
+@keyframes radarSweep {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.animate-radar-sweep {
+  animation: radarSweep 4s linear infinite;
+  transform-origin: center;
+}
+
+@keyframes shimmerWipe {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+.animate-shimmer {
+  animation: shimmerWipe 2.8s ease-in-out infinite;
+}
+
+@keyframes pulseGaze {
+  0%, 100% {
+    opacity: 0.35;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.8;
+    transform: scale(1.04);
+  }
+}
+
+.animate-pulse-gaze {
+  animation: pulseGaze 4s ease-in-out infinite;
+}
+
+/* Ambient glow blobs */
+.ambient-glow-emerald {
+  position: absolute;
+  width: 480px;
+  height: 480px;
+  background: radial-gradient(circle, rgba(16, 185, 129, 0.14) 0%, rgba(16, 185, 129, 0) 70%);
+  filter: blur(48px);
+  pointer-events: none;
+  z-index: 0;
+}
+
+.ambient-glow-teal {
+  position: absolute;
+  width: 440px;
+  height: 440px;
+  background: radial-gradient(circle, rgba(20, 184, 166, 0.11) 0%, rgba(20, 184, 166, 0) 70%);
+  filter: blur(44px);
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* Executive Modern Card with Hover Shimmer & Elevation */
+.modern-card {
+  position: relative;
+  background: rgba(255, 255, 255, 0.94);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(214, 230, 222, 0.9);
+  box-shadow: 0 10px 30px -5px rgba(6, 47, 41, 0.05), 0 0 0 1px rgba(22, 134, 95, 0.04);
+  border-radius: 1.25rem;
+  overflow: hidden;
+  transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.modern-card:hover {
+  border-color: rgba(22, 134, 95, 0.38);
+  box-shadow: 0 20px 42px -10px rgba(7, 61, 52, 0.12), 0 0 0 1px rgba(22, 134, 95, 0.16);
+  transform: translateY(-2px);
+}
+
+
 /* Scroll-triggered Reveal Animations */
 .reveal-init {
   opacity: 0;
