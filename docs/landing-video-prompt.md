@@ -45,44 +45,52 @@ Style: photorealistic underwater cinematography mixed with subtle futuristic hol
 Avoid: text, letters, numbers, labels, UI panels, logos, watermarks, people, divers, cuts, fades to black, camera shake, zooms, fast motion.
 ```
 
-## Clip 3 — "Watching the forest change" (change detection)
+## Extend prompts (10s each, pasted into Gemini "Extend")
+
+The video is currently 20s (clip 1 + clip 2). Each Extend adds 10s:
+20s → 30s (clip 3) → 40s (clip 4) → 50s (clip 5).
+
+### Clip 3 — Extend 20s → 30s: "Watching the forest change"
 
 ```
-Continue seamlessly from the provided starting frame: a calm underwater Sundarbans mangrove scene, emerald-teal water, stilt roots on the right side, dark seabed. One continuous 8-second shot, 16:9, photorealistic, no cuts.
+Extend this video by 10 seconds as one continuous shot from the exact last frame, same camera, same lighting, same underwater mangrove scene, no cuts.
 
-A gentle underwater time-lapse of years passing: soft light cycles overhead, and the mangrove root system visibly grows. New young stilt roots and small mangrove seedlings sprout from the seabed and extend downward, each outlined with a soft glowing bright green rim light (forest gain). On the far right edge, a few old thin roots slowly fade to a dim warm amber-red glow and gently dissolve into drifting particles (forest loss). The growth clearly dominates the loss.
+Seconds 0–2: The water is calm and still after the scan; the camera keeps a very slow forward drift.
+Seconds 2–8: A gentle underwater time-lapse of years passing. Light overhead softly pulses brighter and dimmer like passing seasons. New young stilt roots and small mangrove seedlings sprout from the seabed and grow downward, each outlined with a soft glowing bright green rim light (forest gain). On the far right edge, two or three old thin roots slowly turn a dim warm amber-red and dissolve into drifting particles (forest loss). Growth clearly dominates loss.
+Seconds 8–10: The time-lapse stops; a denser, healthier root system stands calm and still.
 
-The camera stays almost still, with only a very slow forward drift. The left and center of the frame stay open, calm, dark emerald-teal water as clean negative space. Ends on a calm still frame of a denser, healthier root system.
-
-Style: photorealistic nature documentary time-lapse, soft volumetric god rays, emerald, mint green and dark teal palette with small warm amber accents, steady camera, 24fps.
-Avoid: text, letters, numbers, labels, UI panels, logos, watermarks, people, cuts, fades to black, camera shake, zooms, flickering, morphing distorted shapes.
+Keep the roots on the right third of the frame; the left and center stay open, calm, dark emerald-teal water as negative space. Photorealistic, emerald, mint and dark teal palette with small amber accents, soft god rays, steady camera, 24fps.
+Avoid: text, letters, numbers, labels, UI panels, logos, people, cuts, fades to black, camera shake, zooms, flickering, morphing shapes.
 ```
 
-## Clip 4 — "Counting blue carbon" (IPCC carbon accounting)
+### Clip 4 — Extend 30s → 40s: "Counting blue carbon"
 
 ```
-Continue seamlessly from the provided starting frame: a calm underwater Sundarbans mangrove scene, emerald-teal water, stilt roots on the right side, dark seabed. One continuous 8-second shot, 16:9, photorealistic, no cuts.
+Extend this video by 10 seconds as one continuous shot from the exact last frame, same underwater mangrove scene, same lighting, no cuts.
 
-The camera slowly and smoothly descends straight down into the seabed, which opens into a clean cinematic cross-section cutaway of the mangrove soil, like a geological diagram come to life. Three horizontal layers are visible: the roots at the top, dense root-filled mud in the middle, and deep dark organic sediment at the bottom. Thousands of tiny glowing cyan-blue carbon particles flow down from the roots like slow luminous rain and settle into the layers. The layers light up one after another from top to bottom with a soft cyan-blue glow, and the deepest layer ends as a rich, dense, shimmering band of stored blue carbon.
+Seconds 0–3: The camera slowly and smoothly descends straight down toward the seabed below the roots.
+Seconds 3–5: The camera passes into the seabed, which opens into a clean cinematic cross-section cutaway of the mangrove soil, like a geological diagram come to life, with three horizontal layers: roots at the top, dense root-filled mud in the middle, deep dark organic sediment at the bottom.
+Seconds 5–9: Thousands of tiny glowing cyan-blue carbon particles flow down from the roots like slow luminous rain and settle into the layers. The layers light up one after another, top to bottom, with a soft cyan-blue glow.
+Seconds 9–10: The deepest layer is a rich, dense, shimmering band of stored blue carbon; the frame holds still.
 
-The layers span the full width, but the glow is brightest on the right; the left side stays darker and calmer as negative space. Ends on a still, glowing cross-section frame.
-
-Style: photorealistic macro cinematography mixed with subtle scientific visualization, deep dark teal #041f1a background, glowing cyan and emerald particles, soft bloom, steady constant-speed descent, 24fps.
-Avoid: text, letters, numbers, labels, arrows, charts, UI panels, logos, watermarks, people, cuts, fades to black, camera shake, zooms.
+The glow is brightest on the right; the left side stays darker and calmer as negative space. Photorealistic macro cinematography with subtle scientific visualization, deep dark teal #041f1a background, glowing cyan and emerald particles, soft bloom, steady constant-speed descent, 24fps.
+Avoid: text, letters, numbers, labels, arrows, charts, UI panels, logos, people, cuts, fades to black, camera shake, zooms.
 ```
 
-## Clip 5 — "From data to people" (Gemini AI insights → community)
+### Clip 5 — Extend 40s → 50s: "From data to people"
 
 ```
-Continue seamlessly from the provided starting frame: a dark underground cross-section of mangrove soil glowing with cyan-blue carbon particles. One continuous 8-second shot, 16:9, photorealistic, no cuts.
+Extend this video by 10 seconds as one continuous shot from the exact last frame, no cuts.
 
-The glowing cyan and emerald particles rise out of the sediment and swirl together into the water, gathering into a floating translucent 3D holographic map of a river delta: branching glowing blue river channels between bright green mangrove islands, with a few soft pulsing points of light connected by thin light threads, like a neural network over the delta. The holographic map floats in the center-right of the frame and slowly rotates. The camera then rises upward past the map toward the bright water surface with sun rays, and in the final second gently breaks the surface into a warm golden sunrise over a vast, healthy green mangrove forest on a calm river.
+Seconds 0–3: The glowing cyan and emerald carbon particles rise out of the sediment layers and swirl upward into the water.
+Seconds 3–6: The particles gather into a floating translucent 3D holographic map of a river delta: branching glowing blue river channels between bright green mangrove islands, with a few soft pulsing points of light connected by thin light threads, like a neural network over the delta. The map floats center-right and slowly rotates.
+Seconds 6–9: The camera rises smoothly upward past the map toward the bright water surface and sun rays.
+Seconds 9–10: The camera gently breaks the surface into a warm golden sunrise over a vast, healthy green mangrove forest on a calm river, and holds.
 
-Style: photorealistic underwater and nature cinematography mixed with an elegant holographic data visualization, emerald, mint and cyan palette, warm golden light at the end, soft bloom, steady smooth upward motion, 24fps.
-Avoid: text, letters, numbers, labels, UI panels, screens, logos, watermarks, people, cuts, fades to black, camera shake, fast motion.
+Photorealistic underwater and nature cinematography with an elegant holographic data visualization, emerald, mint and cyan palette, warm golden light at the end, soft bloom, steady smooth motion, 24fps.
+Avoid: text, letters, numbers, labels, UI panels, screens, logos, people, cuts, fades to black, camera shake, fast motion.
 ```
 
----
 
 ## Website text for each stage (added in code, not in the video)
 
