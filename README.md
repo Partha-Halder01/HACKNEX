@@ -138,6 +138,7 @@ Then open **http://localhost:5173/dashboard**. Stop either one with **Ctrl+C**.
 | **Interactive API Docs** | [http://localhost:8000/docs](http://localhost:8000/docs) | Swagger UI for exploring and testing API endpoints |
 | **ReDoc API Documentation**| [http://localhost:8000/redoc](http://localhost:8000/redoc) | Clean alternate API documentation |
 | **Backend Health Check** | [http://localhost:8000/api/health](http://localhost:8000/api/health) | Real-time status of DB and engines |
+| **Earth Engine Basemap** | [http://localhost:8000/api/analysis/basemap](http://localhost:8000/api/analysis/basemap) | Sentinel-2 dry-season photo tiles of the Sundarbans (cached 6 h) |
 | **Engine Capabilities** | [http://localhost:8000/api/analysis/capabilities](http://localhost:8000/api/analysis/capabilities) | Live vs Demo engine status & input parameters |
 
 ---

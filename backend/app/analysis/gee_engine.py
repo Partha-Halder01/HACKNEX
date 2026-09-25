@@ -287,10 +287,24 @@ def observe(req: AnalysisRequest, fetch: Callable[[Any], Any] = _fetch, steps: A
         .selfMask()
         .clip(geometry)
     )
+    # Before/after photos cover the circle plus surrounding context (a square
+    # ~3x the radius), so the comparison shows where the AOI sits in the landscape.
+    from .basemap import TRUE_COLOR_VIS, true_color_composite
+
+    periods = req.periods()
+    context = ee.Geometry.Point([req.lon, req.lat]).buffer(max(req.radius_km * 3.0, req.radius_km + 4.0) * 1000.0).bounds()
+
+    def _photo(period: Dict[str, Any], fallback: Any) -> Optional[str]:
+        try:
+            image = true_color_composite(context, period["startDate"], period["endDate"]).clip(context)
+            return _tile_url(image, TRUE_COLOR_VIS)
+        except Exception as e:  # fall back to the AOI-only composite
+            logger.warning(f"[Analysis/GEE] Context photo failed: {e}")
+            return _tile_url(fallback.clip(geometry), TRUE_COLOR_VIS)
+
     tiles = {
-        "trueColorEnd": _tile_url(
-            composites["end"].clip(geometry), {"bands": ["B4", "B3", "B2"], "min": 0, "max": 3000}
-        ),
+        "trueColorStart": _photo(periods[0], composites["start"]),
+        "trueColorEnd": _photo(periods[-1], composites["end"]),
         "classStart": _tile_url(
             classified["start"].select(steps.LABEL_BAND).clip(geometry), {"min": 0, "max": 1, "palette": CLASS_PALETTE}
         ),

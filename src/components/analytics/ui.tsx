@@ -58,11 +58,15 @@ export const t = (key: StringKey, lang: Lang) => STRINGS[key][lang]
 
 export function Card({
   title,
+  subtitle,
+  icon,
   right,
   children,
   className,
 }: {
   title?: ReactNode
+  subtitle?: ReactNode
+  icon?: ReactNode
   right?: ReactNode
   children: ReactNode
   className?: string
@@ -74,14 +78,18 @@ export function Card({
         className,
       )}
     >
-      <div className="absolute top-0 right-0 h-24 w-24 bg-gradient-to-bl from-emerald-500/8 via-teal-400/5 to-transparent pointer-events-none rounded-tr-2xl" />
-      {(title || right) && (
-        <header className="mb-3.5 flex flex-wrap items-center justify-between gap-2 border-b border-[#e5efe9]/85 pb-2.5">
-          {title && (
-            <h2 className="font-display text-base font-bold tracking-tight text-[#123f38] flex items-center gap-2">
-              {title}
-            </h2>
-          )}
+      <div className="absolute top-0 right-0 h-28 w-28 bg-gradient-to-bl from-emerald-500/10 via-teal-400/5 to-transparent pointer-events-none rounded-tr-2xl" />
+      {(title || right || subtitle) && (
+        <header className="mb-4 flex flex-wrap items-center justify-between gap-2.5 border-b border-[#e5efe9]/90 pb-3">
+          <div className="space-y-0.5">
+            {title && (
+              <h2 className="font-display text-base font-bold tracking-tight text-[#0f352e] flex items-center gap-2">
+                {icon && <span className="text-[#16865f] shrink-0">{icon}</span>}
+                <span>{title}</span>
+              </h2>
+            )}
+            {subtitle && <p className="text-xs text-[#6c817a] font-normal leading-relaxed">{subtitle}</p>}
+          </div>
           {right}
         </header>
       )}

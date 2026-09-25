@@ -1,4 +1,4 @@
-import type { AnalysisBundle, AnalysisParams, Capabilities, FieldPoint } from '../types/analysis'
+import type { AnalysisBundle, AnalysisParams, Basemap, Capabilities, FieldPoint } from '../types/analysis'
 
 // '' → same-origin /api (Vite dev proxy); set VITE_API_URL for a separate backend host.
 const API_BASE_URL: string = (import.meta.env.VITE_API_URL as string | undefined) ?? ''
@@ -29,6 +29,7 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
 
 export const AnalysisApi = {
   capabilities: () => request<Capabilities>('/analysis/capabilities'),
+  basemap: () => request<Basemap>('/analysis/basemap'),
   run: (params: AnalysisParams) =>
     request<AnalysisBundle>('/analysis/run', { method: 'POST', body: JSON.stringify(params) }),
   addFieldPoint: (point: FieldPoint) =>

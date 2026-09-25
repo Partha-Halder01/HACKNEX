@@ -44,6 +44,18 @@ async def get_capabilities() -> Dict[str, Any]:
     return await run_in_threadpool(analysis_capabilities)
 
 
+@router.get("/basemap")
+async def get_basemap(year: Optional[int] = None) -> Dict[str, Any]:
+    """Sentinel-2 dry-season photo of the Sundarbans as map tiles (Earth Engine).
+
+    Returns {"available": false, "reason": ...} when Earth Engine is offline, so
+    the page can fall back to another background without treating it as an error.
+    """
+    from ...analysis.basemap import get_basemap as build
+
+    return await run_in_threadpool(build, year)
+
+
 @router.post("/run")
 async def post_run(body: AnalysisRunBody) -> Dict[str, Any]:
     """Run the full analysis (area, change, carbon ±, scenarios, accuracy, narrative)."""

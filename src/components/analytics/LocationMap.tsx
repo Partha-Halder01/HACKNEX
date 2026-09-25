@@ -4,11 +4,12 @@ import { Compass, Crosshair, Layers, MapPin } from 'lucide-react'
 import type { AnalysisBundle } from '../../types/analysis'
 import type { Lang } from './ui'
 import { t } from './ui'
+import { ESRI_ATTRIBUTION, ESRI_URL, useBasemap } from './useBasemap'
 
 type Overlay = 'none' | 'trueColorEnd' | 'classStart' | 'classEnd' | 'change'
 
 const OVERLAY_LABELS: Record<Exclude<Overlay, 'none'>, { en: string; bn: string }> = {
-  trueColorEnd: { en: 'Photo from space (latest)', bn: 'মহাকাশ থেকে ছবি (সর্বশেষ)' },
+  trueColorEnd: { en: 'Photo from space (end year)', bn: 'মহাকাশ থেকে ছবি (শেষ বছর)' },
   classStart: { en: 'Forest then (green)', bn: 'তখনকার বন (সবুজ)' },
   classEnd: { en: 'Forest now (green)', bn: 'এখনকার বন (সবুজ)' },
   change: { en: 'Where forest changed', bn: 'কোথায় বন বদলেছে' },
@@ -56,7 +57,18 @@ export function LocationMap({
   const tiles = bundle?.tiles ?? null
   const available = (Object.keys(OVERLAY_LABELS) as Exclude<Overlay, 'none'>[]).filter((k) => tiles?.[k])
   const [overlay, setOverlay] = useState<Overlay>('none')
-  const [base, setBase] = useState<'satellite' | 'streets'>('satellite')
+  // Background: Earth Engine Sentinel-2 photo (default when live) → Esri photo → streets.
+  const basemap = useBasemap()
+  const geeReady = !!basemap?.available && !!basemap.tileUrl
+  const [base, setBase] = useState<'gee' | 'esri' | 'streets'>('gee')
+  const effectiveBase = base === 'gee' && basemap && !geeReady ? 'esri' : base
+  const bases: ('gee' | 'esri' | 'streets')[] = geeReady || basemap === undefined ? ['gee', 'esri', 'streets'] : ['esri', 'streets']
+  const nextBase = bases[(bases.indexOf(effectiveBase) + 1) % bases.length]
+  const BASE_LABEL = {
+    gee: { en: 'Earth Engine photo', bn: 'আর্থ ইঞ্জিন ছবি' },
+    esri: { en: 'Esri photo', bn: 'Esri ছবি' },
+    streets: { en: 'Streets', bn: 'রাস্তার মানচিত্র' },
+  } as const
 
   useEffect(() => {
     setOverlay(tiles?.change ? 'change' : 'none')
@@ -72,16 +84,14 @@ export function LocationMap({
       <div className="pointer-events-none absolute inset-0 z-[500] border-2 border-emerald-600/10 rounded-2xl" />
 
       <MapContainer center={[lat, lon]} zoom={12} minZoom={5} maxZoom={17} scrollWheelZoom={false} className="h-full w-full">
-        {base === 'satellite' ? (
-          <TileLayer
-            url="https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}"
-            attribution="Imagery &copy; Esri, Maxar, Earthstar Geographics"
-          />
+        {effectiveBase === 'streets' ? (
+          <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" attribution="&copy; OpenStreetMap contributors" />
         ) : (
-          <TileLayer
-            url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-            attribution="&copy; OpenStreetMap contributors"
-          />
+          // Esri stays underneath the Earth Engine photo: it fills areas outside the delta.
+          <TileLayer url={ESRI_URL} attribution={ESRI_ATTRIBUTION} />
+        )}
+        {effectiveBase === 'gee' && geeReady && (
+          <TileLayer key={basemap!.tileUrl} url={basemap!.tileUrl!} attribution={basemap!.attribution} maxNativeZoom={16} />
         )}
         {overlayUrl && <TileLayer key={overlayUrl} url={overlayUrl} opacity={0.8} attribution="Google Earth Engine" />}
         <Circle
@@ -112,11 +122,13 @@ export function LocationMap({
       <div className="absolute bottom-3 left-3 z-[500] flex flex-wrap items-center gap-2 print:hidden">
         <button
           type="button"
-          onClick={() => setBase(base === 'satellite' ? 'streets' : 'satellite')}
+          onClick={() => setBase(nextBase)}
+          title={lang === 'bn' ? 'পটভূমি বদলান' : 'Change background'}
           className="flex items-center gap-1.5 rounded-xl bg-white/95 px-3 py-1.5 text-xs font-bold text-[#123f38] shadow-md border border-[#d6e6de] hover:bg-white hover:border-[#16865f] transition-colors"
         >
           <Compass className="size-3.5 text-[#16865f]" />
-          {base === 'satellite' ? (lang === 'bn' ? 'রাস্তার মানচিত্র' : 'Streets') : lang === 'bn' ? 'উপগ্রহ' : 'Satellite'}
+          {BASE_LABEL[effectiveBase][lang]}
+          <span className="font-normal text-[#6c817a]">→ {BASE_LABEL[nextBase][lang]}</span>
         </button>
 
         {analysed && available.length > 0 && (

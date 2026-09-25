@@ -303,7 +303,16 @@ def test_gee_engine_orchestration(monkeypatch):
         lambda geometry, start_date, end_date: (_Img(f"comp:{start_date}"), {"imageCount": 7}),
     )
     monkeypatch.setattr(gee_engine.settings, "CGMD_HISTORY_YEARS", [1990, 2018])
+    from app.analysis import basemap
+    photos = []
+    monkeypatch.setattr(
+        basemap, "true_color_composite",
+        lambda region, start, end: photos.append((start, end)) or _Img(f"photo:{start}"),
+    )
     obs = gee_engine.observe(_req(), fetch=_fake_fetch, steps=_FakeSteps())
+    # before/after photos use the start and end windows
+    assert photos == [("2020-01-01", "2020-03-31"), ("2024-12-31", "2025-03-31")]
+    assert "photo:2020-01-01" in obs["tiles"]["trueColorStart"]
 
     assert obs["isRealData"] is True
     assert obs["modelVersion"].startswith("rf-gee-ondemand-v1-")
@@ -319,7 +328,7 @@ def test_gee_engine_orchestration(monkeypatch):
     check = obs["accuracy"]["areaCheck"]
     assert check["referenceHa"] == 1400.0 and check["modelHa"] == 1488.0 and check["agrees"] is True
     assert obs["historical"] == [{"year": 1990, "mangroveHa": 1600.0}, {"year": 2018, "mangroveHa": 1520.0}]
-    assert set(obs["tiles"]) == {"trueColorEnd", "classStart", "classEnd", "change"}
+    assert set(obs["tiles"]) == {"trueColorStart", "trueColorEnd", "classStart", "classEnd", "change"}
     assert obs["training"]["samplesByClass"] == {"Non-Mangrove": 600, "Mangrove": 600}
 
     bundle = service.build_bundle(_req(), obs, [])
@@ -361,6 +370,19 @@ def test_gee_engine_missing_end_images_is_user_error(monkeypatch):
 # API
 # --------------------------------------------------------------------------- #
 client = TestClient(app)
+
+
+def test_api_basemap_offline_is_unavailable_not_error():
+    r = client.get("/api/analysis/basemap")
+    assert r.status_code == 200
+    assert r.json()["available"] is False
+
+
+def test_latest_dry_season_year():
+    from app.analysis.basemap import latest_dry_season_year
+
+    assert latest_dry_season_year(date(2026, 9, 26)) == 2026
+    assert latest_dry_season_year(date(2026, 2, 10)) == 2025
 
 
 def test_api_capabilities():

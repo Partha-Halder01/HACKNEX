@@ -17,16 +17,19 @@ import {
   Share2,
   Sparkles,
   TreePine,
+  TrendingUp,
 } from 'lucide-react'
 import { Logo } from '../common/Logo'
 import { AnalysisApi } from '../../services/analysis'
 import type { AnalysisBundle, AnalysisParams, Capabilities } from '../../types/analysis'
 import { LocationMap } from './LocationMap'
+import { BeforeAfterMap } from './BeforeAfterMap'
 import { CarbonPanel, ChangeBreakdown, ScenarioChart, ScenarioTable, TimelineChart } from './charts'
 import { AccuracyPanel, MethodPanel, NarrativePanel } from './panels'
 import { AnswerCard, FutureBoxes, SimpleCards, YearsChart } from './SimpleView'
 import { OrbitalRadarHUD } from './AnimatedWidgets'
-import { Badge, Card, fmt, t, type Lang } from './ui'
+import { Badge, Card, fmt, signed, t, type Lang } from './ui'
+import { cn } from '../../lib/utils'
 
 // Forest spots first: near villages the model over-counts mangrove (see the reliability check).
 const PRESETS = [
@@ -111,7 +114,7 @@ export function AnalyticsDashboard({ onNavigate }: { onNavigate?: (path: string)
   const [copied, setCopied] = useState(false)
   const [scrollProgress, setScrollProgress] = useState(0)
   const [scrollY, setScrollY] = useState(0)
-  const [activeSection, setActiveSection] = useState<'cockpit' | 'verdict' | 'metrics' | 'trends' | 'narrative' | 'technical-lab'>('cockpit')
+  const [activeSection, setActiveSection] = useState<'cockpit' | 'verdict' | 'compare' | 'metrics' | 'trends' | 'narrative' | 'technical-lab'>('cockpit')
 
   const runSeq = useRef(0)
   const lang: Lang = params.language
@@ -176,11 +179,12 @@ export function AnalyticsDashboard({ onNavigate }: { onNavigate?: (path: string)
           setScrollProgress(progress)
 
           // Scrollspy detection
-          const sections: Array<{ id: 'cockpit' | 'verdict' | 'metrics' | 'trends' | 'narrative' | 'technical-lab'; offset: number }> = [
+          const sections: Array<{ id: 'cockpit' | 'verdict' | 'compare' | 'metrics' | 'trends' | 'narrative' | 'technical-lab'; offset: number }> = [
             'technical-lab',
             'narrative',
             'trends',
             'metrics',
+            'compare',
             'verdict',
             'cockpit',
           ].map((id) => {
@@ -312,6 +316,7 @@ export function AnalyticsDashboard({ onNavigate }: { onNavigate?: (path: string)
             {[
               { id: 'cockpit', labelEn: 'Cockpit', labelBn: 'নিয়ন্ত্রণ' },
               { id: 'verdict', labelEn: 'Canopy Verdict', labelBn: 'বনের সিদ্ধান্ত' },
+              { id: 'compare', labelEn: 'Before / After', labelBn: 'আগে / পরে' },
               { id: 'metrics', labelEn: 'Blue Carbon & Area', labelBn: 'কার্বন ও এলাকা' },
               { id: 'trends', labelEn: 'Dynamics & Forecast', labelBn: 'গতিপ্রকৃতি' },
               { id: 'narrative', labelEn: 'Narrative', labelBn: 'বিবরণী' },
@@ -387,6 +392,7 @@ export function AnalyticsDashboard({ onNavigate }: { onNavigate?: (path: string)
           {[
             { id: 'cockpit', labelEn: 'Cockpit', labelBn: 'নিয়ন্ত্রণ' },
             { id: 'verdict', labelEn: 'Verdict', labelBn: 'সিদ্ধান্ত' },
+            { id: 'compare', labelEn: 'Before/After', labelBn: 'আগে/পরে' },
             { id: 'metrics', labelEn: 'Carbon', labelBn: 'কার্বন' },
             { id: 'trends', labelEn: 'Dynamics', labelBn: 'গতিপ্রকৃতি' },
             { id: 'narrative', labelEn: 'Narrative', labelBn: 'বিবরণী' },
@@ -741,6 +747,21 @@ export function AnalyticsDashboard({ onNavigate }: { onNavigate?: (path: string)
               <AnswerCard bundle={b} lang={lang} />
             </div>
 
+            {/* SECTION 2b: BEFORE / AFTER — real Sentinel-2 photos from Earth Engine */}
+            <div id="compare" className="scroll-mt-28 space-y-3">
+              <div>
+                <p className="font-light-sub text-[11px] font-bold tracking-[0.22em] text-[#6c817a]">
+                  {bn ? 'নিজের চোখে দেখুন' : 'SEE THE CHANGE'}
+                </p>
+                <h3 className="font-condensed text-2xl sm:text-3xl font-bold tracking-wide text-[#0f352e]">
+                  {bn ? 'আগে ও পরে — আসল উপগ্রহ ছবি' : 'BEFORE & AFTER — REAL SATELLITE PHOTOS'}
+                </h3>
+              </div>
+              <Card>
+                <BeforeAfterMap bundle={b} lang={lang} />
+              </Card>
+            </div>
+
             {/* SECTION 3: CORE BLUE CARBON & AREA METRICS */}
             <div id="metrics" className="scroll-mt-28 space-y-3">
               <div className="flex items-center justify-between">
@@ -830,11 +851,46 @@ export function AnalyticsDashboard({ onNavigate }: { onNavigate?: (path: string)
                     </ul>
                   )}
 
-                  <div className="grid gap-4 lg:grid-cols-3">
-                    <Card title={t('timeline', lang)} className="lg:col-span-2">
+                  <div className="grid gap-4.5 lg:grid-cols-3">
+                    <Card
+                      title={t('timeline', lang)}
+                      subtitle={
+                        lang === 'bn'
+                          ? 'সেন্টিনেল-২ উপগ্রহ ভিত্তিক বনের ক্যানোপি ও সময়ের ধারাবাহিক পরিবর্তন'
+                          : 'Multi-temporal Sentinel-2 MSI canopy dynamics (10m RF)'
+                      }
+                      icon={<Activity className="size-4 text-[#16865f]" />}
+                      className="lg:col-span-2"
+                      right={
+                        <span className="hidden sm:inline-flex items-center gap-1.5 rounded-full bg-emerald-50/90 px-2.5 py-0.5 text-[11px] font-semibold text-emerald-800 border border-emerald-200">
+                          <span className="size-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                          Sentinel-2 RF
+                        </span>
+                      }
+                    >
                       <TimelineChart bundle={b} lang={lang} />
                     </Card>
-                    <Card title={t('change', lang)}>
+                    <Card
+                      title={t('change', lang)}
+                      subtitle={
+                        lang === 'bn'
+                          ? `${b.request.startDate.slice(0, 4)} থেকে ${b.request.endDate.slice(0, 4)} সময়কালের বৃদ্ধি ও ক্ষয়ের পরিমাপ`
+                          : `Canopy expansion vs retreat (${b.request.startDate.slice(0, 4)} – ${b.request.endDate.slice(0, 4)})`
+                      }
+                      icon={<TrendingUp className="size-4 text-[#16865f]" />}
+                      right={
+                        <span
+                          className={cn(
+                            'inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-[11px] font-bold border shadow-2xs',
+                            b.change.netChangeHa >= 0
+                              ? 'bg-emerald-50 text-emerald-800 border-emerald-200'
+                              : 'bg-rose-50 text-rose-800 border-rose-200',
+                          )}
+                        >
+                          {signed(b.change.netChangeHa, 1, lang)} ha
+                        </span>
+                      }
+                    >
                       <ChangeBreakdown bundle={b} lang={lang} />
                     </Card>
                   </div>

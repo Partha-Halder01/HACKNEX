@@ -203,7 +203,7 @@ export interface AnalysisBundle {
   }
   accuracy: Accuracy | null
   historical: { year: number; mangroveHa: number }[] | null
-  tiles: Partial<Record<'trueColorEnd' | 'classStart' | 'classEnd' | 'change', string>> | null
+  tiles: Partial<Record<'trueColorStart' | 'trueColorEnd' | 'classStart' | 'classEnd' | 'change', string>> | null
   training: {
     trainingRegion: string
     trainYears: number[]
@@ -241,4 +241,14 @@ export interface FieldPoint {
   note?: string
   analysisId?: string
   createdAt?: string
+}
+
+export interface Basemap {
+  available: boolean
+  reason?: string
+  tileUrl?: string
+  year?: number
+  season?: string
+  bounds?: [[number, number], [number, number]]
+  attribution?: string
 }
