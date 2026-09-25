@@ -288,38 +288,58 @@ export function AnalyticsDashboard({ onNavigate }: { onNavigate?: (path: string)
         </div>
       </div>
 
-      {/* Modern High-Tech Top Header */}
-      <header className="sticky top-0 z-[1100] border-b border-[#d6e6de]/80 bg-white/90 backdrop-blur-md shadow-xs print:static">
-        <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-3 px-4 py-2.5">
-          <div className="flex items-center gap-3">
+      {/* Unified Executive Clean Header */}
+      <header className="sticky top-0 z-[1100] border-b border-[#d6e6de]/80 bg-white/95 backdrop-blur-md shadow-xs print:static">
+        <div className="mx-auto flex max-w-[1720px] items-center justify-between gap-3 px-4 sm:px-6 lg:px-8 xl:px-12 py-2.5">
+          {/* Brand & Home */}
+          <div className="flex items-center gap-2.5">
             <button
               type="button"
               onClick={goHome}
-              className="flex items-center gap-1.5 rounded-xl border border-transparent p-1.5 text-xs font-semibold text-[#6c817a] hover:border-[#d6e6de] hover:bg-[#f2f6f3] hover:text-[#123f38] transition print:hidden"
+              className="flex size-8 items-center justify-center rounded-lg border border-[#d6e6de] text-[#526a63] hover:border-[#16865f] hover:bg-[#e7f4ec] hover:text-[#123f38] transition print:hidden"
               aria-label={t('home', lang)}
+              title="Return to Home"
             >
               <ArrowLeft className="size-4" />
             </button>
+            <div className="h-4 w-px bg-[#d6e6de]" />
             <Logo onClick={goHome} />
           </div>
 
-          {/* Telemetry HUD Pill */}
-          <div className="hidden md:flex items-center gap-2 rounded-full border border-emerald-500/25 bg-emerald-50/80 px-3 py-1 font-mono text-[11px] text-emerald-900 shadow-xs">
-            <span className="size-1.5 rounded-full bg-emerald-500 beacon-pulse" />
-            <span className="font-semibold">
-              {params.lat >= 0 ? `${params.lat.toFixed(4)}°N` : `${Math.abs(params.lat).toFixed(4)}°S`},{' '}
-              {params.lon >= 0 ? `${params.lon.toFixed(4)}°E` : `${Math.abs(params.lon).toFixed(4)}°W`}
-            </span>
-            <span className="text-emerald-700/70">·</span>
-            <span className="text-emerald-700">{params.radiusKm} km AOI</span>
-          </div>
+          {/* Integrated Segmented Navigation Tabs */}
+          <nav className="hidden lg:flex items-center gap-1 rounded-xl bg-[#f2f6f3]/80 p-1 border border-[#d6e6de]/70 print:hidden" aria-label="Section navigation">
+            {[
+              { id: 'cockpit', labelEn: 'Cockpit', labelBn: 'নিয়ন্ত্রণ' },
+              { id: 'verdict', labelEn: 'Canopy Verdict', labelBn: 'বনের সিদ্ধান্ত' },
+              { id: 'metrics', labelEn: 'Blue Carbon & Area', labelBn: 'কার্বন ও এলাকা' },
+              { id: 'trends', labelEn: 'Dynamics & Forecast', labelBn: 'গতিপ্রকৃতি' },
+              { id: 'narrative', labelEn: 'Narrative', labelBn: 'বিবরণী' },
+              { id: 'technical-lab', labelEn: 'Science Lab', labelBn: 'গবেষণা ল্যাব' },
+            ].map(({ id, labelEn, labelBn }) => {
+              const active = activeSection === id
+              return (
+                <button
+                  key={id}
+                  type="button"
+                  onClick={() => scrollToSection(id)}
+                  className={`rounded-lg px-3 py-1 font-mono text-xs font-semibold transition-all duration-150 cursor-pointer ${
+                    active
+                      ? 'bg-white text-[#16865f] shadow-xs font-bold'
+                      : 'text-[#526a63] hover:text-[#123f38]'
+                  }`}
+                >
+                  {bn ? labelBn : labelEn}
+                </button>
+              )
+            })}
+          </nav>
 
           {/* Action Toolbar */}
           <div className="flex items-center gap-2">
             {caps && (
               <Badge tone={caps.liveEngine ? 'live' : 'demo'}>
                 <Satellite className="size-3" />
-                {caps.liveEngine ? (bn ? 'আসল উপগ্রহ' : 'Live Sentinel') : bn ? 'ডেমো সিমুলেশন' : 'Simulation Mode'}
+                <span className="hidden sm:inline">{caps.liveEngine ? (bn ? 'আসল উপগ্রহ' : 'Live Sentinel') : bn ? 'ডেমো সিমুলেশন' : 'Simulation'}</span>
               </Badge>
             )}
 
@@ -327,7 +347,7 @@ export function AnalyticsDashboard({ onNavigate }: { onNavigate?: (path: string)
             <button
               type="button"
               onClick={handleShare}
-              className="relative flex items-center gap-1.5 rounded-xl border border-[#d6e6de] bg-white px-2.5 py-1 text-xs font-bold text-[#123f38] shadow-xs hover:border-[#16865f] hover:bg-[#e7f4ec] transition print:hidden"
+              className="flex items-center gap-1.5 rounded-lg border border-[#d6e6de] bg-white px-2.5 py-1 text-xs font-semibold text-[#123f38] shadow-xs hover:border-[#16865f] hover:bg-[#e7f4ec] transition print:hidden"
               title="Share or copy analysis URL"
             >
               {copied ? <Check className="size-3.5 text-emerald-600" /> : <Share2 className="size-3.5 text-[#6c817a]" />}
@@ -338,70 +358,62 @@ export function AnalyticsDashboard({ onNavigate }: { onNavigate?: (path: string)
             <button
               type="button"
               onClick={() => window.print()}
-              className="flex items-center gap-1.5 rounded-xl border border-[#d6e6de] bg-white px-2.5 py-1 text-xs font-bold text-[#123f38] shadow-xs hover:border-[#16865f] hover:bg-[#e7f4ec] transition print:hidden"
+              className="flex items-center gap-1.5 rounded-lg border border-[#d6e6de] bg-white px-2.5 py-1 text-xs font-semibold text-[#123f38] shadow-xs hover:border-[#16865f] hover:bg-[#e7f4ec] transition print:hidden"
               title="Print or save PDF report"
             >
               <Printer className="size-3.5 text-[#6c817a]" />
-              <span className="hidden sm:inline">{bn ? 'রিপোর্ট প্রিন্ট' : 'Report'}</span>
+              <span className="hidden sm:inline">{bn ? 'রিপোর্ট' : 'Report'}</span>
             </button>
 
             {/* Bilingual Switcher */}
-            <div className="flex overflow-hidden rounded-xl border border-[#d6e6de] font-mono text-xs font-bold shadow-xs print:hidden">
+            <div className="flex overflow-hidden rounded-lg border border-[#d6e6de] font-mono text-xs font-bold shadow-xs print:hidden">
               {(['en', 'bn'] as const).map((l) => (
                 <button
                   key={l}
                   type="button"
                   onClick={() => set('language', l)}
-                  className={`px-2.5 py-1 transition-colors ${lang === l ? 'bg-[#16865f] text-white' : 'bg-white text-[#123f38] hover:bg-[#f2f6f3]'}`}
+                  className={`px-2.5 py-0.5 transition-colors ${lang === l ? 'bg-[#16865f] text-white' : 'bg-white text-[#123f38] hover:bg-[#f2f6f3]'}`}
                 >
-                  {l === 'en' ? 'EN' : 'বাংলা'}
+                  {l === 'en' ? 'EN' : 'বাং'}
                 </button>
               ))}
             </div>
           </div>
         </div>
-      </header>
 
-      {/* Floating HUD Dock - Sticky Navigation with Active Scrollspy */}
-      <nav
-        className="sticky top-[52px] z-[1000] border-b border-[#d6e6de]/70 bg-[#ffffff]/90 backdrop-blur-md shadow-xs print:hidden"
-        aria-label="Dashboard section navigation"
-      >
-        <div className="mx-auto flex max-w-6xl items-center justify-start overflow-x-auto px-4 py-1.5 scrollbar-none gap-1 sm:gap-2">
+        {/* Compact Mobile Sub-navigation Strip (< lg) */}
+        <div className="flex lg:hidden overflow-x-auto px-4 py-1.5 border-t border-[#d6e6de]/60 gap-1.5 scrollbar-none print:hidden bg-[#f7faf8]">
           {[
-            { id: 'cockpit', icon: Compass, labelEn: 'Satellite Cockpit', labelBn: 'উপগ্রহ নিয়ন্ত্রণ' },
-            { id: 'verdict', icon: Activity, labelEn: 'Canopy Verdict', labelBn: 'বনের সিদ্ধান্ত' },
-            { id: 'metrics', icon: Layers, labelEn: 'Blue Carbon & Area', labelBn: 'কার্বন ও এলাকা' },
-            { id: 'trends', icon: TreePine, labelEn: 'Annual Dynamics', labelBn: 'বার্ষিক গতিপ্রকৃতি' },
-            { id: 'narrative', icon: Sparkles, labelEn: 'Narrative Summary', labelBn: 'পরিবেশ বিবরণী' },
-            { id: 'technical-lab', icon: Radio, labelEn: 'Science Lab', labelBn: 'গবেষণা ল্যাব' },
-          ].map(({ id, icon: Icon, labelEn, labelBn }) => {
+            { id: 'cockpit', labelEn: 'Cockpit', labelBn: 'নিয়ন্ত্রণ' },
+            { id: 'verdict', labelEn: 'Verdict', labelBn: 'সিদ্ধান্ত' },
+            { id: 'metrics', labelEn: 'Carbon', labelBn: 'কার্বন' },
+            { id: 'trends', labelEn: 'Dynamics', labelBn: 'গতিপ্রকৃতি' },
+            { id: 'narrative', labelEn: 'Narrative', labelBn: 'বিবরণী' },
+            { id: 'technical-lab', labelEn: 'Science', labelBn: 'ল্যাব' },
+          ].map(({ id, labelEn, labelBn }) => {
             const active = activeSection === id
             return (
               <button
                 key={id}
                 type="button"
                 onClick={() => scrollToSection(id)}
-                className={`flex shrink-0 items-center gap-1.5 rounded-full px-3 py-1 font-mono text-xs font-bold transition-all duration-200 ${
-                  active
-                    ? 'bg-[#16865f] text-white shadow-xs'
-                    : 'text-[#526a63] hover:bg-[#e7f4ec] hover:text-[#123f38]'
+                className={`shrink-0 rounded-full px-2.5 py-0.5 font-mono text-[11px] font-semibold transition ${
+                  active ? 'bg-[#16865f] text-white font-bold' : 'text-[#526a63] hover:text-[#123f38]'
                 }`}
               >
-                <Icon className={`size-3.5 ${active ? 'text-white' : 'text-[#6c817a]'}`} />
-                <span>{bn ? labelBn : labelEn}</span>
+                {bn ? labelBn : labelEn}
               </button>
             )
           })}
         </div>
-      </nav>
+      </header>
 
-      {/* Main Content Area */}
-      <main className="relative z-10 mx-auto max-w-6xl space-y-6 px-4 py-5 sm:py-6">
+      {/* Main Content Area - Widescreen Utilized */}
+      <main className="relative z-10 mx-auto max-w-[1720px] space-y-6 px-4 sm:px-6 lg:px-8 xl:px-12 py-5 sm:py-7">
         {/* SECTION 1: HERO COCKPIT & MISSION CONTROL */}
-        <section id="cockpit" className="scroll-mt-28 space-y-4">
-          {/* Eye-Catching Mission Hero Banner with AI-Generated Satellite Radar Backdrop */}
-          <div className="relative overflow-hidden rounded-3xl border border-emerald-900/30 bg-[#04241d] p-5 sm:p-7 text-white shadow-[0_16px_40px_rgba(4,36,29,0.35)] print:hidden">
+        <section id="cockpit" className="scroll-mt-20 space-y-4">
+          {/* Eye-Catching Mission Hero Banner with Bebas Neue & Montserrat Font Pairing */}
+          <div className="relative overflow-hidden rounded-3xl border border-emerald-900/30 bg-[#04241d] p-6 sm:p-8 lg:p-10 text-white shadow-[0_16px_40px_rgba(4,36,29,0.35)] print:hidden">
             {/* AI Generated Orbital Radar Background */}
             <div
               className="absolute inset-0 bg-cover bg-center opacity-30 mix-blend-luminosity scale-105 pointer-events-none transition-transform duration-1000"
@@ -410,32 +422,33 @@ export function AnalyticsDashboard({ onNavigate }: { onNavigate?: (path: string)
             {/* Dark gradient mask */}
             <div className="absolute inset-0 bg-gradient-to-r from-[#04241d] via-[#04241d]/90 to-transparent pointer-events-none" />
 
-            <div className="relative z-10 max-w-3xl">
-              <div className="flex flex-wrap items-center gap-2 mb-2">
+            <div className="relative z-10 max-w-4xl">
+              <div className="flex flex-wrap items-center gap-2 mb-3">
                 <span className="flex items-center gap-1.5 rounded-md bg-emerald-500/20 px-2.5 py-0.5 font-mono text-[10.5px] font-bold uppercase tracking-wider text-emerald-300 border border-emerald-400/30">
                   <Sparkles className="size-3 text-emerald-400" />
                   {bn ? 'ইউরোপীয় মহাকাশ সংস্থা সেন্টিনেল-২ এআই বিশ্লেষণ' : 'Sentinel-2 L2A AI Spectral Intelligence'}
                 </span>
                 <span className="font-mono text-[11px] text-emerald-300/80">
-                  {fmt(params.radiusKm * 2, 0, lang)} km swath · Dry season Jan–Mar
+                  {fmt(params.radiusKm * 2, 0, lang)} km swath · Dry season Jan–Mar composite
                 </span>
               </div>
 
-              <h1 className="font-display text-2xl sm:text-4xl font-extrabold tracking-tight text-white leading-tight">
+              {/* Font Pairing: Bebas Neue (Condensed Bold) + Montserrat (Light Tracked Subtitle) */}
+              <h1 className="font-condensed text-4xl sm:text-5xl lg:text-6xl font-bold tracking-wide text-white leading-none">
                 {bn
                   ? 'আপনার এলাকার ম্যানগ্রোভ বন কি বাড়ছে না কমছে?'
-                  : 'Is the mangrove forest in your area growing or shrinking?'}
+                  : 'IS THE MANGROVE FOREST GROWING OR SHRINKING?'}
               </h1>
-              <p className="mt-2 text-sm sm:text-base leading-relaxed text-emerald-100/90 font-serif italic">
+              <p className="font-light-sub text-xs sm:text-sm font-extralight tracking-[0.24em] text-emerald-300 mt-2.5 leading-relaxed">
                 {bn
-                  ? 'উপগ্রহের ছবি দেখে আমরা বলে দিই — জায়গা ও সাল বেছে সরাসরি বায়োমাস ও কার্বন মজুতের নির্ভরযোগ্য তথ্য দেখুন।'
-                  : 'Orbital multispectral verification of canopy change, blue carbon sequestration, and verified ecosystem resilience.'}
+                  ? 'উপগ্রহের ছবি দেখে বায়োমাস ও কার্বন মজুতের নির্ভরযোগ্য তথ্য'
+                  : 'ORBITAL MULTISPECTRAL VERIFICATION · BLUE CARBON SEQUESTRATION · ECOSYSTEM RESILIENCE'}
               </p>
             </div>
           </div>
 
-          {/* Dual-Column Cockpit: Interactive Map & Step Controls */}
-          <div className="grid gap-4 lg:grid-cols-[1fr_360px] print:block">
+          {/* Widescreen Cockpit: Map & Controls with Wide Screen Utilization */}
+          <div className="grid gap-5 lg:grid-cols-[1fr_380px] xl:grid-cols-[1.3fr_420px] 2xl:grid-cols-[1.5fr_440px] print:block">
             <LocationMap
               lat={params.lat}
               lon={params.lon}
@@ -717,14 +730,14 @@ export function AnalyticsDashboard({ onNavigate }: { onNavigate?: (path: string)
             <div id="metrics" className="scroll-mt-28 space-y-3">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="font-mono text-[11px] font-bold uppercase tracking-wider text-[#6c817a]">
-                    {bn ? 'মূল পরিবেশগত সূচক' : 'Core Ecosystem Inventory'}
+                  <p className="font-light-sub text-[11px] font-bold tracking-[0.22em] text-[#6c817a]">
+                    {bn ? 'মূল পরিবেশগত সূচক' : 'CORE ECOSYSTEM INVENTORY'}
                   </p>
-                  <h3 className="font-display text-lg sm:text-xl font-extrabold text-[#0f352e]">
-                    {bn ? 'ম্যানগ্রোভ আয়তন ও ব্লু কার্বন মজুত' : 'Mangrove Canopy & Blue Carbon Reservoir'}
+                  <h3 className="font-condensed text-2xl sm:text-3xl font-bold tracking-wide text-[#0f352e]">
+                    {bn ? 'ম্যানগ্রোভ আয়তন ও ব্লু কার্বন মজুত' : 'MANGROVE CANOPY & BLUE CARBON RESERVOIR'}
                   </h3>
                 </div>
-                <span className="hidden sm:inline font-mono text-[11px] text-[#6c817a]">
+                <span className="hidden sm:inline font-mono text-xs text-[#6c817a] bg-white border border-[#d6e6de] px-2.5 py-1 rounded-lg">
                   AOI: {fmt(params.radiusKm, 1, lang)} km radius
                 </span>
               </div>
@@ -758,13 +771,13 @@ export function AnalyticsDashboard({ onNavigate }: { onNavigate?: (path: string)
             <div id="technical-lab" className="scroll-mt-28">
               <details className="glass-panel group rounded-3xl p-5 sm:p-6 transition-all shadow-md">
                 <summary className="flex cursor-pointer items-center justify-between text-base font-bold text-[#0f352e]">
-                  <div className="flex items-center gap-2">
-                    <span className="text-lg">🔬</span>
-                    <span className="font-display font-extrabold">
-                      {bn ? 'বিশেষজ্ঞদের জন্য বিস্তারিত বৈজ্ঞানিক গবেষণা তথ্য' : 'Advanced Science & Validation Laboratory'}
+                  <div className="flex items-center gap-2.5">
+                    <span className="text-xl">🔬</span>
+                    <span className="font-condensed text-2xl sm:text-3xl font-bold tracking-wide">
+                      {bn ? 'বিশেষজ্ঞদের জন্য বিস্তারিত বৈজ্ঞানিক গবেষণা তথ্য' : 'ADVANCED SCIENCE & VALIDATION LABORATORY'}
                     </span>
-                    <span className="hidden sm:inline font-mono text-xs font-normal text-[#6c817a]">
-                      ({bn ? 'কনফিউশন ম্যাট্রিক্স, কার্বন পুল, স্যাটেলাইট ফিচার্স' : 'confusion matrix, IPCC pools, uncertainty bounds'})
+                    <span className="hidden sm:inline font-light-sub text-[11px] font-normal tracking-[0.2em] text-[#6c817a]">
+                      ({bn ? 'কনফিউশন ম্যাট্রিক্স, কার্বন পুল' : 'CONFUSION MATRIX · IPCC POOLS · UNCERTAINTY'})
                     </span>
                   </div>
                   <ChevronDown className="size-4 text-[#6c817a] transition-transform group-open:rotate-180" />

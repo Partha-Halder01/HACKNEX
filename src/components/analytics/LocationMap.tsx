@@ -67,7 +67,7 @@ export function LocationMap({
   const overlayUrl = analysed && overlay !== 'none' ? tiles?.[overlay] : undefined
 
   return (
-    <div className="hud-corner group relative h-[360px] sm:h-[460px] overflow-hidden rounded-2xl border border-[#c4ded2] shadow-[0_8px_30px_rgba(7,61,52,0.06)]">
+    <div className="hud-corner group relative h-[400px] sm:h-[480px] lg:h-[530px] xl:h-[580px] overflow-hidden rounded-2xl border border-[#c4ded2] shadow-[0_8px_30px_rgba(7,61,52,0.06)]">
       {/* Sci-fi corner brackets */}
       <div className="pointer-events-none absolute inset-0 z-[500] border-2 border-emerald-600/10 rounded-2xl" />
 

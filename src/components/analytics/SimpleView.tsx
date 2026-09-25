@@ -186,7 +186,6 @@ function SureMeter({ bundle: b, lang }: { bundle: AnalysisBundle; lang: Lang }) 
   )
 }
 
-/** Four high-impact metric cards with glowing subtle gradients and AI blue carbon imagery. */
 export function SimpleCards({ bundle: b, lang }: { bundle: AnalysisBundle; lang: Lang }) {
   const dim = b.reliability.level === 'low'
   const end = b.summary.end
@@ -197,11 +196,11 @@ export function SimpleCards({ bundle: b, lang }: { bundle: AnalysisBundle; lang:
   const bn = lang === 'bn'
 
   return (
-    <div className="grid grid-cols-1 gap-3.5 sm:grid-cols-2 lg:grid-cols-4">
+    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
       {/* 1. Forest Area */}
-      <article className={`glass-panel group relative overflow-hidden rounded-2xl p-4.5 transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_14px_34px_rgba(7,61,52,0.08)] ${dim ? 'opacity-50' : ''}`}>
+      <article className={`glass-panel group relative overflow-hidden rounded-2xl p-5 transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_14px_34px_rgba(7,61,52,0.08)] ${dim ? 'opacity-50' : ''}`}>
         <div className="flex items-center justify-between">
-          <p className="flex items-center gap-1.5 font-mono text-[11px] font-bold uppercase tracking-wider text-[#6c817a]">
+          <p className="flex items-center gap-1.5 font-light-sub text-[10.5px] font-semibold tracking-[0.2em] text-[#6c817a]">
             <TreePine className="size-4 text-emerald-600" />
             {bn ? `ম্যানগ্রোভ (${endYear(b)})` : `Forest Area (${endYear(b)})`}
           </p>
@@ -209,9 +208,9 @@ export function SimpleCards({ bundle: b, lang }: { bundle: AnalysisBundle; lang:
             {fmt(end.mangrovePct, 0, lang)}% {bn ? 'ক্যানোপি' : 'cover'}
           </span>
         </div>
-        <p className="mt-2 font-display text-3xl font-extrabold font-tabular text-[#0f352e] tracking-tight">
+        <p className="mt-2 font-condensed text-4xl sm:text-5xl font-bold tracking-wide text-[#0f352e]">
           {fmt(end.mangroveHa, 0, lang)}
-          <span className="ml-1 text-sm font-semibold text-[#6c817a] font-sans">{bn ? 'হেক্টর' : 'ha'}</span>
+          <span className="ml-1.5 text-base font-normal text-[#6c817a] font-sans">{bn ? 'হেক্টর' : 'ha'}</span>
         </p>
         <p className="mt-1 text-xs text-[#526a63]">
           {areaInWords(end.mangroveHa, lang)}
@@ -219,9 +218,9 @@ export function SimpleCards({ bundle: b, lang }: { bundle: AnalysisBundle; lang:
       </article>
 
       {/* 2. Forest Change */}
-      <article className={`glass-panel group relative overflow-hidden rounded-2xl p-4.5 transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_14px_34px_rgba(7,61,52,0.08)] ${dim ? 'opacity-50' : ''}`}>
+      <article className={`glass-panel group relative overflow-hidden rounded-2xl p-5 transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_14px_34px_rgba(7,61,52,0.08)] ${dim ? 'opacity-50' : ''}`}>
         <div className="flex items-center justify-between">
-          <p className="flex items-center gap-1.5 font-mono text-[11px] font-bold uppercase tracking-wider text-[#6c817a]">
+          <p className="flex items-center gap-1.5 font-light-sub text-[10.5px] font-semibold tracking-[0.2em] text-[#6c817a]">
             {diff < 0 ? <TrendingDown className="size-4 text-rose-600" /> : <TrendingUp className="size-4 text-emerald-600" />}
             {bn ? `${startYear(b)} থেকে বদল` : `Change Since ${startYear(b)}`}
           </p>
@@ -229,9 +228,9 @@ export function SimpleCards({ bundle: b, lang }: { bundle: AnalysisBundle; lang:
             {diff > 0 ? '+' : ''}{fmt(b.change.percentChange, 1, lang)}%
           </span>
         </div>
-        <p className={`mt-2 font-display text-3xl font-extrabold font-tabular tracking-tight ${diff < 0 ? 'text-rose-600' : 'text-emerald-700'}`}>
+        <p className={`mt-2 font-condensed text-4xl sm:text-5xl font-bold tracking-wide ${diff < 0 ? 'text-rose-600' : 'text-emerald-700'}`}>
           {Math.abs(diff) < 0.5 ? (bn ? '০.০' : '0.0') : `${diff > 0 ? '+' : '−'}${fmt(Math.abs(diff), 0, lang)}`}
-          <span className="ml-1 text-sm font-semibold text-[#6c817a] font-sans">{bn ? 'হেক্টর' : 'ha'}</span>
+          <span className="ml-1.5 text-base font-normal text-[#6c817a] font-sans">{bn ? 'হেক্টর' : 'ha'}</span>
         </p>
         <p className="mt-1 text-xs text-[#526a63]">
           {Math.abs(diff) < 0.5
@@ -243,7 +242,7 @@ export function SimpleCards({ bundle: b, lang }: { bundle: AnalysisBundle; lang:
       </article>
 
       {/* 3. Blue Carbon Reservoir (Featuring AI Generated Visual) */}
-      <article className={`group relative overflow-hidden rounded-2xl border border-emerald-900/30 bg-[#062923] p-4.5 text-white transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_14px_34px_rgba(6,41,35,0.3)] ${dim ? 'opacity-50' : ''}`}>
+      <article className={`group relative overflow-hidden rounded-2xl border border-emerald-900/30 bg-[#062923] p-5 text-white transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_14px_34px_rgba(6,41,35,0.3)] ${dim ? 'opacity-50' : ''}`}>
         {/* AI-Generated Blue Carbon Roots Background Image with dark gradient mask */}
         <div
           className="absolute inset-0 bg-cover bg-center opacity-30 mix-blend-luminosity group-hover:scale-105 group-hover:opacity-40 transition-all duration-700 pointer-events-none"
@@ -253,7 +252,7 @@ export function SimpleCards({ bundle: b, lang }: { bundle: AnalysisBundle; lang:
 
         <div className="relative z-10">
           <div className="flex items-center justify-between">
-            <p className="flex items-center gap-1.5 font-mono text-[11px] font-bold uppercase tracking-wider text-emerald-300">
+            <p className="flex items-center gap-1.5 font-light-sub text-[10.5px] font-semibold tracking-[0.2em] text-emerald-300">
               <Users className="size-4 text-emerald-400" />
               {bn ? 'বনে জমা কার্বন' : 'Blue Carbon Stock'}
             </p>
@@ -261,9 +260,9 @@ export function SimpleCards({ bundle: b, lang }: { bundle: AnalysisBundle; lang:
               IPCC Tier 1
             </span>
           </div>
-          <p className="mt-2 font-display text-3xl font-extrabold font-tabular text-emerald-100 tracking-tight">
+          <p className="mt-2 font-condensed text-4xl sm:text-5xl font-bold tracking-wide text-emerald-100">
             {fmt(co2, 0, lang)}
-            <span className="ml-1 text-sm font-semibold text-emerald-300/80 font-sans">{bn ? 'টন CO₂' : 't CO₂e'}</span>
+            <span className="ml-1.5 text-base font-normal text-emerald-300/80 font-sans">{bn ? 'টন CO₂' : 't CO₂e'}</span>
           </p>
           <p className="mt-1 text-xs text-emerald-200/90 leading-tight">
             {bn
@@ -274,9 +273,9 @@ export function SimpleCards({ bundle: b, lang }: { bundle: AnalysisBundle; lang:
       </article>
 
       {/* 4. 2030 Horizon Projection */}
-      <article className={`glass-panel group relative overflow-hidden rounded-2xl p-4.5 transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_14px_34px_rgba(7,61,52,0.08)] ${dim ? 'opacity-50' : ''}`}>
+      <article className={`glass-panel group relative overflow-hidden rounded-2xl p-5 transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_14px_34px_rgba(7,61,52,0.08)] ${dim ? 'opacity-50' : ''}`}>
         <div className="flex items-center justify-between">
-          <p className="flex items-center gap-1.5 font-mono text-[11px] font-bold uppercase tracking-wider text-[#6c817a]">
+          <p className="flex items-center gap-1.5 font-light-sub text-[10.5px] font-semibold tracking-[0.2em] text-[#6c817a]">
             <Leaf className="size-4 text-emerald-600" />
             {bn ? `${trend.year} পূর্বাভাস` : `${trend.year} Scenario`}
           </p>
@@ -284,9 +283,9 @@ export function SimpleCards({ bundle: b, lang }: { bundle: AnalysisBundle; lang:
             +5 yr model
           </span>
         </div>
-        <p className="mt-2 font-display text-3xl font-extrabold font-tabular text-[#0f352e] tracking-tight">
+        <p className="mt-2 font-condensed text-4xl sm:text-5xl font-bold tracking-wide text-[#0f352e]">
           {fmt(trend.mangroveHa, 0, lang)}
-          <span className="ml-1 text-sm font-semibold text-[#6c817a] font-sans">{bn ? 'হেক্টর' : 'ha'}</span>
+          <span className="ml-1.5 text-base font-normal text-[#6c817a] font-sans">{bn ? 'হেক্টর' : 'ha'}</span>
         </p>
         <p className="mt-1 text-xs text-[#526a63]">
           {bn ? 'বর্তমান ধারা অনুযায়ী আনুমানিক প্রক্ষেপণ' : 'projected trajectory under status-quo trends'}
