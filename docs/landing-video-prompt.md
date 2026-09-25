@@ -1,86 +1,99 @@
-# Landing Page Scroll Video — Gemini (Veo) Prompt
+# Landing Page Scroll Video — Storyboard & Gemini (Veo) Prompts
 
-The landing page's scroll animation is built from this clip. As the visitor
-scrolls, the video is scrubbed frame by frame: hero mangrove tree → camera
-sinks through the waterline → the underwater scene becomes the backdrop for
-the project explanation.
+The landing page is one long scroll-scrubbed film. Each Gemini clip shows one
+stage of the project **visually, underwater**. The website then adds the
+headings and explanations as HTML text (Bebas Neue + Montserrat, the dashboard fonts)
+over the empty left side of each frame.
 
-## How to generate
+| # | Clip | Project stage it explains | Status |
+|---|------|---------------------------|--------|
+| 1 | Tree → dive into water (10s) | Hero / intro | ✅ Done (`gemini_generated_video_8a2eed7f.mp4`, used from 1.5s, after the labels fade) |
+| 2 | Satellite scan beam (8s) | Sentinel-2 imagery + Random Forest 5-class classification | ⏳ |
+| 3 | Roots grow & fade (8s) | Change detection 2020 → now (gain / loss) | ⏳ |
+| 4 | Carbon sinks into seabed layers (8s) | IPCC Tier 1 blue carbon (AGB → BGB → SOC) | ⏳ |
+| 5 | Particles form a delta map, rise to surface (8s) | Gemini AI insights + community reports → CTA | ⏳ |
 
-1. Open Gemini → Video (Veo).
-2. **Attach the reference mangrove image as the starting frame** (image-to-video).
-   Frame 1 of the video then matches the hero exactly, so the switch from the
-   static hero to the scrolling video is seamless.
-3. Paste the **Main prompt** below. Choose **16:9, 1080p (or the highest
-   available), no audio needed**.
-4. Generate 2–3 variations and pick the one with the **smoothest, steadiest
-   camera and no cuts**.
-5. Send back the original `.mp4` (do not re-compress it or trim it in a phone editor).
+## Rules for every clip (important)
 
----
-
-## Main prompt (paste this)
-
-```
-A single continuous 10-second cinematic shot, 16:9, photorealistic, National Geographic quality, no cuts, no transitions, no text, no logos, no watermarks, no people.
-
-OPENING FRAME (0–2s): A split-level half-above / half-below water view of a single majestic Sundarbans mangrove tree standing in a calm tidal estuary at golden hour. Above the waterline: a wide dense green canopy, arching stilt roots entering the water, a distant mangrove forest shoreline, soft warm sunlight and a pale blue sky with light clouds. Below the waterline: crystal-clear emerald-teal water, a tangle of underwater prop roots, small silver fish, and dark organic seabed sediment. The waterline sits exactly at the vertical middle of the frame. The camera is almost still, with only a very slight forward drift.
-
-THE DIVE (2–6s): The camera slowly and smoothly sinks straight down along the trunk. The waterline rises up through the frame and passes the lens with a gentle, clean meniscus ripple and a few tiny bubbles, then the camera is fully underwater. Sun rays (god rays) pierce the water surface from above. The movement is one steady, constant-speed vertical descent — no shaking, no zooming, no rotation, no speed ramps.
-
-UNDERWATER (6–10s): The camera keeps descending slowly, moving past the thick stilt roots toward the seabed. Tiny glowing particles of carbon drift in the water — soft cyan and warm amber specks, like floating dissolved and particulate organic carbon. At the seabed, dark layered sediment glows faintly with deep blue-cyan points of light, suggesting stored blue carbon locked in the soil. The mangrove roots stay on the right third of the frame; the left and center of the frame become open, calm, deep emerald-to-dark-teal water with soft light, leaving clean empty negative space. The final frame is still and peaceful, deep dark green-teal (#041f1a to #0b4a36 tones), suitable as a background for overlaid text.
-
-STYLE: Ultra-detailed, natural colors, emerald and teal underwater palette, warm golden-hour light above water, shallow haze underwater, soft volumetric light, gentle caustics on the roots, realistic water physics, smooth 24fps motion, steady gimbal camera, no motion blur smearing, high dynamic range, crisp focus throughout.
-
-AVOID: text, captions, labels, subtitles, logos, watermarks, people, boats, cartoon style, fast camera moves, camera shake, cuts, fades to black, zooms, time-lapse, flickering, distorted fish, morphing roots.
-```
-
-### Why "no text" in the video
-
-The title, labels and project explanation will be rendered by the website
-itself as crisp HTML text in the dashboard fonts, animated in sync with scroll.
-AI-generated text in video is usually misspelled and blurry, can't be
-translated (EN/BN), and can't be read by judges on a large screen. So the video
-is a clean backdrop and the text lives in code.
+1. **Chain the clips.** For every clip, attach the **last frame of the previous
+   clip** as the starting image. For clip 2, use `docs/clip1-last-frame.png`.
+   To get a last frame from Gemini, pause the video at the very end and take a
+   full-resolution screenshot, or send me the MP4 and I'll extract it.
+2. 16:9, highest resolution. Generate 2–3 variations and pick the steadiest one.
+3. Send me the original `.mp4` files unedited.
+4. Never ask for words, numbers or letters. Veo writes misspelled text. All
+   explanation text is added by the website.
 
 ---
 
-## Optional: if you want Gemini to render text anyway
-
-Append this to the end of the main prompt. The fonts match the dashboard
-(`src/index.css`: `--font-condensed` = Bebas Neue, `--font-subtitle` = Montserrat).
+## Clip 2 — "Eyes in orbit" (Sentinel-2 + AI classification)
 
 ```
-TEXT (only in the final 2 seconds, fading in gently on the left side of the frame over the open dark water):
-- Headline in a tall condensed bold all-caps sans-serif typeface exactly like "Bebas Neue", pure white, wide letter spacing: "SUNDARBAN BLUE CARBON"
-- Below it, a small thin light-weight all-caps sans-serif subtitle exactly like "Montserrat ExtraLight", very wide letter spacing, soft mint green (#a8efb5): "AI & SATELLITE MANGROVE INTELLIGENCE"
-Text must be perfectly spelled, sharp, flat 2D, not warped, not moving with the water.
+Continue seamlessly from the provided starting frame: a calm underwater Sundarbans mangrove scene, emerald-teal water, stilt roots on the right side, dark seabed with faint cyan glowing specks. One continuous 8-second shot, 16:9, photorealistic, no cuts.
+
+Far above, seen through the rippling water surface, a tiny bright satellite glints like a moving star. From it, a thin flat horizontal sheet of soft emerald-cyan scanning light slowly descends through the water from the top of the frame to the bottom, like a gentle laser scanner. Everywhere the scan line passes, the scene briefly turns into a glowing semi-transparent holographic pixel grid overlay: the mangrove roots light up as bright green pixel squares, the open water as deep blue pixel squares, the mud as sandy tan pixel squares, then the grid softly fades back into the realistic scene behind the line. Tiny floating square pixels drift like plankton.
+
+The camera glides very slowly forward at constant speed. The roots stay on the right third of the frame; the left and center stay open, calm, dark emerald-teal water as clean negative space. The shot ends on a calm, still underwater frame with the pixel grid fully faded.
+
+Style: photorealistic underwater cinematography mixed with subtle futuristic holographic data visualization, soft volumetric god rays, emerald #16865f, mint #a8efb5 and dark teal #041f1a palette, steady gimbal motion, 24fps.
+Avoid: text, letters, numbers, labels, UI panels, logos, watermarks, people, divers, cuts, fades to black, camera shake, zooms, fast motion.
+```
+
+## Clip 3 — "Watching the forest change" (change detection)
+
+```
+Continue seamlessly from the provided starting frame: a calm underwater Sundarbans mangrove scene, emerald-teal water, stilt roots on the right side, dark seabed. One continuous 8-second shot, 16:9, photorealistic, no cuts.
+
+A gentle underwater time-lapse of years passing: soft light cycles overhead, and the mangrove root system visibly grows. New young stilt roots and small mangrove seedlings sprout from the seabed and extend downward, each outlined with a soft glowing bright green rim light (forest gain). On the far right edge, a few old thin roots slowly fade to a dim warm amber-red glow and gently dissolve into drifting particles (forest loss). The growth clearly dominates the loss.
+
+The camera stays almost still, with only a very slow forward drift. The left and center of the frame stay open, calm, dark emerald-teal water as clean negative space. Ends on a calm still frame of a denser, healthier root system.
+
+Style: photorealistic nature documentary time-lapse, soft volumetric god rays, emerald, mint green and dark teal palette with small warm amber accents, steady camera, 24fps.
+Avoid: text, letters, numbers, labels, UI panels, logos, watermarks, people, cuts, fades to black, camera shake, zooms, flickering, morphing distorted shapes.
+```
+
+## Clip 4 — "Counting blue carbon" (IPCC carbon accounting)
+
+```
+Continue seamlessly from the provided starting frame: a calm underwater Sundarbans mangrove scene, emerald-teal water, stilt roots on the right side, dark seabed. One continuous 8-second shot, 16:9, photorealistic, no cuts.
+
+The camera slowly and smoothly descends straight down into the seabed, which opens into a clean cinematic cross-section cutaway of the mangrove soil, like a geological diagram come to life. Three horizontal layers are visible: the roots at the top, dense root-filled mud in the middle, and deep dark organic sediment at the bottom. Thousands of tiny glowing cyan-blue carbon particles flow down from the roots like slow luminous rain and settle into the layers. The layers light up one after another from top to bottom with a soft cyan-blue glow, and the deepest layer ends as a rich, dense, shimmering band of stored blue carbon.
+
+The layers span the full width, but the glow is brightest on the right; the left side stays darker and calmer as negative space. Ends on a still, glowing cross-section frame.
+
+Style: photorealistic macro cinematography mixed with subtle scientific visualization, deep dark teal #041f1a background, glowing cyan and emerald particles, soft bloom, steady constant-speed descent, 24fps.
+Avoid: text, letters, numbers, labels, arrows, charts, UI panels, logos, watermarks, people, cuts, fades to black, camera shake, zooms.
+```
+
+## Clip 5 — "From data to people" (Gemini AI insights → community)
+
+```
+Continue seamlessly from the provided starting frame: a dark underground cross-section of mangrove soil glowing with cyan-blue carbon particles. One continuous 8-second shot, 16:9, photorealistic, no cuts.
+
+The glowing cyan and emerald particles rise out of the sediment and swirl together into the water, gathering into a floating translucent 3D holographic map of a river delta: branching glowing blue river channels between bright green mangrove islands, with a few soft pulsing points of light connected by thin light threads, like a neural network over the delta. The holographic map floats in the center-right of the frame and slowly rotates. The camera then rises upward past the map toward the bright water surface with sun rays, and in the final second gently breaks the surface into a warm golden sunrise over a vast, healthy green mangrove forest on a calm river.
+
+Style: photorealistic underwater and nature cinematography mixed with an elegant holographic data visualization, emerald, mint and cyan palette, warm golden light at the end, soft bloom, steady smooth upward motion, 24fps.
+Avoid: text, letters, numbers, labels, UI panels, screens, logos, watermarks, people, cuts, fades to black, camera shake, fast motion.
 ```
 
 ---
 
-## Optional second clip (only if the 10s clip feels too short)
+## Website text for each stage (added in code, not in the video)
 
-Use the **last frame of clip 1** as the starting frame:
+| Clip | Heading (Bebas Neue) | Subtitle (Montserrat) |
+|------|----------------------|-----------------------|
+| 1 | SUNDARBAN BLUE CARBON | AI & satellite mangrove intelligence |
+| 2 | EYES IN ORBIT | Sentinel-2 imagery → Random Forest: mangrove, water, aquaculture, bare land, vegetation |
+| 3 | WATCHING THE FOREST CHANGE | Gross gain, loss and net change since 2020 |
+| 4 | COUNTING BLUE CARBON | IPCC Tier 1: biomass + roots + soil carbon, ±18.3% uncertainty |
+| 5 | FROM DATA TO PEOPLE | Gemini AI insights with hallucination checks, bilingual reports → Open dashboard |
 
-```
-A continuous 8-second shot, 16:9, photorealistic, no cuts, no text. Starting underwater in calm deep emerald-teal water beside mangrove stilt roots on the right side of the frame. The camera slowly glides forward and slightly down along the dark seabed. The layered sediment glows with faint cyan-blue points of light (stored blue carbon), and tiny cyan and amber particles drift slowly upward. Soft god rays from above. The left and center of the frame stay open, dark and calm (#041f1a to #0b4a36) as negative space for text overlays. Steady constant-speed gimbal motion, no zoom, no shake, no fades. Ends on a still, peaceful, dark underwater frame.
-```
+## Integration plan
 
----
-
-## What happens after the video is delivered
-
-1. The MP4 is split into ~120–240 WebP frames with `ffmpeg` (1920px wide,
-   compressed) and stored under `public/landing/frames/`.
-2. A sticky full-screen `<canvas>` on the landing page draws the frame matching
-   the current scroll position (preloaded, `requestAnimationFrame`, so it plays
-   smoothly forward and backward).
-3. Scroll stages layered on top, in the dashboard fonts:
-   - **Hero** (frame 1): "SUNDARBAN BLUE CARBON" (Bebas Neue) + Montserrat subtitle + CTA to `/dashboard`.
-   - **Dive** (waterline passes): hero text fades out.
-   - **Underwater**: project explanation cards appear one by one over the dark
-     left-side water — Sentinel-2 imagery → Random Forest classification →
-     change detection → IPCC Tier 1 carbon accounting → Gemini AI insights →
-     bilingual community reports.
-4. Desktop-first layout; on mobile it falls back to a static poster frame.
+- The clips are joined, the Gemini sparkle watermark (bottom-right) is cropped
+  out by a slight zoom, and the result is exported as WebP frames under
+  `public/landing/frames/`.
+- A sticky full-screen `<canvas>` draws the frame for the current scroll
+  position. Each clip gets one scroll section, and its text animates in and
+  out on the left side.
+- Desktop-first. On mobile, a static frame is shown per section.
