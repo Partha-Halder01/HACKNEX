@@ -1,5 +1,5 @@
 /**
- * Sundarban Blue Carbon - Reusable Formatting Helpers
+ * MangroveLens - Reusable Formatting Helpers
  */
 
 /**

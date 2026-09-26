@@ -1,4 +1,4 @@
-# Sundarban Blue Carbon — Backend API Contract (Phase 2)
+# MangroveLens — Backend API Contract (Phase 2)
 
 > **STATUS**: **IMPLEMENTED IN PHASE 2** (FastAPI Gateway + MongoDB Motor Driver + Gemini + ReportLab)  
 > **Backend Framework**: FastAPI (Python 3.10+)  

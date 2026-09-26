@@ -1,12 +1,15 @@
 import React from 'react'
-import { Leaf } from 'lucide-react'
+import { BRAND } from '../../config/app'
 
 interface LogoProps {
+  /** On dark backgrounds: puts the logo on a soft white card so the dark lettering stays readable. */
   light?: boolean
+  /** Rendered height in px (the logo is ~2.8× wider than tall). */
+  height?: number
   onClick?: () => void
 }
 
-export function Logo({ light = false, onClick }: LogoProps) {
+export function Logo({ light = false, height = 44, onClick }: LogoProps) {
   const handleClick = (e: React.MouseEvent) => {
     if (onClick) {
       e.preventDefault()
@@ -18,28 +21,18 @@ export function Logo({ light = false, onClick }: LogoProps) {
     <a
       href="/"
       onClick={handleClick}
-      className={`flex items-center gap-2.5 transition-opacity hover:opacity-90 ${
-        light ? 'text-white' : 'text-[#123B32]'
+      aria-label={`${BRAND.name} — home`}
+      className={`inline-flex shrink-0 items-center transition-opacity hover:opacity-90 ${
+        light ? 'rounded-xl bg-white/95 px-2 py-1 shadow-sm' : ''
       }`}
     >
-      <span
-        className={`grid size-10 place-items-center rounded-full ${
-          light ? 'bg-[#299b70] text-white' : 'bg-[#e5f6e9] text-[#15905e]'
-        }`}
-      >
-        <Leaf className="size-6 -rotate-12" strokeWidth={2.5} />
-      </span>
-      <span className="leading-[0.9]">
-        <strong className="block text-[14px] font-extrabold tracking-[-0.04em]">SUNDARBAN</strong>
-        <strong className="block text-[14px] font-extrabold tracking-[-0.04em]">BLUE CARBON</strong>
-        <small
-          className={`block pt-1 text-[7px] font-medium tracking-[0.04em] ${
-            light ? 'text-white/60' : 'text-[#5f8075]'
-          }`}
-        >
-          MEASURE THE FOREST. PROTECT THE CARBON.
-        </small>
-      </span>
+      <img
+        src={BRAND.logo}
+        alt={BRAND.name}
+        style={{ height }}
+        className="w-auto select-none"
+        draggable={false}
+      />
     </a>
   )
 }

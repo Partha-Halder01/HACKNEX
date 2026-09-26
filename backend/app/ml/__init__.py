@@ -1,4 +1,4 @@
-"""Machine Learning package for Sundarban Blue Carbon."""
+"""Machine Learning package for MangroveLens."""
 from .labels import (
     LAND_COVER_CLASSES,
     CLASS_NAMES,

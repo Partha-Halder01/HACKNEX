@@ -38,4 +38,21 @@ export const AnalysisApi = {
       body: JSON.stringify(point),
     }),
   listFieldPoints: () => request<FieldPoint[]>('/analysis/field-points'),
+  exportPdf: async (bundle: AnalysisBundle, lang: 'en' | 'bn' = 'en'): Promise<Blob> => {
+    let res: Response
+    try {
+      res = await fetch(`${API_BASE_URL}/api/analysis/report/pdf?lang=${lang}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(bundle),
+      })
+    } catch {
+      throw new Error('Cannot reach the analysis server.')
+    }
+    if (!res.ok) {
+      throw new Error('Failed to generate PDF')
+    }
+    return res.blob()
+  },
 }
+

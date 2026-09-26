@@ -1,4 +1,4 @@
-"""Geospatial processing package for Sundarban Blue Carbon."""
+"""Geospatial processing package for MangroveLens."""
 from .gee_client import initialize_gee, get_gee_status
 from .aoi import (
     load_geojson,

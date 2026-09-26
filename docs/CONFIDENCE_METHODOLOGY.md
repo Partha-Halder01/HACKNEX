@@ -1,5 +1,5 @@
 # Confidence & Data Quality Methodology
-**Sundarban Blue Carbon — Phase 7**
+**MangroveLens — Phase 7**
 
 ---
 

@@ -58,7 +58,7 @@ async def test_jinja2_template_rendering():
     template_bn = env.get_template("village_report_bn.html")
     html_bn = template_bn.render(report=rep_dict_bn)
     assert "গোসাবা" in html_bn
-    assert "SUNDARBAN BLUE CARBON" in html_bn
+    assert "MANGROVELENS" in html_bn
 
     rep_en = await get_village_report("gosaba", lang="en")
     rep_dict_en = rep_en.model_dump(by_alias=False)

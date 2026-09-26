@@ -1,8 +1,8 @@
-# Sundarban Blue Carbon — System Architecture Document
+# MangroveLens — System Architecture Document
 
 ## 1. System Overview
 
-**Sundarban Blue Carbon** is a climate intelligence platform designed to monitor mangrove ecosystems, quantify coastal change, model indicative blue-carbon stocks, and translate complex Earth Observation data into localized, community-accessible evidence.
+**MangroveLens** is a climate intelligence platform designed to monitor mangrove ecosystems, quantify coastal change, model indicative blue-carbon stocks, and translate complex Earth Observation data into localized, community-accessible evidence.
 
 The architecture enforces strict separation of concerns across:
 1. **Presentation Layer**: Frozen React 19 + TypeScript + Tailwind CSS UI.

@@ -2,7 +2,7 @@
 
 ## 1. Executive Summary & Core Objective
 
-The **Sundarban Blue Carbon Geospatial Pipeline (Phase 3)** establishes a reproducible, scientifically grounded satellite telemetry ingestion system for coastal mangrove monitoring in the Indian Sundarbans.
+The **MangroveLens Geospatial Pipeline (Phase 3)** establishes a reproducible, scientifically grounded satellite telemetry ingestion system for coastal mangrove monitoring in the Indian Sundarbans.
 
 ```mermaid
 flowchart TD

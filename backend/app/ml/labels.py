@@ -1,4 +1,4 @@
-"""Authoritative land-cover class definitions for Sundarban Blue Carbon.
+"""Authoritative land-cover class definitions for MangroveLens.
 
 Exactly five discrete classes are supported:
 0 = Mangrove

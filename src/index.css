@@ -146,8 +146,8 @@ body {
 
 .font-light-sub {
   font-family: var(--font-subtitle);
-  font-weight: 200;
-  letter-spacing: 0.26em;
+  font-weight: 600;
+  letter-spacing: 0.18em;
   text-transform: uppercase;
 }
 
@@ -477,3 +477,61 @@ body {
 .custom-marker-pin:hover {
   transform: scale(1.15);
 }
+
+/* Landing page: slow-rising underwater particles after the dive */
+@keyframes home-rise {
+  0% { transform: translateY(0); opacity: 0; }
+  10% { opacity: 0.6; }
+  90% { opacity: 0.35; }
+  100% { transform: translateY(-140vh); opacity: 0; }
+}
+.home-particle {
+  animation-name: home-rise;
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+  box-shadow: 0 0 6px rgba(125, 211, 252, 0.8);
+}
+@media (prefers-reduced-motion: reduce) {
+  .home-particle { animation: none; }
+}
+
+/* Official Report Print Stylesheet */
+@media print {
+  @page {
+    margin: 12mm 14mm;
+    size: A4 portrait;
+  }
+  
+  html, body {
+    background: #ffffff !important;
+    color: #062f29 !important;
+    overflow: visible !important;
+    height: auto !important;
+  }
+
+  header, nav, .print\:hidden {
+    display: none !important;
+  }
+
+  #printable-report {
+    display: block !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    border: none !important;
+    box-shadow: none !important;
+    background: #ffffff !important;
+  }
+
+  tr, table, .rounded-xl, .rounded-2xl {
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+
+  * {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+}
+

@@ -1,4 +1,4 @@
-"""Sundarban Blue Carbon — Centralized Demonstration Dataset (Phase 2).
+"""MangroveLens — Centralized Demonstration Dataset (Phase 2).
 
 IMPORTANT SCIENTIFIC NOTICE:
 These values are demonstration data prepared for API architecture and UI integration.

@@ -2,7 +2,7 @@
 <html lang="{{ report.language }}">
 <head>
   <meta charset="UTF-8">
-  <title>{{ report.village_name }} — Sundarban Blue Carbon Report</title>
+  <title>{{ report.village_name }} — MangroveLens Report</title>
   <style>
     @page {
       size: A4 portrait;
@@ -92,7 +92,7 @@
 </head>
 <body>
   <div class="header-table">
-    <div class="subtitle">SUNDARBAN BLUE CARBON · VILLAGE INTELLIGENCE REPORT</div>
+    <div class="subtitle">MANGROVELENS · VILLAGE INTELLIGENCE REPORT</div>
     <div class="title">{{ report.village_name }} ({{ report.bengali_village_name }})</div>
     <div style="font-size: 9pt; color: #6c817a; margin-top: 4px;">
       Region: {{ report.region }} · Period: {{ report.period }} · Generated: {{ report.report_date }}
@@ -139,7 +139,7 @@
   {% endfor %}
 
   <div class="disclaimer">
-    Sundarban Blue Carbon · Indicative model-based estimate for conservation planning. Not certified for carbon credit verification.
+    MangroveLens · Indicative model-based estimate for conservation planning. Not certified for carbon credit verification.
   </div>
 </body>
 </html>

@@ -1,5 +1,5 @@
 # Village Report & PDF Generation Methodology
-**Sundarban Blue Carbon — Phase 7**
+**MangroveLens — Phase 7**
 
 ---
 

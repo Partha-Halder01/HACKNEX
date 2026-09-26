@@ -45,5 +45,5 @@ class GeoJsonGeometry(CamelModel):
 class HealthResponse(CamelModel):
     """Health check status model."""
     status: str = "ok"
-    service: str = "sundarban-blue-carbon-api"
+    service: str = "mangrovelens-api"
     version: str = "0.1.0"

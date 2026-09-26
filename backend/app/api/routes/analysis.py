@@ -5,7 +5,7 @@ from datetime import date, datetime, timezone
 from pathlib import Path
 from typing import Any, Dict, List, Literal, Optional
 
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Response
 from fastapi.concurrency import run_in_threadpool
 from pydantic import BaseModel, Field
 
@@ -136,3 +136,27 @@ async def get_field_points(limit: int = 200) -> List[Dict[str, Any]]:
         return []
     lines = path.read_text(encoding="utf-8").splitlines()
     return [json.loads(line) for line in reversed(lines[-limit:]) if line.strip()]
+
+
+@router.post("/report/pdf")
+async def export_analysis_report_pdf(bundle: Dict[str, Any], lang: str = "en") -> Response:
+    """Generate and stream a structured bilingual PDF for an analysis bundle."""
+    from ...services.pdf import generate_analysis_bundle_pdf
+
+    try:
+        pdf_bytes = await run_in_threadpool(generate_analysis_bundle_pdf, bundle, lang)
+    except Exception as e:
+        logger.exception("[Analysis] PDF generation failed")
+        raise HTTPException(status_code=500, detail=f"Failed to generate report PDF: {e}")
+
+    analysis_id = bundle.get("analysisId", "sundarban-analysis")
+    filename = f"{analysis_id}-report-{lang}.pdf"
+    return Response(
+        content=pdf_bytes,
+        media_type="application/pdf",
+        headers={
+            "Content-Disposition": f'attachment; filename="{filename}"',
+            "Content-Type": "application/pdf",
+        },
+    )
+

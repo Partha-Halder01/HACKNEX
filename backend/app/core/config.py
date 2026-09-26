@@ -9,7 +9,7 @@ BACKEND_DIR = Path(__file__).resolve().parents[2]
 
 
 class Settings(BaseSettings):
-    APP_NAME: str = "Sundarban Blue Carbon API"
+    APP_NAME: str = "MangroveLens API"
     APP_VERSION: str = "0.1.0"
     ENVIRONMENT: str = "development"
     FRONTEND_ORIGIN: str = "http://localhost:5173"

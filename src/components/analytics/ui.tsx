@@ -74,21 +74,20 @@ export function Card({
   return (
     <section
       className={cn(
-        'modern-card p-4 sm:p-5.5 break-inside-avoid relative overflow-hidden',
+        'rounded-2xl border border-[#d2e4db] bg-white p-4 sm:p-5.5 break-inside-avoid relative overflow-hidden shadow-xs transition-all',
         className,
       )}
     >
-      <div className="absolute top-0 right-0 h-28 w-28 bg-gradient-to-bl from-emerald-500/10 via-teal-400/5 to-transparent pointer-events-none rounded-tr-2xl" />
       {(title || right || subtitle) && (
-        <header className="mb-4 flex flex-wrap items-center justify-between gap-2.5 border-b border-[#e5efe9]/90 pb-3">
+        <header className="mb-4 flex flex-wrap items-center justify-between gap-2.5 border-b border-[#e5efe9] pb-3">
           <div className="space-y-0.5">
             {title && (
-              <h2 className="font-display text-base font-bold tracking-tight text-[#0f352e] flex items-center gap-2">
+              <h2 className="font-condensed text-xl sm:text-2xl font-bold tracking-wide text-[#0f352e] flex items-center gap-2 uppercase">
                 {icon && <span className="text-[#16865f] shrink-0">{icon}</span>}
                 <span>{title}</span>
               </h2>
             )}
-            {subtitle && <p className="text-xs text-[#6c817a] font-normal leading-relaxed">{subtitle}</p>}
+            {subtitle && <p className="font-light-sub text-[11px] text-[#526a63] font-semibold tracking-[0.16em] leading-relaxed">{subtitle}</p>}
           </div>
           {right}
         </header>
@@ -114,14 +113,13 @@ export function Kpi({
   const accent =
     tone === 'red' ? 'text-[#dc2626]' : tone === 'blue' ? 'text-[#2563eb]' : tone === 'neutral' ? 'text-[#123f38]' : 'text-[#16865f]'
   return (
-    <article className="glass-panel group relative rounded-2xl p-4.5 transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_12px_32px_rgba(7,61,52,0.08)]">
-      <div className="absolute top-0 left-0 right-0 h-0.5 bg-gradient-to-r from-emerald-500/0 via-emerald-500/30 to-emerald-500/0 opacity-0 group-hover:opacity-100 transition-opacity" />
-      <p className="font-mono text-[10.5px] font-semibold uppercase tracking-wider text-[#6c817a]">{label}</p>
-      <p className={cn('mt-1.5 font-display text-2xl font-extrabold font-tabular tracking-tight', accent)}>
+    <article className="rounded-2xl border border-[#d2e4db] bg-white p-4.5 shadow-xs transition-all hover:border-[#16865f]/50 hover:shadow-sm">
+      <p className="font-light-sub text-xs font-bold tracking-[0.18em] text-[#526a63]">{label}</p>
+      <p className={cn('mt-2 font-condensed text-4xl sm:text-5xl font-bold tracking-wide', accent)}>
         {value}
-        {unit && <span className="ml-1 text-sm font-semibold text-[#6c817a]">{unit}</span>}
+        {unit && <span className="ml-1.5 text-base font-normal text-[#6c817a] font-sans">{unit}</span>}
       </p>
-      {detail && <div className="mt-1.5 text-xs text-[#526a63]">{detail}</div>}
+      {detail && <div className="mt-1.5 text-xs text-[#526a63] font-sans">{detail}</div>}
     </article>
   )
 }
@@ -129,13 +127,13 @@ export function Kpi({
 export function Badge({ tone, children }: { tone: 'live' | 'demo' | 'info'; children: ReactNode }) {
   const cls =
     tone === 'live'
-      ? 'bg-[#dcfce7] text-[#166534] border-[#86efac]/80 shadow-[0_0_12px_rgba(34,197,94,0.15)]'
+      ? 'bg-[#edf6f1] text-[#166534] border-[#cbe4d7]'
       : tone === 'demo'
-      ? 'bg-[#fef3c7] text-[#92400e] border-[#fcd34d]/80'
-      : 'bg-[#eff6ff] text-[#1e40af] border-[#bfdbfe]/80'
+      ? 'bg-[#fef9ee] text-[#92400e] border-[#fde68a]'
+      : 'bg-[#eff6ff] text-[#1e40af] border-[#bfdbfe]'
   return (
-    <span className={cn('inline-flex items-center gap-1.5 rounded-full border px-2.5 py-0.5 font-mono text-[11px] font-bold tracking-tight', cls)}>
-      {tone === 'live' && <span className="size-1.5 rounded-full bg-[#16a34a] beacon-pulse inline-block" />}
+    <span className={cn('inline-flex items-center gap-1.5 rounded-lg border px-2.5 py-1 font-mono text-[11px] font-semibold tracking-tight', cls)}>
+      {tone === 'live' && <span className="size-1.5 rounded-full bg-[#16a34a] inline-block" />}
       {children}
     </span>
   )

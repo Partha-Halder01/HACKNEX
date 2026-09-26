@@ -99,7 +99,7 @@ export function AccuracyPanel({ bundle, lang }: { bundle: AnalysisBundle; lang: 
 
 function shareText(bundle: AnalysisBundle, lang: Lang, link: string) {
   const paras = lang === 'bn' ? bundle.narrative.bn : bundle.narrative.en
-  const head = lang === 'bn' ? 'সুন্দরবন ম্যানগ্রোভ বিশ্লেষণ' : 'Sundarban mangrove analysis'
+  const head = lang === 'bn' ? 'MangroveLens · সুন্দরবন ম্যানগ্রোভ বিশ্লেষণ' : 'MangroveLens · Sundarbans mangrove analysis'
   return `${head}\n\n${paras.slice(0, 4).join('\n\n')}\n\n${lang === 'bn' ? bundle.narrative.disclaimerBn : bundle.narrative.disclaimerEn}\n${link}`
 }
 

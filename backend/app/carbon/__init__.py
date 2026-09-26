@@ -1,4 +1,4 @@
-"""Blue Carbon estimation and methodology package for Sundarban Blue Carbon."""
+"""Blue Carbon estimation and methodology package for MangroveLens."""
 from .factors import (
     CARBON_FACTORS,
     CO2_TO_C_RATIO,

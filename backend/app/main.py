@@ -1,4 +1,4 @@
-"""Sundarban Blue Carbon — FastAPI Application Gateway."""
+"""MangroveLens — FastAPI Application Gateway."""
 from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
@@ -23,7 +23,7 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(
     title=settings.APP_NAME,
-    description="FastAPI Backend Gateway for Sundarban Blue Carbon AI-Assisted Satellite Intelligence, Mangrove Ecosystem Monitoring & Indicative Carbon Estimation.",
+    description="FastAPI Backend Gateway for MangroveLens AI-Assisted Satellite Intelligence, Mangrove Ecosystem Monitoring & Indicative Carbon Estimation.",
     version=settings.APP_VERSION,
     docs_url="/docs",
     redoc_url="/redoc",
@@ -60,6 +60,6 @@ def root_info():
             "database_status": db_status,
             "database_name": settings.MONGODB_DATABASE,
             "api_prefix": settings.API_PREFIX,
-            "message": "Sundarban Blue Carbon API is operational.",
+            "message": "MangroveLens API is operational.",
         }
     )

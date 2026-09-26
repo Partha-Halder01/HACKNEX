@@ -1,11 +1,11 @@
 # AI Environmental Intelligence Architecture & Methodology
-**Sundarban Blue Carbon — Phase 7**
+**MangroveLens — Phase 7**
 
 ---
 
 ## 1. Core Architectural Principle: Deterministic Data First, AI Second
 
-The AI layer in Sundarban Blue Carbon operates strictly as an **interpretation and reporting assistant**, NOT as the source of numerical truth or direct measurement.
+The AI layer in MangroveLens operates strictly as an **interpretation and reporting assistant**, NOT as the source of numerical truth or direct measurement.
 
 ```
 Phase 3–6 Structured Geospatial & ML Data

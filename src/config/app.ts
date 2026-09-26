@@ -1,12 +1,22 @@
 /**
- * Sundarban Blue Carbon - Global Application Configuration
+ * MangroveLens - Global Application Configuration
  *
  * Non-secret runtime defaults and domain constants.
  */
 
+/** Product identity — change the name/logo here and it updates across the site. */
+export const BRAND = {
+  name: 'MangroveLens',
+  tagline: 'See the forest. Measure the change. Understand the carbon.',
+  taglineBn: 'বন দেখুন। পরিবর্তন মাপুন। কার্বন বুঝুন।',
+  logo: '/brand/mangrovelens-logo.webp',
+  logoPng: '/brand/mangrovelens-logo.png',
+  icon: '/brand/mangrovelens-icon.png',
+} as const
+
 export const APP_CONFIG = {
-  name: 'Sundarban Blue Carbon',
-  tagline: 'Measure the Forest. Protect the Carbon.',
+  name: BRAND.name,
+  tagline: BRAND.tagline,
   version: '1.0.0',
 
   // Geospatial Defaults (Gosaba Pilot Zone, Indian Sundarbans)

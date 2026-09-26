@@ -1,4 +1,4 @@
-# 🌿 Sundarban Blue Carbon
+# 🌿 MangroveLens
 
 > **AI & Satellite Mangrove Intelligence & Blue Carbon Ecosystem Platform**  
 > An open-source, evidence-grounded climate intelligence platform combining Sentinel-2 Earth Observation, Random Forest machine learning, IPCC Tier 1 blue carbon accounting, and Google Gemini AI insights for coastal ecosystem monitoring in the Sundarban delta.
@@ -32,7 +32,7 @@
 
 ## Overview
 
-The **Sundarban Blue Carbon** platform empowers local village panchayats, conservation planners, and researchers with accessible, verified coastal ecosystem intelligence:
+The **MangroveLens** platform empowers local village panchayats, conservation planners, and researchers with accessible, verified coastal ecosystem intelligence:
 
 1. **Earth Observation & Classification**: Sentinel-2 Bottom-of-Atmosphere (BOA) reflectance + 5-Class Random Forest classifier (Mangrove, Water, Aquaculture, Bare Land, Other Vegetation).
 2. **Multi-Temporal Change Detection**: Quantifies gross mangrove gain, gross loss, and net canopy transitions between baseline (2020) and recent years with scientific guardrails.

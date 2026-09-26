@@ -96,18 +96,19 @@ export function AnswerCard({ bundle: b, lang }: { bundle: AnalysisBundle; lang: 
   })()
 
   const Icon = rel.level === 'low' ? CircleHelp : v === 'grew' ? TrendingUp : v === 'shrank' ? TrendingDown : Minus
-  const toneBorder = rel.level === 'low' ? 'from-amber-500/80' : v === 'shrank' ? 'from-rose-500/80' : 'from-emerald-500/80'
-  const iconColor = rel.level === 'low' ? 'text-amber-600 bg-amber-50 border-amber-200' : v === 'shrank' ? 'text-rose-600 bg-rose-50 border-rose-200' : 'text-emerald-700 bg-emerald-50 border-emerald-200'
+  const iconColor =
+    rel.level === 'low'
+      ? 'text-amber-700 bg-amber-50 border-amber-200'
+      : v === 'shrank'
+      ? 'text-rose-700 bg-rose-50 border-rose-200'
+      : 'text-emerald-800 bg-emerald-50 border-emerald-200'
 
   return (
-    <section className="glass-panel group relative overflow-hidden rounded-2xl p-5 sm:p-6 shadow-[0_12px_36px_rgba(7,61,52,0.06)] transition-all duration-300">
-      {/* Dynamic top gradient line based on forest state */}
-      <div className={`absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r ${toneBorder} via-emerald-400 to-transparent`} />
-
+    <section className="rounded-2xl border border-[#d2e4db] bg-white p-5 sm:p-6 shadow-xs relative overflow-hidden transition-all">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-[#e5efe9] pb-3 mb-4">
         <div className="flex items-center gap-2">
-          <span className="font-mono text-[11px] font-bold uppercase tracking-wider text-emerald-800 bg-emerald-100/70 border border-emerald-300/60 rounded-md px-2 py-0.5">
-            {lang === 'bn' ? 'উপগ্রহ সিদ্ধান্ত' : 'Satellite Verdict'}
+          <span className="font-light-sub text-[10.5px] font-bold tracking-[0.2em] text-[#16865f] bg-[#edf6f1] border border-[#cbe4d7] rounded px-2 py-0.5">
+            {lang === 'bn' ? 'উপগ্রহ সিদ্ধান্ত' : 'SENTINEL-2 CANOPY VERDICT'}
           </span>
           <span className="font-mono text-xs font-semibold text-[#6c817a]">
             {startYear(b)} → {endYear(b)}
@@ -120,15 +121,15 @@ export function AnswerCard({ bundle: b, lang }: { bundle: AnalysisBundle; lang: 
       </div>
 
       <div className="flex items-start gap-4">
-        <span className={`grid size-14 shrink-0 place-items-center rounded-2xl border shadow-sm ${iconColor}`}>
-          <Icon className="size-7" />
+        <span className={`grid size-12 sm:size-14 shrink-0 place-items-center rounded-2xl border shadow-2xs ${iconColor}`}>
+          <Icon className="size-6 sm:size-7" />
         </span>
         <div className="min-w-0 flex-1">
-          <h2 className="font-display text-xl sm:text-2xl font-extrabold leading-tight text-[#0f352e] tracking-tight">
+          <h2 className="font-condensed text-2xl sm:text-3xl lg:text-4xl font-bold leading-none text-[#0f352e] tracking-wide uppercase">
             {headline}
           </h2>
           {sub && (
-            <p className="mt-1.5 text-sm sm:text-base leading-relaxed text-[#40564f]">
+            <p className="mt-2 text-sm sm:text-base leading-relaxed text-[#40564f] font-sans">
               {sub}
             </p>
           )}
@@ -156,14 +157,14 @@ export function AnswerCard({ bundle: b, lang }: { bundle: AnalysisBundle; lang: 
 function SureMeter({ bundle: b, lang }: { bundle: AnalysisBundle; lang: Lang }) {
   const rel = b.reliability
   const conf = {
-    high: { dot: 'bg-emerald-500', box: 'bg-emerald-50/90 border-emerald-200 text-emerald-900', label: lang === 'bn' ? 'উচ্চ নির্ভুলতা' : 'High Confidence', en: 'We are fairly sure of this result', bn: 'এই ফলাফলে আমরা বেশ নিশ্চিত' },
-    medium: { dot: 'bg-amber-500', box: 'bg-amber-50/90 border-amber-200 text-amber-900', label: lang === 'bn' ? 'মাঝারি নির্ভুলতা' : 'Moderate Confidence', en: 'Use this result with some care', bn: 'এই ফলাফল একটু সাবধানে ব্যবহার করুন' },
-    low: { dot: 'bg-rose-500', box: 'bg-rose-50/90 border-rose-200 text-rose-900', label: lang === 'bn' ? 'নিম্ন নির্ভুলতা' : 'Low Confidence', en: 'Do not trust these numbers without field check', bn: 'এই সংখ্যাগুলি বিশ্বাস করবেন না' },
-    demo: { dot: 'bg-amber-500', box: 'bg-amber-50/90 border-amber-200 text-amber-900', label: lang === 'bn' ? 'ডেমো সিমুলেশন' : 'Simulation Mode', en: 'Demo only — synthetic satellite measurements', bn: 'শুধু ডেমো — আসল পরিমাপ নয়' },
+    high: { dot: 'bg-emerald-500', box: 'bg-[#edf7f2] border-[#cbe4d7] text-emerald-950', label: lang === 'bn' ? 'উচ্চ নির্ভুলতা' : 'High Confidence', en: 'We are fairly sure of this result', bn: 'এই ফলাফলে আমরা বেশ নিশ্চিত' },
+    medium: { dot: 'bg-amber-500', box: 'bg-amber-50/90 border-amber-200 text-amber-950', label: lang === 'bn' ? 'মাঝারি নির্ভুলতা' : 'Moderate Confidence', en: 'Use this result with some care', bn: 'এই ফলাফল একটু সাবধানে ব্যবহার করুন' },
+    low: { dot: 'bg-rose-500', box: 'bg-rose-50/90 border-rose-200 text-rose-950', label: lang === 'bn' ? 'নিম্ন নির্ভুলতা' : 'Low Confidence', en: 'Do not trust these numbers without field check', bn: 'এই সংখ্যাগুলি বিশ্বাস করবেন না' },
+    demo: { dot: 'bg-amber-500', box: 'bg-amber-50/90 border-amber-200 text-amber-950', label: lang === 'bn' ? 'ডেমো সিমুলেশন' : 'Simulation Mode', en: 'Demo only — synthetic satellite measurements', bn: 'শুধু ডেমো — আসল পরিমাপ নয়' },
   }[rel.level]
 
   return (
-    <div className={`mt-4.5 rounded-xl border p-3.5 text-sm transition-all ${conf.box}`}>
+    <div className={`mt-4 rounded-xl border p-3.5 text-sm transition-all ${conf.box}`}>
       <div className="flex flex-wrap items-center justify-between gap-2 font-bold">
         <div className="flex items-center gap-2">
           <span className="font-mono text-[10.5px] font-bold uppercase tracking-wider opacity-75">
@@ -215,7 +216,7 @@ function SureMeter({ bundle: b, lang }: { bundle: AnalysisBundle; lang: Lang }) 
   )
 }
 
-/** Executive KPI Cards with Animated Numbers, Shimmer Accents, and Ambient Lighting */
+/** Executive Cohesive KPI Cards with Crisp Typography & Attribution */
 export function SimpleCards({ bundle: b, lang }: { bundle: AnalysisBundle; lang: Lang }) {
   const dim = b.reliability.level === 'low'
   const end = b.summary.end
@@ -228,15 +229,13 @@ export function SimpleCards({ bundle: b, lang }: { bundle: AnalysisBundle; lang:
   return (
     <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
       {/* 1. Forest Area */}
-      <article className={`modern-card group p-5 ${dim ? 'opacity-50' : ''}`}>
-        {/* Subtle accent top border */}
-        <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-emerald-500 via-teal-400 to-transparent" />
+      <article className={`rounded-2xl border border-[#d2e4db] bg-white p-5 shadow-xs transition-all hover:border-[#16865f]/50 ${dim ? 'opacity-50' : ''}`}>
         <div className="flex items-center justify-between">
           <p className="flex items-center gap-1.5 font-light-sub text-[10.5px] font-semibold tracking-[0.2em] text-[#6c817a]">
-            <TreePine className="size-4 text-emerald-600" />
+            <TreePine className="size-4 text-[#16865f]" />
             {bn ? `ম্যানগ্রোভ (${endYear(b)})` : `Forest Area (${endYear(b)})`}
           </p>
-          <span className="font-mono text-[10px] font-bold rounded-md bg-emerald-100/90 text-emerald-800 border border-emerald-300/50 px-1.5 py-0.5">
+          <span className="font-mono text-[10px] font-bold rounded bg-[#edf6f1] text-[#166534] border border-[#cbe4d7] px-1.5 py-0.5">
             {fmt(end.mangrovePct, 0, lang)}% {bn ? 'ক্যানোপি' : 'cover'}
           </span>
         </div>
@@ -252,15 +251,13 @@ export function SimpleCards({ bundle: b, lang }: { bundle: AnalysisBundle; lang:
       </article>
 
       {/* 2. Forest Change */}
-      <article className={`modern-card group p-5 ${dim ? 'opacity-50' : ''}`}>
-        {/* Dynamic top gradient based on growth vs loss */}
-        <div className={`absolute top-0 left-0 right-0 h-1 bg-gradient-to-r ${diff < 0 ? 'from-rose-500 via-amber-400' : 'from-emerald-500 via-teal-400'} to-transparent`} />
+      <article className={`rounded-2xl border border-[#d2e4db] bg-white p-5 shadow-xs transition-all hover:border-[#16865f]/50 ${dim ? 'opacity-50' : ''}`}>
         <div className="flex items-center justify-between">
           <p className="flex items-center gap-1.5 font-light-sub text-[10.5px] font-semibold tracking-[0.2em] text-[#6c817a]">
-            {diff < 0 ? <TrendingDown className="size-4 text-rose-600" /> : <TrendingUp className="size-4 text-emerald-600" />}
+            {diff < 0 ? <TrendingDown className="size-4 text-rose-600" /> : <TrendingUp className="size-4 text-[#16865f]" />}
             {bn ? `${startYear(b)} থেকে বদল` : `Change Since ${startYear(b)}`}
           </p>
-          <span className={`font-mono text-[10px] font-bold rounded-md px-1.5 py-0.5 border ${diff < 0 ? 'bg-rose-100 text-rose-800 border-rose-200' : 'bg-emerald-100 text-emerald-800 border-emerald-200'}`}>
+          <span className={`font-mono text-[10px] font-bold rounded px-1.5 py-0.5 border ${diff < 0 ? 'bg-rose-50 text-rose-800 border-rose-200' : 'bg-[#edf6f1] text-[#166534] border-[#cbe4d7]'}`}>
             {diff > 0 ? '+' : ''}{fmt(b.change.percentChange, 1, lang)}%
           </span>
         </div>
@@ -288,48 +285,38 @@ export function SimpleCards({ bundle: b, lang }: { bundle: AnalysisBundle; lang:
         </p>
       </article>
 
-      {/* 3. Blue Carbon Reservoir (Featuring AI Generated Visual) */}
-      <article className={`group relative overflow-hidden rounded-2xl border border-emerald-900/30 bg-[#062923] p-5 text-white transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_16px_36px_rgba(6,41,35,0.35)] ${dim ? 'opacity-50' : ''}`}>
-        {/* AI-Generated Blue Carbon Roots Background Image with dark gradient mask */}
-        <div
-          className="absolute inset-0 bg-cover bg-center opacity-30 mix-blend-luminosity group-hover:scale-105 group-hover:opacity-40 transition-all duration-700 pointer-events-none"
-          style={{ backgroundImage: `url('/images/dashboard/mangrove_blue_carbon.jpg')` }}
-        />
-        <div className="absolute inset-0 bg-gradient-to-t from-[#062923] via-[#062923]/80 to-transparent pointer-events-none" />
-
-        <div className="relative z-10">
-          <div className="flex items-center justify-between">
-            <p className="flex items-center gap-1.5 font-light-sub text-[10.5px] font-semibold tracking-[0.2em] text-emerald-300">
-              <Users className="size-4 text-emerald-400" />
-              {bn ? 'বনে জমা কার্বন' : 'Blue Carbon Stock'}
-            </p>
-            <span className="font-mono text-[10px] font-bold rounded-md bg-emerald-500/20 text-emerald-200 border border-emerald-400/30 px-1.5 py-0.5">
-              IPCC Tier 1
-            </span>
-          </div>
-          <div className="mt-2 flex items-baseline">
-            <p className="font-condensed text-4xl sm:text-5xl font-bold tracking-wide text-emerald-100">
-              <AnimatedNumber value={co2} digits={0} lang={lang} />
-            </p>
-            <span className="ml-1.5 text-base font-normal text-emerald-300/80 font-sans">{bn ? 'টন CO₂' : 't CO₂e'}</span>
-          </div>
-          <p className="mt-1 text-xs text-emerald-200/90 leading-tight">
-            {bn
-              ? `প্রায় ${fmt(people, 0, lang)} জনের ১ বছরের কার্বনের সমতুল্য`
-              : `≈ annual footprint of ${fmt(people, 0)} Indian residents`}
+      {/* 3. Blue Carbon Reservoir */}
+      <article className={`rounded-2xl border border-[#d2e4db] bg-white p-5 shadow-xs transition-all hover:border-[#16865f]/50 ${dim ? 'opacity-50' : ''}`}>
+        <div className="flex items-center justify-between">
+          <p className="flex items-center gap-1.5 font-light-sub text-[10.5px] font-semibold tracking-[0.2em] text-[#6c817a]">
+            <Users className="size-4 text-[#16865f]" />
+            {bn ? 'বনে জমা কার্বন' : 'Blue Carbon Stock'}
           </p>
+          <span className="font-mono text-[10px] font-bold rounded bg-[#edf6f1] text-[#166534] border border-[#cbe4d7] px-1.5 py-0.5">
+            IPCC Tier 1
+          </span>
         </div>
+        <div className="mt-2 flex items-baseline">
+          <p className="font-condensed text-4xl sm:text-5xl font-bold tracking-wide text-[#0f352e]">
+            <AnimatedNumber value={co2} digits={0} lang={lang} />
+          </p>
+          <span className="ml-1.5 text-base font-normal text-[#6c817a] font-sans">{bn ? 'টন CO₂' : 't CO₂e'}</span>
+        </div>
+        <p className="mt-1 text-xs text-[#526a63]">
+          {bn
+            ? `প্রায় ${fmt(people, 0, lang)} জনের ১ বছরের কার্বনের সমতুল্য`
+            : `≈ annual footprint of ${fmt(people, 0)} Indian residents`}
+        </p>
       </article>
 
       {/* 4. 2030 Horizon Projection */}
-      <article className={`modern-card group p-5 ${dim ? 'opacity-50' : ''}`}>
-        <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-sky-500 via-teal-400 to-transparent" />
+      <article className={`rounded-2xl border border-[#d2e4db] bg-white p-5 shadow-xs transition-all hover:border-[#16865f]/50 ${dim ? 'opacity-50' : ''}`}>
         <div className="flex items-center justify-between">
           <p className="flex items-center gap-1.5 font-light-sub text-[10.5px] font-semibold tracking-[0.2em] text-[#6c817a]">
-            <Leaf className="size-4 text-emerald-600" />
+            <Leaf className="size-4 text-[#16865f]" />
             {bn ? `${trend.year} পূর্বাভাস` : `${trend.year} Scenario`}
           </p>
-          <span className="font-mono text-[10px] font-bold rounded-md bg-sky-100 text-sky-800 border border-sky-200 px-1.5 py-0.5">
+          <span className="font-mono text-[10px] font-bold rounded bg-sky-50 text-sky-800 border border-sky-200 px-1.5 py-0.5">
             +5 yr model
           </span>
         </div>
