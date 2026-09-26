@@ -2,7 +2,6 @@ import { useEffect, useState } from 'react'
 import {
   ArrowDown,
   BrainCircuit,
-  Cloud,
   Database,
   FileText,
   Globe,
@@ -19,7 +18,6 @@ import {
   SkipForward,
   Sparkles,
   Users,
-  Workflow,
 } from 'lucide-react'
 
 type L = (en: string, bn: string) => string
@@ -273,7 +271,7 @@ export function AnalysisFlow({ L }: { L: L }) {
                   setPlaying(false)
                   setStep(i)
                 }}
-                className="relative block h-9 w-full text-left"
+                className="relative block h-11 w-full text-left"
               >
                 {self ? (
                   <span
@@ -324,4 +322,3 @@ export function AnalysisFlow({ L }: { L: L }) {
   )
 }
 
-export { Cloud, Workflow }

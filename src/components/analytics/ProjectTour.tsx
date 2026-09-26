@@ -14,6 +14,7 @@ import {
   Layers,
   Leaf,
   MapPin,
+  Network,
   Play,
   Satellite,
   ShieldCheck,
@@ -22,11 +23,13 @@ import {
   TrendingDown,
   TrendingUp,
   Users,
+  Workflow,
   X,
 } from 'lucide-react'
 import { BRAND } from '../../config/app'
 import type { AnalysisBundle, Capabilities } from '../../types/analysis'
 import { fmt, signed, type Lang } from './ui'
+import { AnalysisFlow, ArchitectureDiagram } from './SystemDiagrams'
 
 export interface TryPlace {
   label: string
@@ -322,6 +325,26 @@ export function ProjectTour({ open, onClose, lang, bundle, caps, onJump, onTry }
         <>
           <Heading kicker={L('THE PIPELINE — CLICK EACH STEP', 'প্রক্রিয়া — প্রতিটি ধাপে ক্লিক করুন')} title={L('From a satellite photo to a plain answer', 'উপগ্রহের ছবি থেকে সহজ উত্তর')} />
           <Pipeline L={L} />
+        </>
+      ),
+    },
+    {
+      icon: Network,
+      title: L('Architecture', 'আর্কিটেকচার'),
+      body: (
+        <>
+          <Heading kicker={L('SYSTEM ARCHITECTURE — CLICK ANY BOX', 'সিস্টেম আর্কিটেকচার — যেকোনো বাক্সে ক্লিক করুন')} title={L('How the pieces fit together', 'অংশগুলো কীভাবে জোড়া লাগে')} />
+          <ArchitectureDiagram L={L} />
+        </>
+      ),
+    },
+    {
+      icon: Workflow,
+      title: L('One analysis, step by step', 'একটি বিশ্লেষণ, ধাপে ধাপে'),
+      body: (
+        <>
+          <Heading kicker={L('DATA FLOW — PRESS PLAY', 'তথ্যের প্রবাহ — চালান চাপুন')} title={L('What happens when you press “Run”', '“চালান” চাপলে কী ঘটে')} />
+          <AnalysisFlow L={L} />
         </>
       ),
     },
