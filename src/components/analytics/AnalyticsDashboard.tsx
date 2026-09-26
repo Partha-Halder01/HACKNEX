@@ -874,6 +874,8 @@ export function AnalyticsDashboard({ onNavigate }: { onNavigate?: (path: string)
                   bundle={b}
                   lang={lang}
                   shareLink={urlFor({ ...params, ...b.request, language: lang, useAi: false })}
+                  onGenerateReport={handleGenerateReport}
+                  isGeneratingReport={isGeneratingReport}
                 />
               </Card>
             </div>

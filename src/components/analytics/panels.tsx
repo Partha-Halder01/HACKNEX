@@ -1,4 +1,5 @@
 import { useEffect, useState, type FormEvent } from 'react'
+import { FileText, Loader2 } from 'lucide-react'
 import { AnalysisApi } from '../../services/analysis'
 import type { AnalysisBundle, FieldPoint } from '../../types/analysis'
 import type { Lang } from './ui'
@@ -103,30 +104,21 @@ function shareText(bundle: AnalysisBundle, lang: Lang, link: string) {
   return `${head}\n\n${paras.slice(0, 4).join('\n\n')}\n\n${lang === 'bn' ? bundle.narrative.disclaimerBn : bundle.narrative.disclaimerEn}\n${link}`
 }
 
-export function NarrativePanel({ bundle, lang, shareLink }: { bundle: AnalysisBundle; lang: Lang; shareLink: string }) {
+export function NarrativePanel({
+  bundle,
+  lang,
+  shareLink,
+  onGenerateReport,
+  isGeneratingReport,
+}: {
+  bundle: AnalysisBundle
+  lang: Lang
+  shareLink?: string
+  onGenerateReport?: () => void
+  isGeneratingReport?: boolean
+}) {
   const n = bundle.narrative
   const paras = lang === 'bn' ? n.bn : n.en
-  const [copied, setCopied] = useState(false)
-
-  const download = () => {
-    const blob = new Blob([JSON.stringify(bundle, null, 2)], { type: 'application/json' })
-    const url = URL.createObjectURL(blob)
-    const a = document.createElement('a')
-    a.href = url
-    a.download = `mangrove-analysis-${bundle.request.startDate}_${bundle.request.endDate}.json`
-    a.click()
-    URL.revokeObjectURL(url)
-  }
-
-  const copyLink = async () => {
-    try {
-      await navigator.clipboard.writeText(shareLink)
-      setCopied(true)
-      setTimeout(() => setCopied(false), 1500)
-    } catch {
-      /* clipboard blocked; link is still in the address bar */
-    }
-  }
 
   const aiNote: Record<string, string> = {
     success: lang === 'bn' ? 'Gemini ভাষা, সংখ্যা যাচাই করা' : 'Gemini wording, numbers verified',
@@ -145,24 +137,27 @@ export function NarrativePanel({ bundle, lang, shareLink }: { bundle: AnalysisBu
         ))}
         <p className="text-xs italic text-[#6c817a]">{lang === 'bn' ? n.disclaimerBn : n.disclaimerEn}</p>
       </div>
-      <div className="mt-3 flex flex-wrap items-center gap-2 print:hidden">
-        <a
-          href={`https://wa.me/?text=${encodeURIComponent(shareText(bundle, lang, shareLink))}`}
-          target="_blank"
-          rel="noreferrer"
-          className="rounded-lg bg-[#25d366] px-3 py-1.5 text-xs font-bold text-white hover:brightness-95"
-        >
-          WhatsApp
-        </a>
-        <button type="button" onClick={() => window.print()} className="rounded-lg border border-[#d6e6de] px-3 py-1.5 text-xs font-bold text-[#123f38] hover:bg-[#f2f6f3]">
-          {lang === 'bn' ? 'প্রিন্ট / PDF' : 'Print / PDF'}
-        </button>
-        <button type="button" onClick={download} className="rounded-lg border border-[#d6e6de] px-3 py-1.5 text-xs font-bold text-[#123f38] hover:bg-[#f2f6f3]">
-          JSON
-        </button>
-        <button type="button" onClick={copyLink} className="rounded-lg border border-[#d6e6de] px-3 py-1.5 text-xs font-bold text-[#123f38] hover:bg-[#f2f6f3]">
-          {copied ? (lang === 'bn' ? 'কপি হয়েছে' : 'Copied') : lang === 'bn' ? 'লিংক কপি' : 'Copy link'}
-        </button>
+      <div className="mt-4 pt-3.5 border-t border-[#e5efe9] flex flex-wrap items-center justify-between gap-3 print:hidden">
+        {onGenerateReport && (
+          <button
+            type="button"
+            onClick={onGenerateReport}
+            disabled={isGeneratingReport}
+            className="flex items-center gap-2 rounded-lg border border-[#16865f] bg-[#16865f] px-3.5 py-1.5 text-xs font-semibold text-white shadow-2xs transition hover:bg-[#126b4c] cursor-pointer disabled:opacity-60"
+            title={lang === 'bn' ? 'রিপোর্ট তৈরি ও দেখুন' : 'Generate and view analysis report'}
+          >
+            {isGeneratingReport ? (
+              <Loader2 className="size-3.5 animate-spin" />
+            ) : (
+              <FileText className="size-3.5" />
+            )}
+            <span className="font-mono text-[11px] font-bold">
+              {isGeneratingReport
+                ? (lang === 'bn' ? 'রিপোর্ট তৈরি হচ্ছে…' : 'Generating…')
+                : (lang === 'bn' ? 'রিপোর্ট' : 'Report')}
+            </span>
+          </button>
+        )}
         {n.aiStatus !== 'not_requested' && <Badge tone="info">{aiNote[n.aiStatus] ?? n.aiStatus}</Badge>}
       </div>
     </div>

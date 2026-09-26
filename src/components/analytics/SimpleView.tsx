@@ -6,8 +6,10 @@ import {
   CheckCircle2,
   CircleAlert,
   CircleHelp,
+  Info,
   Leaf,
   Minus,
+  Satellite,
   Sparkles,
   TreePine,
   TrendingDown,
@@ -19,6 +21,7 @@ import {
   AreaChart,
   Bar,
   BarChart,
+  CartesianGrid,
   Cell,
   LabelList,
   ReferenceLine,
@@ -215,13 +218,34 @@ function SureMeter({ bundle: b, lang }: { bundle: AnalysisBundle; lang: Lang }) 
   )
 }
 
+/** Round to `sig` significant figures: carbon is a Tier 1 estimate, so no false precision. */
+const roundSig = (v: number, sig = 2) => {
+  if (!v) return 0
+  const m = 10 ** (Math.floor(Math.log10(Math.abs(v))) - sig + 1)
+  return Math.round(v / m) * m
+}
+
+/** Compact number: "740k" / "1.2M" in English, "৭.৪ লাখ" / "১.২ কোটি" in Bengali. */
+function compact(v: number, lang: Lang) {
+  const r = roundSig(v)
+  if (lang === 'bn') {
+    if (r >= 1e7) return `${fmt(r / 1e7, r >= 1e8 ? 0 : 1, lang)} কোটি`
+    if (r >= 1e5) return `${fmt(r / 1e5, r >= 1e6 ? 0 : 1, lang)} লাখ`
+    return fmt(r, 0, lang)
+  }
+  if (r >= 1e6) return `${fmt(r / 1e6, r >= 1e7 ? 0 : 1)}M`
+  if (r >= 1e3) return `${fmt(r / 1e3, 0)}k`
+  return fmt(r, 0)
+}
+
 /** Executive Cohesive KPI Cards with Crisp Typography & Attribution */
 export function SimpleCards({ bundle: b, lang }: { bundle: AnalysisBundle; lang: Lang }) {
   const dim = b.reliability.level === 'low'
   const end = b.summary.end
   const diff = b.change.netChangeHa
   const co2 = b.carbon.end.co2eMg
-  const people = co2 / CO2_T_PER_PERSON_INDIA
+  const [co2Low, co2High] = b.carbon.end.co2eRangeMg
+  const co2Unc = b.carbon.end.uncertaintyPct
   const trend = b.projection.scenarios.find((s) => s.id === 'current_trend')!.points.at(-1)!
   const bn = lang === 'bn'
 
@@ -295,16 +319,22 @@ export function SimpleCards({ bundle: b, lang }: { bundle: AnalysisBundle; lang:
             IPCC Tier 1
           </span>
         </div>
-        <div className="mt-2 flex items-baseline">
+        {/* Shown as a range: IPCC Tier 1 averages carry about ±18% uncertainty. */}
+        <div className="mt-2 flex flex-wrap items-baseline" title={`${fmt(co2Low, 0, lang)} – ${fmt(co2High, 0, lang)} t CO₂e`}>
           <p className="font-condensed text-4xl sm:text-5xl font-bold tracking-wide text-[#0f352e]">
-            <AnimatedNumber value={co2} digits={0} lang={lang} />
+            {compact(co2Low, lang)}–{compact(co2High, lang)}
           </p>
           <span className="ml-1.5 text-base font-normal text-[#6c817a] font-sans">{bn ? 'টন CO₂' : 't CO₂e'}</span>
         </div>
         <p className="mt-1 text-xs text-[#526a63]">
           {bn
-            ? `প্রায় ${fmt(people, 0, lang)} জনের ১ বছরের কার্বনের সমতুল্য`
-            : `≈ annual footprint of ${fmt(people, 0)} Indian residents`}
+            ? `সম্ভাব্য পরিসর (±${fmt(co2Unc, 0, lang)}%) · মাঝামাঝি প্রায় ${compact(co2, lang)} টন`
+            : `likely range (±${fmt(co2Unc, 0)}%) · middle estimate ≈ ${compact(co2, lang)} t`}
+        </p>
+        <p className="mt-0.5 text-[11px] text-[#7d958d]">
+          {bn
+            ? `≈ ${compact(co2Low / CO2_T_PER_PERSON_INDIA, lang)}–${compact(co2High / CO2_T_PER_PERSON_INDIA, lang)} জন ভারতীয়ের ১ বছরের CO₂`
+            : `≈ one year of CO₂ from ${compact(co2Low / CO2_T_PER_PERSON_INDIA, lang)}–${compact(co2High / CO2_T_PER_PERSON_INDIA, lang)} people in India`}
         </p>
       </article>
 
@@ -316,7 +346,7 @@ export function SimpleCards({ bundle: b, lang }: { bundle: AnalysisBundle; lang:
             {bn ? `${trend.year} পূর্বাভাস` : `${trend.year} Scenario`}
           </p>
           <span className="font-mono text-[10px] font-bold rounded bg-sky-50 text-sky-800 border border-sky-200 px-1.5 py-0.5">
-            +5 yr model
+            {bn ? '+৫ বছর' : '+5 yr what-if'}
           </span>
         </div>
         <div className="mt-2 flex items-baseline">
@@ -326,7 +356,9 @@ export function SimpleCards({ bundle: b, lang }: { bundle: AnalysisBundle; lang:
           <span className="ml-1.5 text-base font-normal text-[#6c817a] font-sans">{bn ? 'হেক্টর' : 'ha'}</span>
         </div>
         <p className="mt-1 text-xs text-[#526a63]">
-          {bn ? 'বর্তমান ধারা অনুযায়ী আনুমানিক প্রক্ষেপণ' : 'projected trajectory under status-quo trends'}
+          {bn
+            ? `সম্ভাব্য পরিসর ${fmt(trend.lowHa, 0, lang)}–${fmt(trend.highHa, 0, lang)} হেক্টর · বর্তমান ধারা চললে`
+            : `likely range ${fmt(trend.lowHa, 0)}–${fmt(trend.highHa, 0)} ha · if the current trend continues`}
         </p>
       </article>
     </div>
@@ -405,111 +437,192 @@ export function YearsChart({ bundle: b, lang }: { bundle: AnalysisBundle; lang: 
   const tooltip = <ModernChartTooltip lang={lang} metric={metric} unit={unit} u={u} />
 
   return (
-    <div className={`space-y-3 ${dim ? 'opacity-50' : ''}`}>
-      <div className="flex flex-wrap items-center justify-between gap-2.5 border-b border-[#e5efe9] pb-3">
-        <div className="flex items-center rounded-xl bg-[#f2f6f3] p-0.5 border border-[#d6e6de] text-xs font-semibold">
-          {(['area', 'carbon', 'delta'] as const).map((m) => (
-            <button
-              key={m}
-              type="button"
-              onClick={() => setMetric(m)}
-              className={`rounded-lg px-2.5 py-1 transition-all text-[11.5px] ${
-                metric === m ? 'bg-[#16865f] text-white shadow-xs font-bold' : 'text-[#526a63] hover:text-[#123f38]'
-              }`}
-            >
-              {m === 'area' ? (bn ? 'আয়তন (হেক্টর)' : 'Area (ha)') : m === 'carbon' ? (bn ? 'কার্বন (CO₂e)' : 'Carbon (CO₂e)') : bn ? 'আগের তুলনায় বদল' : 'Change vs previous'}
-            </button>
-          ))}
+    <div className={`space-y-4 ${dim ? 'opacity-50' : ''}`}>
+      {/* 1. Header Segment Controls (Tabs & Mode Switcher) */}
+      <div className="flex flex-wrap items-center justify-between gap-2.5 border-b border-[#e5efe9] pb-3.5">
+        <div className="inline-flex rounded-xl bg-[#eef5f1] p-1 border border-[#cbe1d5] gap-1">
+          {(['area', 'carbon', 'delta'] as const).map((m) => {
+            const active = metric === m
+            const Icon = m === 'area' ? TreePine : m === 'carbon' ? Leaf : TrendingUp
+            return (
+              <button
+                key={m}
+                type="button"
+                onClick={() => setMetric(m)}
+                className={`flex items-center gap-1.5 rounded-lg px-3 py-1.5 transition-all text-xs font-bold cursor-pointer ${
+                  active
+                    ? 'bg-[#16865f] text-white shadow-xs'
+                    : 'text-[#416257] hover:text-[#0c382f] hover:bg-white/60'
+                }`}
+              >
+                <Icon className={`size-3.5 ${active ? 'text-white' : 'text-[#16865f]'}`} />
+                <span>
+                  {m === 'area'
+                    ? (bn ? 'আয়তন (হেক্টর)' : 'Area (ha)')
+                    : m === 'carbon'
+                    ? (bn ? 'কার্বন (CO₂e)' : 'Carbon (CO₂e)')
+                    : (bn ? 'আগের তুলনায় পরিবর্তন' : 'Change vs previous')}
+                </span>
+              </button>
+            )
+          })}
         </div>
-        <div className="flex items-center gap-1 rounded-xl bg-[#f2f6f3] p-0.5 border border-[#d6e6de]">
-          {(['spline', 'bars'] as const).map((mode) => (
-            <button
-              key={mode}
-              type="button"
-              onClick={() => setChartMode(mode)}
-              className={`flex items-center gap-1 rounded-lg px-2 py-1 text-xs font-semibold transition ${
-                chartMode === mode ? 'bg-white text-emerald-800 shadow-xs' : 'text-[#6c817a] hover:text-[#123f38]'
-              }`}
-            >
-              {mode === 'spline' ? <Activity className="size-3.5" /> : <BarChart3 className="size-3.5" />}
-              <span className="hidden sm:inline">{mode === 'spline' ? (bn ? 'রেখা' : 'Line') : bn ? 'স্তম্ভ' : 'Bars'}</span>
-            </button>
-          ))}
+
+        <div className="inline-flex items-center rounded-xl bg-[#eef5f1] p-1 border border-[#cbe1d5] gap-1">
+          {(['spline', 'bars'] as const).map((mode) => {
+            const active = chartMode === mode
+            const Icon = mode === 'spline' ? Activity : BarChart3
+            return (
+              <button
+                key={mode}
+                type="button"
+                onClick={() => setChartMode(mode)}
+                className={`flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs font-bold transition-all cursor-pointer ${
+                  active
+                    ? 'bg-white text-[#0f352e] shadow-xs border border-[#cbe1d5]'
+                    : 'text-[#56746a] hover:text-[#0f352e]'
+                }`}
+              >
+                <Icon className="size-3.5 text-[#16865f]" />
+                <span className="hidden sm:inline">{mode === 'spline' ? (bn ? 'কার্ভ রেখা' : 'Smooth Line') : (bn ? 'বার চার্ট' : 'Bar Graph')}</span>
+              </button>
+            )
+          })}
         </div>
       </div>
 
-      {/* KPI strip — every value is read from the chart's own rows */}
-      <div className="flex flex-wrap items-center justify-between gap-2 font-mono text-[11px] text-[#6c817a] bg-[#f7faf7] p-2.5 rounded-xl border border-[#e5efe9]">
+      {/* 2. Executive KPI Summary Strip */}
+      <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 pt-0.5 font-mono">
         {metric === 'delta' ? (
           <>
-            <span>
-              {bn ? 'সবচেয়ে বেশি বৃদ্ধি' : 'Biggest rise'}: <strong className="text-[#0f352e]">{signedInt(peak.val, lang)} ha ({peak.label})</strong>
-            </span>
-            <span>
-              {bn ? 'সবচেয়ে বেশি কমা' : 'Biggest drop'}: <strong className="text-[#0f352e]">{signedInt(low.val, lang)} ha ({low.label})</strong>
-            </span>
+            <div className="flex items-center gap-2.5 rounded-xl border border-[#d5e5dc] bg-[#f7faf8] px-3 py-2 shadow-2xs">
+              <span className="size-2 rounded-full bg-emerald-500 shrink-0" />
+              <div className="min-w-0">
+                <p className="text-[10px] uppercase tracking-wider text-[#6c867d]">{bn ? 'সর্বোচ্চ বৃদ্ধি' : 'Biggest Rise'}</p>
+                <p className="font-display text-sm font-bold text-emerald-800 truncate">{signedInt(peak.val, lang)} ha ({peak.label})</p>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-2.5 rounded-xl border border-[#d5e5dc] bg-[#f7faf8] px-3 py-2 shadow-2xs">
+              <span className="size-2 rounded-full bg-rose-500 shrink-0" />
+              <div className="min-w-0">
+                <p className="text-[10px] uppercase tracking-wider text-[#6c867d]">{bn ? 'সর্বোচ্চ হ্রাস' : 'Biggest Drop'}</p>
+                <p className="font-display text-sm font-bold text-rose-800 truncate">{signedInt(low.val, lang)} ha ({low.label})</p>
+              </div>
+            </div>
+
+            <div className="col-span-2 sm:col-span-1 flex items-center gap-2.5 rounded-xl border border-[#d5e5dc] bg-[#f7faf8] px-3 py-2 shadow-2xs">
+              <span className="size-2 rounded-full bg-teal-500 shrink-0" />
+              <div className="min-w-0">
+                <p className="text-[10px] uppercase tracking-wider text-[#6c867d]">{bn ? 'পিক্সেল নিশ্চিত পরিবর্তন' : 'Confirmed Net Change'}</p>
+                <p className={`font-display text-sm font-bold truncate ${confirmed >= 0 ? 'text-[#16865f]' : 'text-rose-700'}`}>
+                  {signedInt(confirmed, lang, 1)} ha
+                </p>
+              </div>
+            </div>
           </>
         ) : (
           <>
-            <span className="flex items-center gap-1.5">
-              <span className="size-2 rounded-full bg-emerald-500" />
-              {bn ? 'শুরু' : 'Start'} ({firstRow.label}): <strong className="text-[#0f352e]">{fmt(firstRow.val ?? 0, 0, lang)} {unit}</strong>
-            </span>
-            <span className="flex items-center gap-1.5">
-              <span className="size-2 rounded-full bg-teal-500" />
-              {bn ? 'সর্বোচ্চ' : 'Highest'}: <strong className="text-[#0f352e]">{fmt(peak.val, 0, lang)} {unit} ({peak.label})</strong>
-            </span>
-            <span className="flex items-center gap-1.5">
-              <span className="size-2 rounded-full bg-amber-500" />
-              {bn ? 'সর্বনিম্ন' : 'Lowest'}: <strong className="text-[#0f352e]">{fmt(low.val, 0, lang)} {unit} ({low.label})</strong>
-            </span>
+            <div className="flex items-center gap-2.5 rounded-xl border border-[#d5e5dc] bg-[#f7faf8] px-3 py-2 shadow-2xs">
+              <span className="size-2 rounded-full bg-emerald-500 shrink-0" />
+              <div className="min-w-0">
+                <p className="text-[10px] uppercase tracking-wider text-[#6c867d]">{bn ? 'শুরুর বছর' : 'Baseline Year'} ({firstRow.label})</p>
+                <p className="font-display text-sm font-bold text-[#0c3930] truncate">{fmt(firstRow.val ?? 0, 0, lang)} {unit}</p>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-2.5 rounded-xl border border-[#d5e5dc] bg-[#f7faf8] px-3 py-2 shadow-2xs">
+              <span className="size-2 rounded-full bg-teal-500 shrink-0" />
+              <div className="min-w-0">
+                <p className="text-[10px] uppercase tracking-wider text-[#6c867d]">{bn ? 'সর্বোচ্চ স্তর' : 'Peak Canopy'} ({peak.label})</p>
+                <p className="font-display text-sm font-bold text-[#0c3930] truncate">{fmt(peak.val, 0, lang)} {unit}</p>
+              </div>
+            </div>
+
+            <div className="col-span-2 sm:col-span-1 flex items-center gap-2.5 rounded-xl border border-[#d5e5dc] bg-[#f7faf8] px-3 py-2 shadow-2xs">
+              <span className="size-2 rounded-full bg-amber-500 shrink-0" />
+              <div className="min-w-0">
+                <p className="text-[10px] uppercase tracking-wider text-[#6c867d]">{bn ? 'সর্বনিম্ন স্তর' : 'Lowest Canopy'} ({low.label})</p>
+                <p className="font-display text-sm font-bold text-[#0c3930] truncate">{fmt(low.val, 0, lang)} {unit}</p>
+              </div>
+            </div>
           </>
         )}
       </div>
 
-      <div className="h-64 w-full pt-2">
+      {/* 3. Main Chart Canvas with Visible Y-Axis and Light Guidelines */}
+      <div className="h-68 sm:h-74 w-full pt-1">
         <ResponsiveContainer width="100%" height="100%">
           {chartMode === 'spline' ? (
-            <AreaChart data={rows} margin={{ top: 18, right: 14, bottom: 0, left: 14 }}>
+            <AreaChart data={rows} margin={{ top: 18, right: 16, bottom: 4, left: 4 }}>
               <defs>
                 <linearGradient id="splineEmeraldGrad" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%" stopColor="#10b981" stopOpacity={0.3} />
-                  <stop offset="100%" stopColor="#047857" stopOpacity={0.01} />
+                  <stop offset="0%" stopColor="#10b981" stopOpacity={0.28} />
+                  <stop offset="65%" stopColor="#10b981" stopOpacity={0.06} />
+                  <stop offset="100%" stopColor="#10b981" stopOpacity={0.0} />
                 </linearGradient>
               </defs>
-              <XAxis dataKey="label" interval={0} tick={{ fontSize: 11.5, fill: '#526a63', fontFamily: 'var(--font-mono)' }} axisLine={false} tickLine={false} />
-              <YAxis domain={domain} hide />
-              <Tooltip content={tooltip} cursor={{ stroke: 'rgba(16, 185, 129, 0.3)', strokeWidth: 1.5, strokeDasharray: '4 4' }} />
+              <CartesianGrid stroke="#e8f0ec" strokeDasharray="3 3" vertical={false} />
+              <XAxis
+                dataKey="label"
+                interval={0}
+                tick={{ fontSize: 11, fill: '#526a63', fontFamily: 'var(--font-mono)' }}
+                axisLine={{ stroke: '#dce8e1' }}
+                tickLine={false}
+              />
+              <YAxis
+                domain={domain}
+                tick={{ fontSize: 10.5, fill: '#6c867d', fontFamily: 'var(--font-mono)' }}
+                tickFormatter={(v) => fmt(v, 0, lang)}
+                tickLine={false}
+                axisLine={false}
+                width={48}
+              />
+              <Tooltip content={tooltip} cursor={{ stroke: 'rgba(16, 185, 129, 0.35)', strokeWidth: 1.5, strokeDasharray: '4 4' }} />
               {metric !== 'delta' && (
-                <Area type="monotone" dataKey="band" stroke="none" fill="#10b981" fillOpacity={0.14} isAnimationActive={false} activeDot={false} />
+                <Area type="monotone" dataKey="band" stroke="none" fill="#10b981" fillOpacity={0.08} isAnimationActive={false} activeDot={false} />
               )}
               <ReferenceLine y={metric === 'delta' ? 0 : (firstRow.val ?? 0)} stroke="#6c817a" strokeDasharray="3 3" strokeOpacity={0.6} />
               <Area
                 type="monotone"
                 dataKey="val"
                 connectNulls
-                stroke="#10b981"
+                stroke="#16865f"
                 strokeWidth={3}
                 fill={metric === 'delta' ? 'none' : 'url(#splineEmeraldGrad)'}
-                dot={{ r: 4, fill: '#ffffff', stroke: '#059669', strokeWidth: 2.5 }}
-                activeDot={{ r: 6, fill: '#10b981', stroke: '#ffffff', strokeWidth: 2 }}
+                dot={{ r: 4.5, fill: '#ffffff', stroke: '#16865f', strokeWidth: 2.5 }}
+                activeDot={{ r: 6.5, fill: '#0a362a', stroke: '#ffffff', strokeWidth: 3 }}
               />
             </AreaChart>
           ) : (
-            <BarChart data={rows} margin={{ top: 22, right: 12, bottom: 0, left: 12 }}>
-              <XAxis dataKey="label" interval={0} tick={{ fontSize: 11.5, fill: '#526a63', fontFamily: 'var(--font-mono)' }} axisLine={false} tickLine={false} />
-              <YAxis hide domain={metric === 'delta' ? domain : [0, maxVal * 1.12]} />
+            <BarChart data={rows} margin={{ top: 22, right: 16, bottom: 4, left: 4 }}>
+              <CartesianGrid stroke="#e8f0ec" strokeDasharray="3 3" vertical={false} />
+              <XAxis
+                dataKey="label"
+                interval={0}
+                tick={{ fontSize: 11, fill: '#526a63', fontFamily: 'var(--font-mono)' }}
+                axisLine={{ stroke: '#dce8e1' }}
+                tickLine={false}
+              />
+              <YAxis
+                domain={metric === 'delta' ? domain : [0, maxVal * 1.12]}
+                tick={{ fontSize: 10.5, fill: '#6c867d', fontFamily: 'var(--font-mono)' }}
+                tickFormatter={(v) => fmt(v, 0, lang)}
+                tickLine={false}
+                axisLine={false}
+                width={48}
+              />
               <Tooltip content={tooltip} cursor={{ fill: 'rgba(16, 185, 129, 0.05)' }} />
               {metric === 'delta' && <ReferenceLine y={0} stroke="#6c817a" />}
-              <Bar dataKey="val" radius={[6, 6, 2, 2]} maxBarSize={48}>
+              <Bar dataKey="val" radius={[6, 6, 0, 0]} maxBarSize={44}>
                 {rows.map((r, i) => (
-                  <Cell key={i} fill={dim ? '#9ca3af' : (r.val ?? 0) < 0 ? '#f43f5e' : i === rows.length - 1 ? '#10b981' : '#6ee7b7'} />
+                  <Cell key={i} fill={dim ? '#9ca3af' : (r.val ?? 0) < 0 ? '#f43f5e' : i === rows.length - 1 ? '#16865f' : '#34d399'} />
                 ))}
                 <LabelList
                   dataKey="val"
                   position="top"
                   formatter={(v: unknown) => (typeof v !== 'number' ? '' : metric === 'delta' ? signedInt(v, lang) : fmt(v, 0, lang))}
-                  style={{ fontSize: 11, fill: '#0f352e', fontWeight: 800, fontFamily: 'var(--font-mono)' }}
+                  style={{ fontSize: 10.5, fill: '#0f352e', fontWeight: 800, fontFamily: 'var(--font-mono)' }}
                 />
               </Bar>
             </BarChart>
@@ -517,30 +630,45 @@ export function YearsChart({ bundle: b, lang }: { bundle: AnalysisBundle; lang: 
         </ResponsiveContainer>
       </div>
 
-      {/* Reading guide: yearly map totals vs the confirmed pixel-level change */}
-      <div className="rounded-xl border border-amber-200/70 bg-amber-50/60 p-3 text-xs leading-relaxed text-[#5b4a1c]">
-        {bn ? (
-          <>
-            প্রতিটি বছরের মোট আয়তন আলাদা ছবি থেকে মাপা, তাই এটি প্রায় ±{fmt(u * 100, 1, lang)}% ওঠানামা করে (সবুজ ছায়া)। প্রথম ও শেষ মানচিত্রের মোটের পার্থক্য{' '}
-            <strong>{signedInt(mapDiff, lang)} হেক্টর</strong>, কিন্তু পিক্সেল ধরে নিশ্চিত পরিবর্তন (বৃদ্ধি − ক্ষতি) হলো <strong>{signedInt(confirmed, lang, 1)} হেক্টর</strong> —
-            শিরোনাম ও ভবিষ্যৎ প্রক্ষেপণ এই নিশ্চিত সংখ্যাটি ব্যবহার করে।
-          </>
-        ) : (
-          <>
-            Each year&apos;s total is measured from a different set of photos, so it wobbles by about ±{fmt(u * 100, 1)}% (green shading). The first and last map totals
-            differ by <strong>{signedInt(mapDiff, lang)} ha</strong>, but the confirmed change counted pixel by pixel (gain − loss) is{' '}
-            <strong>{signedInt(confirmed, lang, 1)} ha</strong> — the headline and the 5-year outlook use this confirmed figure.
-          </>
-        )}
+      {/* 4. Structured Diagnostic Comparison Card */}
+      <div className="rounded-2xl border border-amber-200/90 bg-gradient-to-r from-amber-50/70 via-amber-50/40 to-emerald-50/40 p-4 shadow-2xs">
+        <div className="flex items-center gap-2 text-amber-900 font-mono text-xs font-bold uppercase tracking-wider">
+          <Info className="size-4 text-amber-700 shrink-0" />
+          <span>{bn ? 'উপাত্ত ব্যাখ্যা: উপগ্রহের পরিবর্তনশীলতা বনাম নিশ্চিত বন পরিবর্তন' : 'SENSOR VARIANCE VS. CONFIRMED PIXEL CHANGE'}</span>
+        </div>
+        <div className="mt-2.5 grid gap-3 sm:grid-cols-2 text-xs">
+          <div className="rounded-xl bg-white/85 p-3 border border-amber-200/60 shadow-2xs">
+            <span className="text-[10.5px] font-mono text-[#6c867d] uppercase">{bn ? 'মানচিত্র মোটের পার্থক্য' : 'Raw Map Delta (Scene Noise)'}</span>
+            <p className="font-mono text-sm font-bold text-[#0f352e] mt-0.5">
+              {signedInt(mapDiff, lang)} ha <span className="text-[11px] font-normal text-[#6c867d]">({bn ? '±' : '±'}{fmt(u * 100, 1, lang)}% {bn ? 'ছবির ভিন্নতা' : 'spread'})</span>
+            </p>
+            <p className="text-[11px] text-[#557369] mt-0.5 leading-snug">
+              {bn ? 'প্রতি বছরের আলাদা ছবির আলো ও জোয়ারের তারতম্য থাকে।' : 'Measured from independent dry-season composites.'}
+            </p>
+          </div>
+          <div className="rounded-xl bg-white/85 p-3 border border-emerald-200/80 shadow-2xs">
+            <span className="text-[10.5px] font-mono text-[#16865f] font-bold uppercase">{bn ? 'পিক্সেল-ভিত্তিক নিশ্চিত পরিবর্তন' : 'Confirmed Pixel Net Change'}</span>
+            <p className={`font-mono text-sm font-bold mt-0.5 ${confirmed >= 0 ? 'text-[#16865f]' : 'text-rose-600'}`}>
+              {signedInt(confirmed, lang, 1)} ha <span className="text-[11px] font-normal text-[#557369]">({bn ? 'বৃদ্ধি − ক্ষতি' : 'gain − loss'})</span>
+            </p>
+            <p className="text-[11px] text-[#426156] mt-0.5 leading-snug">
+              {bn ? 'মূল সিদ্ধান্ত ও ৫ বছরের প্রক্ষেপণে এই নিশ্চিত মানটি ব্যবহৃত।' : 'Used strictly for the headline verdict & 5-year outlook.'}
+            </p>
+          </div>
+        </div>
       </div>
 
-      <div className="flex flex-wrap items-center justify-between gap-2 border-t border-[#e5efe9] pt-2 text-xs text-[#6c817a]">
-        <span>
+      {/* 5. Bottom Metadata Strip */}
+      <div className="flex flex-wrap items-center justify-between gap-2 border-t border-[#e5efe9] pt-2.5 font-mono text-xs text-[#6c867d]">
+        <span className="flex items-center gap-1.5">
+          <Satellite className="size-3.5 text-[#16865f]" />
           {bn
-            ? 'প্রতিটি বিন্দু = ওই সময়ের মেঘমুক্ত সেন্টিনেল-২ ছবি থেকে মাপা আয়তন (তারিখ দেখতে বিন্দুর উপর রাখুন)।'
-            : 'Each point = area mapped from the cloud-free Sentinel-2 photos of that window (hover for exact dates).'}
+            ? 'প্রতিটি বিন্দু = ওই সময়ের মেঘমুক্ত সেন্টিনেল-২ ছবির মিডিয়ান কম্পোজিট।'
+            : 'Each point = median surface reflectance from 90-day dry season passes.'}
         </span>
-        <span className="font-mono text-[11px] text-emerald-800 font-semibold">ESA Sentinel-2 L2A</span>
+        <span className="inline-flex items-center gap-1 rounded-md bg-emerald-50 px-2 py-0.5 text-emerald-800 font-bold border border-emerald-200/70 text-[11px]">
+          ESA Copernicus Sentinel-2 MSI (10m)
+        </span>
       </div>
     </div>
   )

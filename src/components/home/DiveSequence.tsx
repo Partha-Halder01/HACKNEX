@@ -2,6 +2,7 @@ import { useEffect, useRef, useState, type CSSProperties, type ReactNode } from 
 import { ArrowDown, ArrowRight, Ban, BrainCircuit, FileText, Gauge, Leaf, Map as MapIcon, Satellite, ShieldCheck, TrendingDown, TriangleAlert, Users } from 'lucide-react'
 import { HOME_TEXT, type HomeLang } from './content'
 import { FRAME_COUNT, FRAME_H, FRAME_W, coverBox, useFrameSequence } from './useFrameSequence'
+import { goToSnap, useSectionSnap } from './useSectionSnap'
 
 /**
  * Scroll timeline (0 → 1 across the pinned section). The dive itself happens in
@@ -136,74 +137,8 @@ export function DiveSequence({ lang, onOpenDashboard }: { lang: HomeLang; onOpen
     }
   }, [])
 
-  // Auto-snap between Section 1 (Hero) and Section 2 (Above) on small scroll
-  useEffect(() => {
-    let isSnapping = false
-    let snapTimeout: ReturnType<typeof setTimeout> | null = null
-
-    const snapTo = (targetP: number) => {
-      const el = sectionRef.current
-      if (!el) return
-      const span = el.offsetHeight - window.innerHeight
-      if (span <= 0) return
-      isSnapping = true
-      const targetY = el.offsetTop + targetP * span
-      window.scrollTo({ top: targetY, behavior: 'smooth' })
-      if (snapTimeout) clearTimeout(snapTimeout)
-      snapTimeout = setTimeout(() => {
-        isSnapping = false
-      }, 700)
-    }
-
-    const onWheel = (e: WheelEvent) => {
-      if (isSnapping) return
-      const el = sectionRef.current
-      if (!el) return
-      const span = el.offsetHeight - window.innerHeight
-      if (span <= 0) return
-      const currentP = Math.min(1, Math.max(0, (window.scrollY - el.offsetTop) / span))
-
-      // Small scroll down from Section 1 (Hero) → auto-snap to Section 2 (Above)
-      if (currentP <= 0.035 && e.deltaY > 5) {
-        snapTo(0.095)
-      }
-      // Small scroll up from Section 2 (Above) → auto-snap back to Section 1 (Hero)
-      else if (currentP >= 0.045 && currentP <= 0.13 && e.deltaY < -5) {
-        snapTo(0)
-      }
-    }
-
-    let touchStartY = 0
-    const onTouchStart = (e: TouchEvent) => {
-      touchStartY = e.touches[0].clientY
-    }
-    const onTouchMove = (e: TouchEvent) => {
-      if (isSnapping) return
-      const touchY = e.touches[0].clientY
-      const deltaY = touchStartY - touchY
-      const el = sectionRef.current
-      if (!el) return
-      const span = el.offsetHeight - window.innerHeight
-      if (span <= 0) return
-      const currentP = Math.min(1, Math.max(0, (window.scrollY - el.offsetTop) / span))
-
-      if (currentP <= 0.035 && deltaY > 12) {
-        snapTo(0.095)
-      } else if (currentP >= 0.045 && currentP <= 0.13 && deltaY < -12) {
-        snapTo(0)
-      }
-    }
-
-    window.addEventListener('wheel', onWheel, { passive: true })
-    window.addEventListener('touchstart', onTouchStart, { passive: true })
-    window.addEventListener('touchmove', onTouchMove, { passive: true })
-    return () => {
-      window.removeEventListener('wheel', onWheel)
-      window.removeEventListener('touchstart', onTouchStart)
-      window.removeEventListener('touchmove', onTouchMove)
-      if (snapTimeout) clearTimeout(snapTimeout)
-    }
-  }, [])
+  // One small scroll = one section, for every section of the story.
+  useSectionSnap(sectionRef)
 
   // Draw the frame for the current progress (and redraw as better frames arrive).
   useEffect(() => {
@@ -236,10 +171,6 @@ export function DiveSequence({ lang, onOpenDashboard }: { lang: HomeLang; onOpen
   const depth = Math.min(1, p / STAGES.carbon[1]) // the gauge covers the dive only
   const stops = [0, 0.4, 0.62, 0.9]
   const bn = lang === 'bn'
-  const scrollToStage = (stage: number) => {
-    const el = sectionRef.current
-    if (el) window.scrollTo({ top: el.offsetTop + stage * (el.offsetHeight - window.innerHeight), behavior: 'smooth' })
-  }
 
   return (
     <section ref={sectionRef} id="dive" className="relative" style={{ height: '1300vh' }}>
@@ -304,7 +235,7 @@ export function DiveSequence({ lang, onOpenDashboard }: { lang: HomeLang; onOpen
             </button>
             <button
               type="button"
-              onClick={() => scrollToStage(0.095)}
+              onClick={() => goToSnap(1)}
               className="inline-flex items-center gap-2 rounded-full border border-white/30 bg-white/10 px-5.5 py-3 text-sm font-semibold text-white backdrop-blur-md transition-all hover:bg-white/20 hover:border-white/50 transform hover:-translate-y-0.5 active:translate-y-0 cursor-pointer"
             >
               {T.hero.secondary} <ArrowDown className="size-4" />
