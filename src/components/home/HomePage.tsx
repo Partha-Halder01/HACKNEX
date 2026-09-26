@@ -16,6 +16,17 @@ export function HomePage({ onNavigate }: { onNavigate?: (path: string) => void }
     else window.location.href = path
   }
 
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search)
+    const snapParam = params.get('snap')
+    if (snapParam !== null) {
+      const idx = parseInt(snapParam, 10)
+      if (!Number.isNaN(idx)) {
+        setTimeout(() => goToSnap(idx), 400)
+      }
+    }
+  }, [])
+
   return (
     <div className="min-h-screen bg-[#031a17] text-white">
       {/* Transparent Header */}

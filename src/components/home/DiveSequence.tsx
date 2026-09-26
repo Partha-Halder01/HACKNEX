@@ -87,7 +87,7 @@ function FrameLabel({ x, y, side, title, sub, o }: { x: number; y: number; side:
   )
 }
 
-/** Dark glass panel for the service sections, readable on top of the video with balanced padding and max-height safeguards. */
+/** Transparent glass panel for the service sections, floating seamlessly over the underwater video. */
 function InfoPanel({
   o,
   eyebrow,
@@ -106,21 +106,21 @@ function InfoPanel({
       className="absolute inset-0 flex items-center justify-center px-4 sm:px-6 lg:px-8 py-8 sm:py-12 z-20"
       style={panelStyle(o, 28)}
     >
-      <div className="relative w-full max-w-[1320px] max-h-[88vh] overflow-y-auto overflow-x-hidden rounded-[2rem] border border-white/15 bg-gradient-to-b from-[#031d18]/92 via-[#021814]/94 to-[#01110e]/96 p-6 sm:p-8 md:p-9 lg:p-11 shadow-[0_32px_100px_rgba(0,0,0,0.7),inset_0_1px_1px_rgba(255,255,255,0.18)] backdrop-blur-2xl [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
+      <div className="relative w-full max-w-[1320px] max-h-[88vh] overflow-y-auto overflow-x-hidden rounded-[2rem] border border-white/15 bg-gradient-to-b from-white/[0.05] via-[#021c17]/30 to-[#01120e]/40 p-6 sm:p-8 md:p-9 lg:p-11 shadow-[0_32px_100px_rgba(0,0,0,0.6),inset_0_1px_1px_rgba(255,255,255,0.18),0_0_50px_rgba(16,185,129,0.06)] backdrop-blur-xl [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
         {/* Subtle ambient lighting highlights */}
         <div className="pointer-events-none absolute inset-x-12 top-0 h-px bg-gradient-to-r from-transparent via-emerald-400/50 to-transparent" />
-        <div className="pointer-events-none absolute -top-28 -right-28 size-96 rounded-full bg-emerald-500/12 blur-[90px]" />
-        <div className="pointer-events-none absolute -bottom-28 -left-28 size-96 rounded-full bg-teal-500/10 blur-[90px]" />
+        <div className="pointer-events-none absolute -top-28 -right-28 size-96 rounded-full bg-emerald-500/15 blur-[100px]" />
+        <div className="pointer-events-none absolute -bottom-28 -left-28 size-96 rounded-full bg-teal-500/12 blur-[100px]" />
 
         {/* Header Eyebrow & Title */}
         <div className="relative z-10 flex flex-col items-start">
-          <div className="inline-flex items-center gap-2 rounded-full border border-emerald-400/30 bg-emerald-500/10 px-3.5 py-1 text-[11px] sm:text-xs font-mono font-bold tracking-[0.22em] text-emerald-300 shadow-[0_0_15px_rgba(16,185,129,0.15)] uppercase">
+          <div className="inline-flex items-center gap-2 rounded-full border border-emerald-400/35 bg-emerald-500/15 px-3.5 py-1 text-[11px] sm:text-xs font-mono font-bold tracking-[0.22em] text-emerald-300 shadow-[0_0_16px_rgba(16,185,129,0.2)] backdrop-blur-md uppercase">
             <span className="size-1.5 rounded-full bg-emerald-400 animate-pulse shadow-[0_0_6px_#34d399]" />
             {eyebrow}
           </div>
 
           <h2
-            className={`mt-2.5 sm:mt-3.5 max-w-4xl font-condensed text-3xl sm:text-4xl md:text-5xl lg:text-[3.25rem] leading-[0.96] tracking-tight text-white drop-shadow-[0_2px_16px_rgba(0,0,0,0.5)] ${
+            className={`mt-2.5 sm:mt-3.5 max-w-4xl font-condensed text-3xl sm:text-4xl md:text-5xl lg:text-[3.25rem] leading-[0.96] tracking-tight text-white drop-shadow-[0_2px_16px_rgba(0,0,0,0.6)] ${
               bn ? 'font-bengali text-2xl sm:text-3xl lg:text-4xl font-bold' : ''
             }`}
           >
@@ -143,12 +143,12 @@ const WHY_CARD_META = [
     badge: 'Silent Loss',
     badgeBn: 'নীরব অবক্ষয়',
     icon: TrendingDown,
-    iconBox: 'border-rose-400/30 bg-rose-500/10 text-rose-300 shadow-[0_0_20px_rgba(244,63,94,0.15)]',
+    iconBox: 'border-rose-400/35 bg-rose-500/15 text-rose-300 shadow-[0_0_20px_rgba(244,63,94,0.2)]',
     tagClass: 'text-rose-300/90',
-    dotColor: 'bg-rose-400',
+    dotColor: 'bg-rose-400 shadow-[0_0_6px_rgba(251,113,133,0.8)]',
     highlight: 'Unnoticed tidal erosion & fringe retreat',
     highlightBn: 'ভাঙন ও জোয়ারের কারণে নীরবে জমি হারায়',
-    hoverBorder: 'hover:border-rose-400/40 hover:bg-[#1a0f14]/85',
+    hoverBorder: 'hover:border-rose-400/50 hover:bg-rose-500/[0.08] hover:shadow-[0_20px_48px_rgba(0,0,0,0.45),0_0_25px_rgba(244,63,94,0.18)]',
   },
   {
     step: '02',
@@ -157,12 +157,12 @@ const WHY_CARD_META = [
     badge: 'Trust Gap',
     badgeBn: 'বিশ্বস্ততার ঘাটতি',
     icon: ShieldCheck,
-    iconBox: 'border-amber-400/30 bg-amber-500/10 text-amber-300 shadow-[0_0_20px_rgba(245,158,11,0.15)]',
+    iconBox: 'border-amber-400/35 bg-amber-500/15 text-amber-300 shadow-[0_0_20px_rgba(245,158,11,0.2)]',
     tagClass: 'text-amber-300/90',
-    dotColor: 'bg-amber-400',
+    dotColor: 'bg-amber-400 shadow-[0_0_6px_rgba(251,191,36,0.8)]',
     highlight: 'Hidden error margins & unvalidated claims',
     highlightBn: 'পরিমাপের যথার্থতা ও ত্রুটি গোপন থাকে',
-    hoverBorder: 'hover:border-amber-400/40 hover:bg-[#1a1608]/85',
+    hoverBorder: 'hover:border-amber-400/50 hover:bg-amber-500/[0.08] hover:shadow-[0_20px_48px_rgba(0,0,0,0.45),0_0_25px_rgba(245,158,11,0.18)]',
   },
   {
     step: '03',
@@ -171,12 +171,12 @@ const WHY_CARD_META = [
     badge: 'Last Mile',
     badgeBn: 'শেষ মাইল বাধা',
     icon: Users,
-    iconBox: 'border-sky-400/30 bg-sky-500/10 text-sky-300 shadow-[0_0_20px_rgba(56,189,248,0.15)]',
+    iconBox: 'border-sky-400/35 bg-sky-500/15 text-sky-300 shadow-[0_0_20px_rgba(56,189,248,0.2)]',
     tagClass: 'text-sky-300/90',
-    dotColor: 'bg-sky-400',
+    dotColor: 'bg-sky-400 shadow-[0_0_6px_rgba(56,189,248,0.8)]',
     highlight: 'Locked in English & academic silos',
     highlightBn: 'ইংরেজিতে জটিল রূপ যা স্থানীয় কাজে আসে না',
-    hoverBorder: 'hover:border-sky-400/40 hover:bg-[#071d24]/85',
+    hoverBorder: 'hover:border-sky-400/50 hover:bg-sky-500/[0.08] hover:shadow-[0_20px_48px_rgba(0,0,0,0.45),0_0_25px_rgba(56,189,248,0.18)]',
   },
 ]
 
@@ -228,45 +228,45 @@ const TRUST_CARD_META = [
     badge: 'Ground Truth',
     badgeBn: 'বৈজ্ঞানিক মানচিত্র',
     icon: MapIcon,
-    iconBox: 'border-emerald-400/35 bg-emerald-500/15 text-emerald-300 shadow-[0_0_20px_rgba(16,185,129,0.18)]',
-    tagBadge: 'border-emerald-400/30 bg-emerald-500/10 text-emerald-300',
-    dotColor: 'bg-emerald-400',
+    iconBox: 'border-emerald-400/40 bg-emerald-500/20 text-emerald-300 shadow-[0_0_20px_rgba(16,185,129,0.22)]',
+    tagBadge: 'border-emerald-400/35 bg-emerald-500/15 text-emerald-300',
+    dotColor: 'bg-emerald-400 shadow-[0_0_6px_rgba(52,211,153,0.8)]',
     footer: 'CGMD-AFCC30 Reference Map',
     footerBn: 'স্বাধীন বিজ্ঞানীদের রেফারেন্স মানচিত্র',
-    hoverBorder: 'hover:border-emerald-400/40 hover:bg-[#062c25]/85',
+    hoverBorder: 'hover:border-emerald-400/50 hover:bg-emerald-500/[0.08] hover:shadow-[0_20px_48px_rgba(0,0,0,0.45),0_0_25px_rgba(16,185,129,0.2)]',
   },
   {
     badge: 'Certainty Tiers',
     badgeBn: 'নিশ্চয়তার মাত্রা',
     icon: Gauge,
-    iconBox: 'border-sky-400/35 bg-sky-500/15 text-sky-300 shadow-[0_0_20px_rgba(56,189,248,0.18)]',
-    tagBadge: 'border-sky-400/30 bg-sky-500/10 text-sky-300',
-    dotColor: 'bg-sky-400',
+    iconBox: 'border-sky-400/40 bg-sky-500/20 text-sky-300 shadow-[0_0_20px_rgba(56,189,248,0.22)]',
+    tagBadge: 'border-sky-400/35 bg-sky-500/15 text-sky-300',
+    dotColor: 'bg-sky-400 shadow-[0_0_6px_rgba(56,189,248,0.8)]',
     footer: 'Green / Yellow / Red Reliability',
     footerBn: 'স্পষ্ট ট্রাফিক-লাইট সংকেত',
-    hoverBorder: 'hover:border-sky-400/40 hover:bg-[#07242c]/85',
+    hoverBorder: 'hover:border-sky-400/50 hover:bg-sky-500/[0.08] hover:shadow-[0_20px_48px_rgba(0,0,0,0.45),0_0_25px_rgba(56,189,248,0.2)]',
   },
   {
     badge: 'Known Limits',
     badgeBn: 'সতর্কতা ও সীমাবদ্ধতা',
     icon: TriangleAlert,
-    iconBox: 'border-amber-400/40 bg-amber-500/15 text-amber-300 shadow-[0_0_20px_rgba(245,158,11,0.22)]',
-    tagBadge: 'border-amber-400/30 bg-amber-500/10 text-amber-300',
-    dotColor: 'bg-amber-400',
+    iconBox: 'border-amber-400/40 bg-amber-500/20 text-amber-300 shadow-[0_0_20px_rgba(245,158,11,0.25)]',
+    tagBadge: 'border-amber-400/35 bg-amber-500/15 text-amber-300',
+    dotColor: 'bg-amber-400 shadow-[0_0_6px_rgba(251,191,36,0.8)]',
     footer: 'Flags Edge Ambiguity & Tides',
     footerBn: 'গ্রামের কিনারা ও মৌসুমি বিভ্রান্তি সতর্কতা',
-    hoverBorder: 'hover:border-amber-400/40 hover:bg-[#251e08]/85',
+    hoverBorder: 'hover:border-amber-400/50 hover:bg-amber-500/[0.08] hover:shadow-[0_20px_48px_rgba(0,0,0,0.45),0_0_25px_rgba(245,158,11,0.2)]',
   },
   {
     badge: 'Ethical Science',
     badgeBn: 'নীতিগত স্বচ্ছতা',
     icon: Ban,
-    iconBox: 'border-teal-400/35 bg-teal-500/15 text-teal-300 shadow-[0_0_20px_rgba(20,184,166,0.18)]',
-    tagBadge: 'border-teal-400/30 bg-teal-500/10 text-teal-300',
-    dotColor: 'bg-teal-400',
+    iconBox: 'border-teal-400/40 bg-teal-500/20 text-teal-300 shadow-[0_0_20px_rgba(20,184,166,0.22)]',
+    tagBadge: 'border-teal-400/35 bg-teal-500/15 text-teal-300',
+    dotColor: 'bg-teal-400 shadow-[0_0_6px_rgba(45,212,191,0.8)]',
     footer: 'Conservation Only · No Credits',
     footerBn: 'কোনো আর্থিক বা কার্বন ক্রেডিট দাবি নেই',
-    hoverBorder: 'hover:border-teal-400/40 hover:bg-[#062925]/85',
+    hoverBorder: 'hover:border-teal-400/50 hover:bg-teal-500/[0.08] hover:shadow-[0_20px_48px_rgba(0,0,0,0.45),0_0_25px_rgba(20,184,166,0.2)]',
   },
 ]
 
@@ -352,7 +352,7 @@ export function DiveSequence({ lang, onOpenDashboard }: { lang: HomeLang; onOpen
           className="pointer-events-none absolute inset-y-0 right-0 w-[60%] bg-gradient-to-l from-[#03201c]/80 via-[#03201c]/35 to-transparent"
           style={{ opacity: roots }}
         />
-        <div className="pointer-events-none absolute inset-0 bg-[#021512]" style={{ opacity: Math.max(carbon * 0.3, info * 0.45) }} />
+        <div className="pointer-events-none absolute inset-0 bg-[#021512]" style={{ opacity: Math.max(carbon * 0.3, info * 0.32) }} />
 
         {/* Labels pinned to the opening frame, like the reference illustration */}
         <div className="pointer-events-none absolute hidden lg:block" style={{ left: box.x, top: box.y, width: box.w, height: box.h }}>
@@ -461,12 +461,12 @@ export function DiveSequence({ lang, onOpenDashboard }: { lang: HomeLang; onOpen
                 <article
                   key={title}
                   className={cn(
-                    'group relative flex flex-col justify-between overflow-hidden rounded-2xl border border-white/10 bg-white/[0.04] p-5 sm:p-6 lg:p-7 backdrop-blur-xl transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_20px_48px_rgba(0,0,0,0.5)]',
+                    'group relative flex flex-col justify-between overflow-hidden rounded-2xl border border-white/15 bg-white/[0.03] sm:bg-[#021b16]/25 p-5 sm:p-6 lg:p-7 backdrop-blur-xl transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_20px_48px_rgba(0,0,0,0.5)]',
                     meta.hoverBorder,
                   )}
                 >
                   {/* Subtle top edge line highlight */}
-                  <div className="pointer-events-none absolute inset-x-6 top-0 h-px bg-gradient-to-r from-transparent via-white/15 group-hover:via-white/40 to-transparent transition-all" />
+                  <div className="pointer-events-none absolute inset-x-6 top-0 h-px bg-gradient-to-r from-transparent via-white/20 group-hover:via-white/50 to-transparent transition-all" />
 
                   <div>
                     {/* Top icon and step chip */}
@@ -510,7 +510,7 @@ export function DiveSequence({ lang, onOpenDashboard }: { lang: HomeLang; onOpen
         <InfoPanel o={how} eyebrow={T.how.eyebrow} title={T.how.title} bn={bn}>
           <div className="relative">
             {/* Horizontal connecting track on desktop */}
-            <div className="pointer-events-none absolute left-8 right-8 top-10 hidden h-px bg-gradient-to-r from-emerald-400/10 via-emerald-400/40 to-emerald-400/10 lg:block" />
+            <div className="pointer-events-none absolute left-8 right-8 top-10 hidden h-px bg-gradient-to-r from-emerald-400/0 via-emerald-400/30 to-emerald-400/0 lg:block" />
 
             <ol className="grid gap-4 sm:gap-5 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
               {T.how.steps.map(([title, body], i) => {
@@ -519,18 +519,18 @@ export function DiveSequence({ lang, onOpenDashboard }: { lang: HomeLang; onOpen
                 return (
                   <li
                     key={title}
-                    className="group relative flex flex-col justify-between overflow-hidden rounded-2xl border border-white/10 bg-white/[0.04] p-5 sm:p-6 backdrop-blur-xl transition-all duration-300 hover:-translate-y-1 hover:border-emerald-400/40 hover:bg-[#062c25]/85 hover:shadow-[0_20px_48px_rgba(0,0,0,0.5),0_0_24px_rgba(16,185,129,0.15)]"
+                    className="group relative flex flex-col justify-between overflow-hidden rounded-2xl border border-white/15 bg-white/[0.03] sm:bg-[#021b16]/25 p-5 sm:p-6 backdrop-blur-xl transition-all duration-300 hover:-translate-y-1 hover:border-emerald-400/50 hover:bg-emerald-500/[0.08] hover:shadow-[0_20px_48px_rgba(0,0,0,0.45),0_0_25px_rgba(16,185,129,0.2)]"
                   >
                     {/* Subtle top edge line highlight */}
-                    <div className="pointer-events-none absolute inset-x-6 top-0 h-px bg-gradient-to-r from-transparent via-emerald-400/30 group-hover:via-emerald-400/70 to-transparent transition-all" />
+                    <div className="pointer-events-none absolute inset-x-6 top-0 h-px bg-gradient-to-r from-transparent via-emerald-400/40 group-hover:via-emerald-400/80 to-transparent transition-all" />
 
                     <div>
                       {/* Step header: Icon + Step number chip */}
                       <div className="flex items-center justify-between gap-3">
-                        <div className="relative flex size-12 items-center justify-center rounded-xl border border-emerald-400/40 bg-gradient-to-br from-emerald-500/25 to-[#052721] text-emerald-300 shadow-[0_0_20px_rgba(16,185,129,0.25)] transition-transform duration-300 group-hover:scale-105">
+                        <div className="relative flex size-12 items-center justify-center rounded-xl border border-emerald-400/40 bg-gradient-to-br from-emerald-500/20 to-teal-500/10 text-emerald-300 shadow-[0_0_20px_rgba(16,185,129,0.25)] transition-transform duration-300 group-hover:scale-105">
                           <Icon className="size-6" />
                         </div>
-                        <span className="font-mono text-xs font-bold tracking-wider text-emerald-300 px-2.5 py-0.5 rounded-full border border-emerald-400/30 bg-emerald-500/15">
+                        <span className="font-mono text-xs font-bold tracking-wider text-emerald-300 px-2.5 py-0.5 rounded-full border border-emerald-400/30 bg-emerald-500/10 shadow-[0_0_10px_rgba(16,185,129,0.15)]">
                           {`STEP ${meta.step}`}
                         </span>
                       </div>
@@ -571,12 +571,12 @@ export function DiveSequence({ lang, onOpenDashboard }: { lang: HomeLang; onOpen
                 <article
                   key={title}
                   className={cn(
-                    'group relative flex flex-col justify-between overflow-hidden rounded-2xl border border-white/10 bg-white/[0.04] p-5 sm:p-6 backdrop-blur-xl transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_20px_48px_rgba(0,0,0,0.5)]',
+                    'group relative flex flex-col justify-between overflow-hidden rounded-2xl border border-white/15 bg-white/[0.03] sm:bg-[#021b16]/25 p-5 sm:p-6 backdrop-blur-xl transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_20px_48px_rgba(0,0,0,0.5)]',
                     meta.hoverBorder,
                   )}
                 >
                   {/* Subtle top edge line highlight */}
-                  <div className="pointer-events-none absolute inset-x-6 top-0 h-px bg-gradient-to-r from-transparent via-white/15 group-hover:via-white/40 to-transparent transition-all" />
+                  <div className="pointer-events-none absolute inset-x-6 top-0 h-px bg-gradient-to-r from-transparent via-white/20 group-hover:via-white/50 to-transparent transition-all" />
 
                   <div>
                     {/* Header icon + tag badge */}
@@ -650,7 +650,7 @@ export function DiveSequence({ lang, onOpenDashboard }: { lang: HomeLang; onOpen
 
         {/* Interactive section navigation pill bar */}
         <div
-          className="absolute bottom-6 sm:bottom-8 left-1/2 flex -translate-x-1/2 items-center gap-1.5 rounded-full border border-white/15 bg-[#021512]/80 px-3 py-1.5 shadow-[0_8px_32px_rgba(0,0,0,0.5)] backdrop-blur-xl transition-all duration-300 z-30"
+          className="absolute bottom-6 sm:bottom-8 left-1/2 flex -translate-x-1/2 items-center gap-1.5 rounded-full border border-white/15 bg-black/40 sm:bg-[#021512]/50 px-3 py-1.5 shadow-[0_8px_32px_rgba(0,0,0,0.5)] backdrop-blur-xl transition-all duration-300 z-30"
           style={{ opacity: info, pointerEvents: info > 0.5 ? 'auto' : 'none' }}
         >
           {[
