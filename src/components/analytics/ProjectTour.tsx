@@ -1,4 +1,4 @@
-import { useEffect, useState, type ReactNode } from 'react'
+import { useEffect, useRef, useState, type ReactNode } from 'react'
 import {
   ArrowLeft,
   ArrowRight,
@@ -287,7 +287,7 @@ export function ProjectTour({ open, onClose, lang, bundle, caps, onJump, onTry }
             </InfoCard>
           </div>
           <p className="mt-5 text-xs text-[#6c817a]">
-            {L('Tip: use ← → keys or the buttons below. “Show me” buttons jump to the live dashboard.', 'টিপ: ← → কী বা নিচের বোতাম ব্যবহার করুন। “দেখান” বোতাম লাইভ ড্যাশবোর্ডের সেই অংশে নিয়ে যায়।')}
+            {L('Tip: scroll to read on, or use the contents list on the left. “Show me” buttons jump to the live dashboard.', 'টিপ: পড়তে থাকতে স্ক্রোল করুন, বা বাঁ পাশের সূচিপত্র ব্যবহার করুন। “দেখান” বোতাম লাইভ ড্যাশবোর্ডের সেই অংশে নিয়ে যায়।')}
           </p>
         </>
       ),
@@ -573,12 +573,44 @@ export function ProjectTour({ open, onClose, lang, bundle, caps, onJump, onTry }
   ]
 
   const last = chapters.length - 1
+  const scrollRef = useRef<HTMLDivElement>(null)
+  const sectionRefs = useRef<(HTMLElement | null)[]>([])
+  const [progress, setProgress] = useState(0)
+
+  /** Smoothly scroll the document to section i. */
+  const goTo = (i: number) => {
+    const box = scrollRef.current
+    const el = sectionRefs.current[i]
+    if (!box) return
+    box.scrollTo({ top: el ? el.offsetTop - 24 : 0, behavior: 'smooth' })
+  }
+
+  // Scroll-spy: highlight the section being read, and track reading progress.
+  useEffect(() => {
+    if (!open) return
+    const box = scrollRef.current
+    if (!box) return
+    const onScroll = () => {
+      const max = box.scrollHeight - box.clientHeight
+      setProgress(max > 0 ? box.scrollTop / max : 0)
+      const probe = box.scrollTop + box.clientHeight * 0.3
+      let current = 0
+      sectionRefs.current.forEach((el, i) => {
+        if (el && el.offsetTop <= probe) current = i
+      })
+      setChapter(current)
+    }
+    onScroll()
+    box.addEventListener('scroll', onScroll, { passive: true })
+    return () => box.removeEventListener('scroll', onScroll)
+  }, [open])
+
   useEffect(() => {
     if (!open) return
     const onKey = (e: KeyboardEvent) => {
       if (e.key === 'Escape') onClose()
-      if (e.key === 'ArrowRight') setChapter((c) => Math.min(last, c + 1))
-      if (e.key === 'ArrowLeft') setChapter((c) => Math.max(0, c - 1))
+      if (e.key === 'ArrowRight') goTo(Math.min(last, chapter + 1))
+      if (e.key === 'ArrowLeft') goTo(Math.max(0, chapter - 1))
     }
     window.addEventListener('keydown', onKey)
     document.body.style.overflow = 'hidden'
@@ -586,98 +618,153 @@ export function ProjectTour({ open, onClose, lang, bundle, caps, onJump, onTry }
       window.removeEventListener('keydown', onKey)
       document.body.style.overflow = ''
     }
-  }, [open, onClose, last])
+    // goTo only reads refs, so it does not need to be a dependency
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [open, onClose, last, chapter])
 
   if (!open) return null
-  const C = chapters[chapter]
+  const today = new Date().toLocaleDateString(lang === 'bn' ? 'bn-IN' : 'en-GB', { day: 'numeric', month: 'long', year: 'numeric' })
 
   return (
-    <div className="fixed inset-0 z-[1300] flex items-center justify-center bg-[#021512]/70 p-3 backdrop-blur-sm sm:p-6 print:hidden" role="dialog" aria-modal="true" aria-label={L('How MangroveLens works', 'MangroveLens কীভাবে কাজ করে')} onClick={onClose}>
-      <div className="flex h-[88vh] w-full max-w-6xl overflow-hidden rounded-3xl bg-[#f7faf8] shadow-2xl" onClick={(e) => e.stopPropagation()}>
-        {/* Chapter rail */}
-        <aside className="hidden w-64 shrink-0 flex-col bg-[#04241d] p-5 text-white md:flex">
-          <div className="flex items-center gap-2">
-            <img src={BRAND.icon} alt="" className="size-10" />
-            <div>
-              <p className="font-display text-base font-extrabold leading-none">
-                Mangrove<span className="text-emerald-400">Lens</span>
-              </p>
-              <p className="mt-1 font-mono text-[10px] tracking-[0.16em] text-emerald-300/80">{L('HOW IT WORKS', 'কীভাবে কাজ করে')}</p>
+    <div
+      className="fixed inset-0 z-[1300] flex items-center justify-center bg-[#021512]/70 p-3 backdrop-blur-sm sm:p-6 print:hidden"
+      role="dialog"
+      aria-modal="true"
+      aria-label={L('How MangroveLens works', 'MangroveLens কীভাবে কাজ করে')}
+      onClick={onClose}
+    >
+      <div className="flex h-[92vh] w-full max-w-[1320px] overflow-hidden rounded-3xl bg-[#e9f0ec] shadow-2xl" onClick={(e) => e.stopPropagation()}>
+        {/* ── Contents rail (follows the scroll) ── */}
+        <aside className="hidden w-72 shrink-0 flex-col bg-[#04241d] text-white lg:flex">
+          <div className="border-b border-white/10 p-5">
+            <div className="flex items-center gap-2.5">
+              <img src={BRAND.icon} alt="" className="size-11" />
+              <div>
+                <p className="font-display text-lg font-extrabold leading-none">
+                  Mangrove<span className="text-emerald-400">Lens</span>
+                </p>
+                <p className="mt-1 font-mono text-[10px] tracking-[0.18em] text-emerald-300/80">{L('SYSTEM OVERVIEW', 'সিস্টেম পরিচিতি')}</p>
+              </div>
             </div>
           </div>
-          <nav className="mt-6 flex-1 space-y-1 overflow-y-auto">
+          <p className="px-5 pt-4 font-mono text-[10px] font-bold tracking-[0.2em] text-white/40">{L('CONTENTS', 'সূচিপত্র')}</p>
+          <nav className="flex-1 space-y-0.5 overflow-y-auto px-3 py-2">
             {chapters.map((c, i) => {
-              const Icon = c.icon
               const on = i === chapter
+              const read = i < chapter
               return (
                 <button
                   key={c.title}
                   type="button"
-                  onClick={() => setChapter(i)}
-                  className={`flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-left text-sm transition ${on ? 'bg-emerald-500 font-bold text-[#04241d]' : 'text-white/75 hover:bg-white/10 hover:text-white'}`}
+                  onClick={() => goTo(i)}
+                  className={`flex w-full items-center gap-3 rounded-lg px-3 py-2 text-left text-[13px] transition ${
+                    on ? 'bg-white/10 font-bold text-white' : 'text-white/60 hover:bg-white/5 hover:text-white'
+                  }`}
                 >
-                  <span className={`grid size-6 shrink-0 place-items-center rounded-lg font-mono text-[11px] ${on ? 'bg-[#04241d]/15' : i < chapter ? 'bg-emerald-400/25 text-emerald-200' : 'bg-white/10'}`}>
-                    {i < chapter ? <Check className="size-3.5" /> : i + 1}
-                  </span>
-                  <Icon className="size-4 shrink-0" />
+                  <span className={`font-mono text-[11px] ${on ? 'text-emerald-300' : read ? 'text-emerald-400/60' : 'text-white/35'}`}>{String(i + 1).padStart(2, '0')}</span>
+                  <span className={`h-4 w-0.5 rounded-full ${on ? 'bg-emerald-400' : 'bg-transparent'}`} />
                   <span className="truncate">{c.title}</span>
                 </button>
               )
             })}
           </nav>
-          <p className="mt-4 font-mono text-[10px] leading-relaxed text-white/40">{BRAND.tagline}</p>
+          <div className="border-t border-white/10 p-5">
+            <div className="flex items-center justify-between font-mono text-[10px] text-white/50">
+              <span>{L('Reading progress', 'পড়ার অগ্রগতি')}</span>
+              <span>{Math.round(progress * 100)}%</span>
+            </div>
+            <div className="mt-1.5 h-1 overflow-hidden rounded-full bg-white/10">
+              <div className="h-1 rounded-full bg-emerald-400 transition-[width] duration-150" style={{ width: `${progress * 100}%` }} />
+            </div>
+          </div>
         </aside>
 
-        {/* Content */}
-        <section className="flex min-w-0 flex-1 flex-col">
-          <header className="flex items-center justify-between gap-3 border-b border-[#d6e6de] px-5 py-3">
-            <div className="min-w-0">
-              <p className="font-mono text-[11px] font-bold tracking-[0.18em] text-[#6c817a]">
-                {L('CHAPTER', 'অধ্যায়')} {chapter + 1} / {chapters.length}
-              </p>
-              <div className="mt-1.5 h-1 w-48 overflow-hidden rounded-full bg-[#e5efe9]">
-                <div className="h-1 rounded-full bg-[#16865f] transition-all" style={{ width: `${((chapter + 1) / chapters.length) * 100}%` }} />
-              </div>
+        {/* ── Document ── */}
+        <section className="relative flex min-w-0 flex-1 flex-col">
+          {/* Toolbar */}
+          <header className="relative z-10 flex items-center gap-3 border-b border-[#d3e1d9] bg-white/95 px-5 py-2.5 backdrop-blur">
+            <p className="truncate font-mono text-[11px] font-bold tracking-[0.14em] text-[#526a63]">
+              {String(chapter + 1).padStart(2, '0')} / {String(chapters.length).padStart(2, '0')} · {chapters[chapter].title.toUpperCase()}
+            </p>
+            <div className="ml-auto flex items-center gap-1.5">
+              <button type="button" onClick={() => goTo(Math.max(0, chapter - 1))} className="rounded-lg border border-[#d6e6de] px-2.5 py-1.5 text-[#123f38] hover:bg-[#f2f6f3]" aria-label={L('Previous section', 'আগের অংশ')}>
+                <ArrowLeft className="size-3.5" />
+              </button>
+              <button type="button" onClick={() => goTo(Math.min(last, chapter + 1))} className="rounded-lg border border-[#d6e6de] px-2.5 py-1.5 text-[#123f38] hover:bg-[#f2f6f3]" aria-label={L('Next section', 'পরের অংশ')}>
+                <ArrowRight className="size-3.5" />
+              </button>
+              <button type="button" onClick={onClose} className="ml-1 grid size-8 place-items-center rounded-lg border border-[#d6e6de] text-[#123f38] hover:bg-[#f2f6f3]" aria-label={L('Close', 'বন্ধ করুন')}>
+                <X className="size-4" />
+              </button>
             </div>
-            <button type="button" onClick={onClose} className="grid size-9 place-items-center rounded-xl border border-[#d6e6de] text-[#123f38] hover:bg-white" aria-label={L('Close', 'বন্ধ করুন')}>
-              <X className="size-4" />
-            </button>
+            <div className="absolute inset-x-0 -bottom-px h-0.5">
+              <div className="h-0.5 bg-[#16865f] transition-[width] duration-150" style={{ width: `${progress * 100}%` }} />
+            </div>
           </header>
 
-          <div key={chapter} className="flex-1 overflow-y-auto px-5 py-6 sm:px-8 [animation:fadeInUp_0.35s_ease-out]">
-            {C.body}
-          </div>
+          <div ref={scrollRef} className="relative flex-1 overflow-y-auto px-3 py-6 sm:px-8 sm:py-8">
+            <div className="mx-auto max-w-[980px] space-y-8">
+              {/* Cover page */}
+              <article className="relative overflow-hidden rounded-2xl bg-[#04241d] p-10 text-white shadow-[0_10px_40px_rgba(4,36,29,0.18)] sm:p-14">
+                <div className="absolute inset-0 bg-cover bg-center opacity-25" style={{ backgroundImage: `url('/landing/frames/f0001.webp')` }} />
+                <div className="absolute inset-0 bg-gradient-to-r from-[#04241d] via-[#04241d]/85 to-[#04241d]/40" />
+                <div className="relative">
+                  <img src={BRAND.icon} alt="" className="size-16" />
+                  <p className="mt-6 font-mono text-xs font-bold tracking-[0.24em] text-emerald-300">{L('SYSTEM OVERVIEW', 'সিস্টেম পরিচিতি')}</p>
+                  <h1 className="mt-2 font-condensed text-6xl leading-[0.95] tracking-wide sm:text-7xl">{L('How MangroveLens works', 'MangroveLens কীভাবে কাজ করে')}</h1>
+                  <p className="mt-3 max-w-xl font-light-sub text-sm font-light tracking-[0.18em] text-white/80">{BRAND.tagline.toUpperCase()}</p>
+                  <div className="mt-8 grid max-w-2xl gap-x-8 sm:grid-cols-2">
+                    {chapters.map((c, i) => (
+                      <button key={c.title} type="button" onClick={() => goTo(i)} className="flex items-baseline gap-3 border-b border-white/10 py-1.5 text-left text-sm text-white/80 hover:text-white">
+                        <span className="font-mono text-[11px] text-emerald-300">{String(i + 1).padStart(2, '0')}</span>
+                        <span>{c.title}</span>
+                      </button>
+                    ))}
+                  </div>
+                  <p className="mt-8 font-mono text-[11px] text-white/45">
+                    {today} · {caps?.liveEngine ? L('live satellite data', 'লাইভ উপগ্রহ তথ্য') : L('demo mode', 'ডেমো মোড')}
+                    {b ? ` · ${b.dataSource.modelVersion}` : ''}
+                  </p>
+                </div>
+              </article>
 
-          <footer className="flex items-center justify-between gap-3 border-t border-[#d6e6de] bg-white px-5 py-3">
-            <button
-              type="button"
-              disabled={chapter === 0}
-              onClick={() => setChapter((c) => c - 1)}
-              className="flex items-center gap-1.5 rounded-xl border border-[#d6e6de] px-4 py-2 text-sm font-bold text-[#123f38] disabled:opacity-40"
-            >
-              <ArrowLeft className="size-4" /> {L('Back', 'পিছনে')}
-            </button>
-            <div className="hidden gap-1.5 sm:flex">
-              {chapters.map((c, i) => (
-                <button
-                  key={c.title}
-                  type="button"
-                  onClick={() => setChapter(i)}
-                  aria-label={c.title}
-                  className={`h-2 rounded-full transition-all ${i === chapter ? 'w-6 bg-[#16865f]' : 'w-2 bg-[#cfe0d7] hover:bg-[#9bc5b0]'}`}
-                />
-              ))}
+              {/* Sections as pages */}
+              {chapters.map((c, i) => {
+                const Icon = c.icon
+                return (
+                  <article
+                    key={c.title}
+                    ref={(el) => {
+                      sectionRefs.current[i] = el
+                    }}
+                    className="relative rounded-2xl bg-white px-6 py-8 shadow-[0_6px_24px_rgba(4,36,29,0.08)] ring-1 ring-[#dde8e2] sm:px-12 sm:py-12"
+                  >
+                    <div className="mb-6 flex items-center gap-3 border-b border-[#e5efe9] pb-4">
+                      <span className="grid size-10 place-items-center rounded-xl bg-[#e7f4ec] text-[#16865f]">
+                        <Icon className="size-5" />
+                      </span>
+                      <p className="font-mono text-xs font-bold tracking-[0.2em] text-[#6c817a]">
+                        {L('SECTION', 'অংশ')} {String(i + 1).padStart(2, '0')} · {c.title.toUpperCase()}
+                      </p>
+                    </div>
+                    {c.body}
+                    <p className="mt-10 flex items-center justify-between border-t border-[#e5efe9] pt-3 font-mono text-[10.5px] text-[#9bb5ab]">
+                      <span>MangroveLens · {L('System overview', 'সিস্টেম পরিচিতি')}</span>
+                      <span>
+                        {i + 1} / {chapters.length}
+                      </span>
+                    </p>
+                  </article>
+                )
+              })}
+
+              <div className="pb-6 text-center">
+                <button type="button" onClick={onClose} className="inline-flex items-center gap-2 rounded-xl bg-[#16865f] px-6 py-3 text-sm font-bold text-white shadow hover:bg-[#0f6e4d]">
+                  {L('Start exploring the dashboard', 'ড্যাশবোর্ড দেখা শুরু করুন')} <ArrowRight className="size-4" />
+                </button>
+              </div>
             </div>
-            {chapter < last ? (
-              <button type="button" onClick={() => setChapter((c) => c + 1)} className="flex items-center gap-1.5 rounded-xl bg-[#16865f] px-4 py-2 text-sm font-bold text-white hover:bg-[#0f6e4d]">
-                {L('Next', 'পরের')}: {chapters[chapter + 1].title} <ArrowRight className="size-4" />
-              </button>
-            ) : (
-              <button type="button" onClick={onClose} className="flex items-center gap-1.5 rounded-xl bg-[#16865f] px-4 py-2 text-sm font-bold text-white hover:bg-[#0f6e4d]">
-                {L('Start exploring', 'নিজে দেখা শুরু করুন')} <ArrowRight className="size-4" />
-              </button>
-            )}
-          </footer>
+          </div>
         </section>
       </div>
     </div>

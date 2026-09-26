@@ -9,8 +9,8 @@ import { FRAME_COUNT, FRAME_H, FRAME_W, coverBox, useFrameSequence } from './use
  * underwater footage, so the story never leaves the video.
  */
 export const STAGES = {
-  hero: [0, 0.035],
-  above: [0.055, 0.15],
+  hero: [0, 0.045],
+  above: [0.038, 0.16],
   surface: [0.17, 0.23],
   roots: [0.25, 0.34],
   carbon: [0.36, 0.45],
@@ -23,7 +23,7 @@ export const STAGES = {
 /** Scroll progress → video frame. Piecewise linear: fast dive, then slow drift. */
 const FRAME_KEYS: [number, number][] = [
   [0, 0],
-  [0.035, 8],
+  [0.045, 8],
   [0.16, 96], // at the surface
   [0.23, 124], // just under water
   [0.45, 205], // down to the glowing sediment
@@ -136,6 +136,75 @@ export function DiveSequence({ lang, onOpenDashboard }: { lang: HomeLang; onOpen
     }
   }, [])
 
+  // Auto-snap between Section 1 (Hero) and Section 2 (Above) on small scroll
+  useEffect(() => {
+    let isSnapping = false
+    let snapTimeout: ReturnType<typeof setTimeout> | null = null
+
+    const snapTo = (targetP: number) => {
+      const el = sectionRef.current
+      if (!el) return
+      const span = el.offsetHeight - window.innerHeight
+      if (span <= 0) return
+      isSnapping = true
+      const targetY = el.offsetTop + targetP * span
+      window.scrollTo({ top: targetY, behavior: 'smooth' })
+      if (snapTimeout) clearTimeout(snapTimeout)
+      snapTimeout = setTimeout(() => {
+        isSnapping = false
+      }, 700)
+    }
+
+    const onWheel = (e: WheelEvent) => {
+      if (isSnapping) return
+      const el = sectionRef.current
+      if (!el) return
+      const span = el.offsetHeight - window.innerHeight
+      if (span <= 0) return
+      const currentP = Math.min(1, Math.max(0, (window.scrollY - el.offsetTop) / span))
+
+      // Small scroll down from Section 1 (Hero) → auto-snap to Section 2 (Above)
+      if (currentP <= 0.035 && e.deltaY > 5) {
+        snapTo(0.095)
+      }
+      // Small scroll up from Section 2 (Above) → auto-snap back to Section 1 (Hero)
+      else if (currentP >= 0.045 && currentP <= 0.13 && e.deltaY < -5) {
+        snapTo(0)
+      }
+    }
+
+    let touchStartY = 0
+    const onTouchStart = (e: TouchEvent) => {
+      touchStartY = e.touches[0].clientY
+    }
+    const onTouchMove = (e: TouchEvent) => {
+      if (isSnapping) return
+      const touchY = e.touches[0].clientY
+      const deltaY = touchStartY - touchY
+      const el = sectionRef.current
+      if (!el) return
+      const span = el.offsetHeight - window.innerHeight
+      if (span <= 0) return
+      const currentP = Math.min(1, Math.max(0, (window.scrollY - el.offsetTop) / span))
+
+      if (currentP <= 0.035 && deltaY > 12) {
+        snapTo(0.095)
+      } else if (currentP >= 0.045 && currentP <= 0.13 && deltaY < -12) {
+        snapTo(0)
+      }
+    }
+
+    window.addEventListener('wheel', onWheel, { passive: true })
+    window.addEventListener('touchstart', onTouchStart, { passive: true })
+    window.addEventListener('touchmove', onTouchMove, { passive: true })
+    return () => {
+      window.removeEventListener('wheel', onWheel)
+      window.removeEventListener('touchstart', onTouchStart)
+      window.removeEventListener('touchmove', onTouchMove)
+      if (snapTimeout) clearTimeout(snapTimeout)
+    }
+  }, [])
+
   // Draw the frame for the current progress (and redraw as better frames arrive).
   useEffect(() => {
     const c = canvasRef.current
@@ -154,7 +223,7 @@ export function DiveSequence({ lang, onOpenDashboard }: { lang: HomeLang; onOpen
 
   const box = coverBox(view.w, view.h)
   const hero = fade(p, STAGES.hero)
-  const labels = fade(p, [0, 0.025])
+  const labels = fade(p, [0, 0.04])
   const above = fade(p, STAGES.above)
   const surface = fade(p, STAGES.surface, 0.02)
   const roots = fade(p, STAGES.roots)
@@ -177,8 +246,8 @@ export function DiveSequence({ lang, onOpenDashboard }: { lang: HomeLang; onOpen
       <div className="sticky top-0 h-screen w-full overflow-hidden bg-[#04241d]">
         <canvas ref={canvasRef} className="absolute inset-0 h-full w-full" />
 
-        {/* Readability shades */}
-        <div className="pointer-events-none absolute inset-x-0 top-0 h-40 bg-gradient-to-b from-black/50 to-transparent" />
+        {/* Readability shades — transparent top header */}
+        <div className="pointer-events-none absolute inset-x-0 top-0 h-20 bg-gradient-to-b from-black/15 to-transparent" />
         <div
           className="pointer-events-none absolute inset-y-0 left-0 w-[66%] lg:w-[56%] bg-gradient-to-r from-[#031c17]/95 via-[#031c17]/60 to-transparent"
           style={{ opacity: Math.max(hero, above * 0.9, carbon * 0.8) }}
@@ -235,7 +304,7 @@ export function DiveSequence({ lang, onOpenDashboard }: { lang: HomeLang; onOpen
             </button>
             <button
               type="button"
-              onClick={() => scrollToStage(0.1)}
+              onClick={() => scrollToStage(0.095)}
               className="inline-flex items-center gap-2 rounded-full border border-white/30 bg-white/10 px-5.5 py-3 text-sm font-semibold text-white backdrop-blur-md transition-all hover:bg-white/20 hover:border-white/50 transform hover:-translate-y-0.5 active:translate-y-0 cursor-pointer"
             >
               {T.hero.secondary} <ArrowDown className="size-4" />

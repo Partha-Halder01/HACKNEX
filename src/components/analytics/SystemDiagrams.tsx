@@ -105,7 +105,7 @@ export function ArchitectureDiagram({ L }: { L: L }) {
   const S = all.find((p) => p.id === sel) ?? all[0]
 
   return (
-    <div className="grid gap-4 xl:grid-cols-[1fr_300px]">
+    <div className="grid gap-4">
       <div>
         {layers.map((layer, i) => (
           <div key={layer.id}>
@@ -153,7 +153,7 @@ export function ArchitectureDiagram({ L }: { L: L }) {
       </div>
 
       {/* Details of the selected box */}
-      <aside className="h-fit rounded-2xl border border-[#d6e6de] bg-white p-4 xl:sticky xl:top-0">
+      <aside className="rounded-2xl border-2 border-[#16865f]/30 bg-[#f7faf8] p-4">
         <p className="font-mono text-[10.5px] font-bold tracking-[0.18em] text-[#6c817a]">{S.layer.title.toUpperCase()}</p>
         <p className="mt-1 flex items-center gap-2 font-display text-lg font-bold text-[#123f38]">
           <S.icon className="size-5 text-[#16865f]" /> {S.name}
@@ -287,14 +287,14 @@ export function AnalysisFlow({ L }: { L: L }) {
                   </span>
                 ) : (
                   <span className="absolute top-1/2 -translate-y-1/2" style={{ left: col(left), width: `${(right - left) * 20}%` }}>
-                    <span className="block h-0.5 w-full rounded transition" style={{ background: on ? color : done ? '#9bb5ab' : '#d6e6de' }} />
+                    <span className="block h-0.5 w-full rounded transition" style={{ background: on ? color : done ? '#8faea2' : '#c5d8ce' }} />
                     <span
                       className="absolute -top-[5px] size-0 border-y-[6px] border-y-transparent"
                       style={s.to > s.from ? { right: -2, borderLeft: `8px solid ${on ? color : done ? '#9bb5ab' : '#d6e6de'}` } : { left: -2, borderRight: `8px solid ${on ? color : done ? '#9bb5ab' : '#d6e6de'}` }}
                     />
                     <span
                       className="absolute -top-5 left-1/2 -translate-x-1/2 whitespace-nowrap rounded px-1.5 text-[10.5px] font-semibold transition"
-                      style={{ background: on ? color : 'transparent', color: on ? '#fff' : done ? '#6c817a' : '#9bb5ab' }}
+                      style={{ background: on ? color : 'rgba(255,255,255,0.9)', color: on ? '#fff' : done ? '#526a63' : '#6f877e' }}
                     >
                       {s.label}
                     </span>

@@ -6,16 +6,8 @@ import { DiveSequence, STAGES } from './DiveSequence'
 
 export function HomePage({ onNavigate }: { onNavigate?: (path: string) => void }) {
   const lang: HomeLang = 'en'
-  const [scrolled, setScrolled] = useState(false)
   const T = HOME_TEXT[lang]
   const bn = false
-
-  useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 40)
-    onScroll()
-    window.addEventListener('scroll', onScroll, { passive: true })
-    return () => window.removeEventListener('scroll', onScroll)
-  }, [])
 
   const openDashboard = () => {
     const path = '/dashboard'
@@ -33,18 +25,14 @@ export function HomePage({ onNavigate }: { onNavigate?: (path: string) => void }
 
   return (
     <div className="min-h-screen bg-[#031a17] text-white">
-      {/* Header */}
-      <header
-        className={`fixed inset-x-0 top-0 z-50 transition-colors duration-300 ${
-          scrolled ? 'border-b border-white/10 bg-[#031a17]/60 backdrop-blur-md' : 'bg-transparent'
-        }`}
-      >
+      {/* Transparent Header */}
+      <header className="fixed inset-x-0 top-0 z-50 bg-transparent">
         <div className="mx-auto flex max-w-[1600px] items-center gap-6 px-[6vw] py-4">
           <Logo light height={42} onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })} />
-          <nav className="ml-auto hidden items-center gap-7 text-sm font-semibold text-white/85 md:flex">
-            <button type="button" onClick={() => goToStage(STAGES.above)} className="hover:text-white">{T.nav.dive}</button>
-            <button type="button" onClick={() => goToStage(STAGES.how)} className="hover:text-white">{T.nav.how}</button>
-            <button type="button" onClick={() => goToStage(STAGES.trust)} className="hover:text-white">{T.nav.trust}</button>
+          <nav className="ml-auto hidden items-center gap-7 text-sm font-semibold text-white/90 drop-shadow-[0_1px_4px_rgba(0,0,0,0.8)] md:flex">
+            <button type="button" onClick={() => goToStage(STAGES.above)} className="hover:text-emerald-300 transition-colors cursor-pointer">{T.nav.dive}</button>
+            <button type="button" onClick={() => goToStage(STAGES.how)} className="hover:text-emerald-300 transition-colors cursor-pointer">{T.nav.how}</button>
+            <button type="button" onClick={() => goToStage(STAGES.trust)} className="hover:text-emerald-300 transition-colors cursor-pointer">{T.nav.trust}</button>
           </nav>
           <div className="ml-auto flex items-center gap-3 md:ml-0">
             <button
