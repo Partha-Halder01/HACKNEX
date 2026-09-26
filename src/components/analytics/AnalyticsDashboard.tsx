@@ -22,7 +22,7 @@ import {
   Sparkles,
   TreePine,
   TrendingUp,
-  GraduationCap,
+  Workflow,
 } from 'lucide-react'
 import { Logo } from '../common/Logo'
 import { AnalysisApi } from '../../services/analysis'
@@ -314,6 +314,17 @@ export function AnalyticsDashboard({ onNavigate }: { onNavigate?: (path: string)
 
           {/* Clean Action Toolbar (Refined, no clutter) */}
           <div className="flex items-center gap-2">
+            {/* How it works: system guide with architecture and data-flow diagrams */}
+            <button
+              type="button"
+              onClick={() => setTourOpen(true)}
+              className="flex items-center gap-1.5 rounded-lg border border-[#0f352e] bg-[#04241d] px-2.5 py-1 text-xs font-semibold text-white shadow-2xs transition hover:bg-[#06302a] cursor-pointer print:hidden"
+              title={bn ? 'পুরো সিস্টেম কীভাবে কাজ করে — আর্কিটেকচার ও চিত্রসহ' : 'How the whole system works — architecture and diagrams'}
+            >
+              <Workflow className="size-3.5 text-emerald-300" />
+              <span className="font-mono text-[11px] font-bold">{bn ? 'কীভাবে কাজ করে' : 'How it works'}</span>
+            </button>
+
             {/* Generate & View Analysis Report */}
             <button
               type="button"
@@ -1009,24 +1020,7 @@ export function AnalyticsDashboard({ onNavigate }: { onNavigate?: (path: string)
         </button>
       )}
 
-      {/* Judges' guided tour: floating launcher + interactive popup */}
-      <button
-        type="button"
-        onClick={() => setTourOpen(true)}
-        className="group fixed bottom-6 left-6 z-[1000] flex items-center gap-2.5 rounded-2xl bg-[#04241d] py-2.5 pl-2.5 pr-4 text-white shadow-[0_10px_30px_rgba(4,36,29,0.35)] ring-1 ring-emerald-400/30 transition hover:-translate-y-0.5 hover:bg-[#06302a] print:hidden"
-        title={bn ? 'পুরো প্রজেক্টের গাইডেড ট্যুর' : 'Guided tour of the whole project'}
-      >
-        <span className="relative grid size-9 place-items-center rounded-xl bg-emerald-500 text-[#04241d]">
-          <GraduationCap className="size-5" />
-          <span className="absolute -right-0.5 -top-0.5 size-2.5 animate-ping rounded-full bg-emerald-300" />
-          <span className="absolute -right-0.5 -top-0.5 size-2.5 rounded-full bg-emerald-300" />
-        </span>
-        <span className="text-left leading-tight">
-          <span className="block text-sm font-bold">{bn ? 'বিচারকদের গাইডেড ট্যুর' : "Judges' Guided Tour"}</span>
-          <span className="block font-mono text-[10px] tracking-wide text-emerald-300/90">{bn ? 'পুরো প্রজেক্ট, ধাপে ধাপে' : 'The whole project, step by step'}</span>
-        </span>
-      </button>
-
+      {/* System guide popup (opened from the header "How it works" button) */}
       <ProjectTour
         open={tourOpen}
         onClose={() => setTourOpen(false)}

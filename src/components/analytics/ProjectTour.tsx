@@ -265,7 +265,7 @@ export function ProjectTour({ open, onClose, lang, bundle, caps, onJump, onTry }
       title: L('Welcome', 'স্বাগতম'),
       body: (
         <>
-          <Heading kicker={L('JUDGES’ GUIDED TOUR', 'বিচারকদের জন্য গাইডেড ট্যুর')} title={L(`${BRAND.name} in one line`, `এক লাইনে ${BRAND.name}`)} />
+          <Heading kicker={L('SYSTEM GUIDE', 'সিস্টেম গাইড')} title={L(`${BRAND.name} in one line`, `এক লাইনে ${BRAND.name}`)} />
           <p className="rounded-2xl bg-[#04241d] p-5 text-lg leading-relaxed text-white">
             {L(
               'Pick any place in the Sundarbans and two years. MangroveLens reads real satellite photos, tells you whether the mangrove forest grew or shrank, how much carbon it holds — and how sure it is.',
@@ -569,7 +569,7 @@ export function ProjectTour({ open, onClose, lang, bundle, caps, onJump, onTry }
   const C = chapters[chapter]
 
   return (
-    <div className="fixed inset-0 z-[1300] flex items-center justify-center bg-[#021512]/70 p-3 backdrop-blur-sm sm:p-6 print:hidden" role="dialog" aria-modal="true" aria-label={L('Judges’ guided tour', 'বিচারকদের গাইডেড ট্যুর')} onClick={onClose}>
+    <div className="fixed inset-0 z-[1300] flex items-center justify-center bg-[#021512]/70 p-3 backdrop-blur-sm sm:p-6 print:hidden" role="dialog" aria-modal="true" aria-label={L('How MangroveLens works', 'MangroveLens কীভাবে কাজ করে')} onClick={onClose}>
       <div className="flex h-[88vh] w-full max-w-6xl overflow-hidden rounded-3xl bg-[#f7faf8] shadow-2xl" onClick={(e) => e.stopPropagation()}>
         {/* Chapter rail */}
         <aside className="hidden w-64 shrink-0 flex-col bg-[#04241d] p-5 text-white md:flex">
@@ -579,7 +579,7 @@ export function ProjectTour({ open, onClose, lang, bundle, caps, onJump, onTry }
               <p className="font-display text-base font-extrabold leading-none">
                 Mangrove<span className="text-emerald-400">Lens</span>
               </p>
-              <p className="mt-1 font-mono text-[10px] tracking-[0.16em] text-emerald-300/80">{L('GUIDED TOUR', 'গাইডেড ট্যুর')}</p>
+              <p className="mt-1 font-mono text-[10px] tracking-[0.16em] text-emerald-300/80">{L('HOW IT WORKS', 'কীভাবে কাজ করে')}</p>
             </div>
           </div>
           <nav className="mt-6 flex-1 space-y-1 overflow-y-auto">
@@ -616,7 +616,7 @@ export function ProjectTour({ open, onClose, lang, bundle, caps, onJump, onTry }
                 <div className="h-1 rounded-full bg-[#16865f] transition-all" style={{ width: `${((chapter + 1) / chapters.length) * 100}%` }} />
               </div>
             </div>
-            <button type="button" onClick={onClose} className="grid size-9 place-items-center rounded-xl border border-[#d6e6de] text-[#123f38] hover:bg-white" aria-label={L('Close tour', 'ট্যুর বন্ধ')}>
+            <button type="button" onClick={onClose} className="grid size-9 place-items-center rounded-xl border border-[#d6e6de] text-[#123f38] hover:bg-white" aria-label={L('Close', 'বন্ধ করুন')}>
               <X className="size-4" />
             </button>
           </header>
