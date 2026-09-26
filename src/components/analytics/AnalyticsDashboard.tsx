@@ -22,6 +22,7 @@ import {
   Sparkles,
   TreePine,
   TrendingUp,
+  GraduationCap,
 } from 'lucide-react'
 import { Logo } from '../common/Logo'
 import { AnalysisApi } from '../../services/analysis'
@@ -32,6 +33,7 @@ import { CarbonPanel, ChangeBreakdown, ScenarioChart, ScenarioTable, TimelineCha
 import { AccuracyPanel, MethodPanel, NarrativePanel } from './panels'
 import { AnswerCard, FutureBoxes, SimpleCards, YearsChart } from './SimpleView'
 import { ReportModal } from './ReportModal'
+import { ProjectTour, type TryPlace } from './ProjectTour'
 import { Badge, Card, fmt, signed, t, type Lang } from './ui'
 import { cn } from '../../lib/utils'
 
@@ -107,6 +109,7 @@ export function AnalyticsDashboard({ onNavigate }: { onNavigate?: (path: string)
   const [activeSection, setActiveSection] = useState<'cockpit' | 'verdict' | 'compare' | 'metrics' | 'trends' | 'narrative' | 'technical-lab'>('cockpit')
   const [isGeneratingReport, setIsGeneratingReport] = useState(false)
   const [showReportModal, setShowReportModal] = useState(false)
+  const [tourOpen, setTourOpen] = useState(false)
 
   const handleGenerateReport = () => {
     if (!bundle) return
@@ -1005,6 +1008,43 @@ export function AnalyticsDashboard({ onNavigate }: { onNavigate?: (path: string)
           <ArrowUp className="size-4" />
         </button>
       )}
+
+      {/* Judges' guided tour: floating launcher + interactive popup */}
+      <button
+        type="button"
+        onClick={() => setTourOpen(true)}
+        className="group fixed bottom-6 left-6 z-[1000] flex items-center gap-2.5 rounded-2xl bg-[#04241d] py-2.5 pl-2.5 pr-4 text-white shadow-[0_10px_30px_rgba(4,36,29,0.35)] ring-1 ring-emerald-400/30 transition hover:-translate-y-0.5 hover:bg-[#06302a] print:hidden"
+        title={bn ? 'পুরো প্রজেক্টের গাইডেড ট্যুর' : 'Guided tour of the whole project'}
+      >
+        <span className="relative grid size-9 place-items-center rounded-xl bg-emerald-500 text-[#04241d]">
+          <GraduationCap className="size-5" />
+          <span className="absolute -right-0.5 -top-0.5 size-2.5 animate-ping rounded-full bg-emerald-300" />
+          <span className="absolute -right-0.5 -top-0.5 size-2.5 rounded-full bg-emerald-300" />
+        </span>
+        <span className="text-left leading-tight">
+          <span className="block text-sm font-bold">{bn ? 'বিচারকদের গাইডেড ট্যুর' : "Judges' Guided Tour"}</span>
+          <span className="block font-mono text-[10px] tracking-wide text-emerald-300/90">{bn ? 'পুরো প্রজেক্ট, ধাপে ধাপে' : 'The whole project, step by step'}</span>
+        </span>
+      </button>
+
+      <ProjectTour
+        open={tourOpen}
+        onClose={() => setTourOpen(false)}
+        lang={lang}
+        bundle={bundle}
+        caps={caps}
+        onJump={(id) => {
+          setTourOpen(false)
+          setTimeout(() => scrollToSection(id), 80)
+        }}
+        onTry={(place: TryPlace) => {
+          setTourOpen(false)
+          const next: AnalysisParams = { ...params, lat: place.lat, lon: place.lon, startDate: place.startDate, endDate: place.endDate, windowDays: 90 }
+          setParams(next)
+          run(next)
+          setTimeout(() => window.scrollTo({ top: 0, behavior: 'smooth' }), 80)
+        }}
+      />
 
       {/* Official Generated Report Modal View */}
       {showReportModal && bundle && (

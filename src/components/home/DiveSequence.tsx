@@ -202,17 +202,9 @@ export function DiveSequence({ lang, onOpenDashboard }: { lang: HomeLang; onOpen
           className="absolute inset-y-0 left-[6vw] flex flex-col justify-center max-w-[640px] xl:max-w-[700px] pt-14 pb-14 z-10"
           style={panelStyle(hero, 0)}
         >
-          {/* Eyebrow badge */}
-          <div className="inline-flex items-center gap-2 self-start rounded-full border border-emerald-400/30 bg-emerald-950/60 px-3 py-1 backdrop-blur-md shadow-2xs">
-            <span className="size-1.5 rounded-full bg-emerald-400 animate-pulse" />
-            <span className="font-mono text-[10px] sm:text-[11px] font-bold tracking-[0.22em] text-emerald-300">
-              {T.hero.eyebrow}
-            </span>
-          </div>
-
           {/* Majestic Hero Headline */}
           <h1
-            className={`mt-3.5 sm:mt-4 font-condensed font-black tracking-tight text-white leading-[0.93] ${
+            className={`font-condensed font-black tracking-tight text-white leading-[0.93] ${
               bn
                 ? 'font-bengali text-4xl sm:text-5xl lg:text-6xl font-bold'
                 : 'text-5xl sm:text-6xl lg:text-[4.25rem] xl:text-[4.75rem]'
@@ -392,20 +384,6 @@ export function DiveSequence({ lang, onOpenDashboard }: { lang: HomeLang; onOpen
           ))}
         </div>
 
-        {/* Scroll hint */}
-        <div
-          className="absolute bottom-5 sm:bottom-7 left-1/2 -translate-x-1/2 text-center pointer-events-none transition-opacity duration-300 z-10"
-          style={{ opacity: hero }}
-        >
-          <div className="flex flex-col items-center gap-1.5">
-            <div className="flex h-8 w-5 justify-center rounded-full border border-white/40 bg-black/25 p-1 backdrop-blur-xs">
-              <span className="h-1.5 w-1 animate-bounce rounded-full bg-emerald-400" />
-            </div>
-            <span className="font-mono text-[8.5px] font-bold tracking-[0.2em] text-white/50 uppercase">
-              {bn ? 'স্ক্রোল করুন' : 'Scroll to explore'}
-            </span>
-          </div>
-        </div>
 
         {/* Loading indicator (frames keep streaming in; scrolling already works) */}
         {loaded < total && (
