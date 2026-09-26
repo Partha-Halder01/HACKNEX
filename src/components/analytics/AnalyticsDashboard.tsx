@@ -26,7 +26,8 @@ import {
 } from 'lucide-react'
 import { Logo } from '../common/Logo'
 import { AnalysisApi } from '../../services/analysis'
-import type { AnalysisBundle, AnalysisParams, Capabilities } from '../../types/analysis'
+import type { AnalysisBundle, AnalysisParams, AnalysisProgress as ProgressSnapshot, Capabilities } from '../../types/analysis'
+import { AnalysisProgress } from './AnalysisProgress'
 import { LocationMap } from './LocationMap'
 import { BeforeAfterMap } from './BeforeAfterMap'
 import { CarbonPanel, ChangeBreakdown, ScenarioChart, ScenarioTable, TimelineChart } from './charts'
@@ -100,6 +101,7 @@ export function AnalyticsDashboard({ onNavigate }: { onNavigate?: (path: string)
   const [params, setParams] = useState<AnalysisParams>(() => ({ ...FALLBACK_DEFAULTS, ...paramsFromUrl() }))
   const [bundle, setBundle] = useState<AnalysisBundle | null>(null)
   const [loading, setLoading] = useState(false)
+  const [progress, setProgress] = useState<ProgressSnapshot | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [showAdvanced, setShowAdvanced] = useState(() => !isYearMode({ ...FALLBACK_DEFAULTS, ...paramsFromUrl() }))
   const [scenarioMetric, setScenarioMetric] = useState<'area' | 'carbon'>('area')
@@ -141,14 +143,28 @@ export function AnalyticsDashboard({ onNavigate }: { onNavigate?: (path: string)
     const seq = ++runSeq.current
     setLoading(true)
     setError(null)
+    setProgress(null)
+    // Poll the backend's real step-by-step progress while the analysis runs.
+    const pid = globalThis.crypto?.randomUUID?.() ?? `${Date.now()}-${Math.random().toString(36).slice(2)}`
+    const poll = async () => {
+      try {
+        const snap = await AnalysisApi.progress(pid)
+        if (seq === runSeq.current && snap.known) setProgress(snap)
+      } catch {
+        // progress is best-effort; the analysis itself reports errors
+      }
+    }
+    const timer = window.setInterval(poll, 700)
     try {
-      const result = await AnalysisApi.run(p)
+      const result = await AnalysisApi.run(p, pid)
       if (seq !== runSeq.current) return
+      await poll()
       setBundle(result)
       window.history.replaceState({}, '', urlFor(p).replace(window.location.origin, ''))
     } catch (e) {
       if (seq === runSeq.current) setError((e as Error).message)
     } finally {
+      window.clearInterval(timer)
       if (seq === runSeq.current) setLoading(false)
     }
   }, [])
@@ -769,22 +785,8 @@ export function AnalyticsDashboard({ onNavigate }: { onNavigate?: (path: string)
           </div>
         )}
 
-        {/* Live Loading Overlay */}
-        {loading && caps?.liveEngine && (
-          <div className="flex items-center gap-3 rounded-xl border border-sky-200 bg-sky-50/95 p-4 text-sm text-sky-950 shadow-2xs">
-            <Loader2 className="size-5 shrink-0 animate-spin text-sky-600" />
-            <div>
-              <p className="font-bold">
-                {bn ? 'উপগ্রহ ছবি প্রক্রিয়াকরণ চলছে…' : 'Processing Sentinel-2 Multispectral Tiles…'}
-              </p>
-              <p className="text-xs text-sky-800 mt-0.5">
-                {bn
-                  ? 'প্রথমবার নতুন এলাকার জন্য ক্লাউড কম্পোজিট তৈরিতে ১-২ মিনিট সময় লাগতে পারে।'
-                  : 'Retrieving cloud-free optical composite and computing random-forest canopy classification.'}
-              </p>
-            </div>
-          </div>
-        )}
+        {/* Live step-by-step progress */}
+        <AnalysisProgress loading={loading} snapshot={progress} failed={!!error} lang={lang} />
 
         {/* ANALYTICS SECTIONS */}
         {b && (

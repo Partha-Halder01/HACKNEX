@@ -12,6 +12,7 @@ from . import demo_engine
 from .carbon import area_uncertainty_pct, carbon_change, carbon_stock, methodology as carbon_methodology
 from .narrative import build_narrative
 from .projection import project_scenarios
+from . import progress
 from .reliability import assess as assess_reliability
 from .request import (
     MAX_RADIUS_KM,
@@ -68,19 +69,20 @@ def analysis_capabilities() -> Dict[str, Any]:
     }
 
 
-def _observe(req: AnalysisRequest) -> Tuple[Dict[str, Any], List[str]]:
+def _observe(req: AnalysisRequest, report: progress.Reporter = progress._noop) -> Tuple[Dict[str, Any], List[str]]:
     warnings: List[str] = []
     ok, code, _ = _gee_ready()
     if ok:
         from .gee_engine import GeeAnalysisError, observe as gee_observe
 
         try:
-            return gee_observe(req), warnings
+            return gee_observe(req, report=report), warnings
         except GeeAnalysisError:
             raise
         except Exception as e:  # keep the dashboard usable; say loudly that it fell back
             logger.exception("[Analysis] Live Earth Engine run failed; using demo engine.")
             warnings.append(f"Live Earth Engine run failed ({type(e).__name__}); showing demo data instead.")
+    report("demo", plan=progress.PLAN_DEMO)
     return demo_engine.observe(req), warnings
 
 
@@ -178,30 +180,46 @@ def build_bundle(req: AnalysisRequest, obs: Dict[str, Any], warnings: List[str])
     return bundle
 
 
-def run_analysis(req: AnalysisRequest) -> Dict[str, Any]:
-    """Validate, observe (cached), and assemble the bundle with narrative."""
-    warnings = req.validate()
-    key = req.cache_key()
-    with _cache_lock:
-        cached = _cache.get(key)
-        if cached is not None:
-            _cache.move_to_end(key)
-    if cached is None:
-        obs, engine_warnings = _observe(req)
-        cached = build_bundle(req, obs, engine_warnings)
-        with _cache_lock:
-            _cache[key] = cached
-            while len(_cache) > settings.ANALYSIS_CACHE_SIZE:
-                _cache.popitem(last=False)
+def run_analysis(req: AnalysisRequest, progress_id: Optional[str] = None) -> Dict[str, Any]:
+    """Validate, observe (cached), and assemble the bundle with narrative.
 
-    bundle = copy.deepcopy(cached)
-    bundle["request"]["language"] = req.language
-    bundle["warnings"] = warnings + bundle["warnings"]
-    bundle["analysisId"] = f"an_{key}_{uuid.uuid4().hex[:6]}"
-    bundle["generatedAt"] = datetime.now(timezone.utc).isoformat()
-    narrative, evidence = build_narrative(bundle, req.use_ai)
-    bundle["narrative"] = narrative
-    bundle["evidence"] = evidence
+    With `progress_id`, each real step is reported for GET /analysis/progress/{id}.
+    """
+    report = progress.start(progress_id)
+    try:
+        report("check")
+        warnings = req.validate()
+        key = req.cache_key()
+        with _cache_lock:
+            cached = _cache.get(key)
+            if cached is not None:
+                _cache.move_to_end(key)
+        if cached is not None:
+            report("cache", plan=progress.PLAN_CACHED)
+        else:
+            if not _gee_ready()[0]:
+                report("check", plan=progress.PLAN_DEMO)
+            obs, engine_warnings = _observe(req, report)
+            report("carbon")
+            cached = build_bundle(req, obs, engine_warnings)
+            with _cache_lock:
+                _cache[key] = cached
+                while len(_cache) > settings.ANALYSIS_CACHE_SIZE:
+                    _cache.popitem(last=False)
+
+        report("summary")
+        bundle = copy.deepcopy(cached)
+        bundle["request"]["language"] = req.language
+        bundle["warnings"] = warnings + bundle["warnings"]
+        bundle["analysisId"] = f"an_{key}_{uuid.uuid4().hex[:6]}"
+        bundle["generatedAt"] = datetime.now(timezone.utc).isoformat()
+        narrative, evidence = build_narrative(bundle, req.use_ai)
+        bundle["narrative"] = narrative
+        bundle["evidence"] = evidence
+    except Exception as e:
+        progress.finish(progress_id, error=str(e))
+        raise
+    progress.finish(progress_id)
     return bundle
 
 

@@ -252,3 +252,19 @@ export interface Basemap {
   bounds?: [[number, number], [number, number]]
   attribution?: string
 }
+
+export interface ProgressStep {
+  id: string
+  status: 'done' | 'active' | 'pending'
+  seconds: number | null
+}
+
+export interface AnalysisProgress {
+  known: boolean
+  steps?: ProgressStep[]
+  current?: string | null
+  detail?: { i?: number; n?: number; label?: string } | null
+  done?: boolean
+  error?: string | null
+  elapsed?: number
+}

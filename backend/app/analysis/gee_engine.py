@@ -214,21 +214,32 @@ def _tile_url(image: Any, vis: Dict[str, Any]) -> Optional[str]:
         return None
 
 
-def observe(req: AnalysisRequest, fetch: Callable[[Any], Any] = _fetch, steps: Any = None) -> Dict[str, Any]:
+def observe(
+    req: AnalysisRequest,
+    fetch: Callable[[Any], Any] = _fetch,
+    steps: Any = None,
+    report: Optional[Callable[..., None]] = None,
+) -> Dict[str, Any]:
+    """Run the live analysis; `report(stage, detail=...)` receives real progress."""
+    say = report or (lambda *a, **k: None)
     if steps is None:
         from ..pipeline import gee_steps as steps  # type: ignore[no-redef]
     ee = steps._ee()
     geometry = ee.Geometry.Point([req.lon, req.lat]).buffer(req.radius_km * 1000.0)
     threshold = settings.PIPELINE_CONFIDENCE_THRESHOLD
 
+    say("train")
     model = _train(req, fetch, steps)
+    say("test")
     accuracy = _accuracy(model, req, fetch, steps)
 
     timeline: List[Dict[str, Any]] = []
     classified: Dict[str, Any] = {}
     composites: Dict[str, Any] = {}
     notes: List[str] = []
-    for period in req.periods():
+    all_periods = req.periods()
+    for idx, period in enumerate(all_periods):
+        say("photos", detail={"i": idx + 1, "n": len(all_periods), "label": period["label"]})
         try:
             composite, meta = _composite(geometry, period["startDate"], period["endDate"], steps)
         except SentinelProcessingError as e:
@@ -262,6 +273,7 @@ def observe(req: AnalysisRequest, fetch: Callable[[Any], Any] = _fetch, steps: A
         classified[period["key"]] = image
         composites[period["key"]] = composite
 
+    say("areacheck")
     area_check = _area_check(geometry, timeline, fetch, steps)
     if area_check and not area_check["agrees"]:
         notes.append(
@@ -272,6 +284,7 @@ def observe(req: AnalysisRequest, fetch: Callable[[Any], Any] = _fetch, steps: A
     if accuracy is not None:
         accuracy["areaCheck"] = area_check
 
+    say("change")
     min_pixels = min_mapping_unit_pixels(settings.PIPELINE_MIN_MAPPING_UNIT_HA, req.scale_m)
     masks = steps.change_masks(classified["start"], classified["end"], min_pixels, threshold)
     ch = fetch(
@@ -302,6 +315,7 @@ def observe(req: AnalysisRequest, fetch: Callable[[Any], Any] = _fetch, steps: A
             logger.warning(f"[Analysis/GEE] Context photo failed: {e}")
             return _tile_url(fallback.clip(geometry), TRUE_COLOR_VIS)
 
+    say("tiles")
     tiles = {
         "trueColorStart": _photo(periods[0], composites["start"]),
         "trueColorEnd": _photo(periods[-1], composites["end"]),
@@ -313,6 +327,9 @@ def observe(req: AnalysisRequest, fetch: Callable[[Any], Any] = _fetch, steps: A
         ),
         "change": _tile_url(change_img, {"min": 0, "max": 3, "palette": CHANGE_PALETTE}),
     }
+
+    say("history")
+    historical = _historical(geometry, fetch, steps)
 
     return {
         "dataSource": DATA_SOURCE,
@@ -329,7 +346,7 @@ def observe(req: AnalysisRequest, fetch: Callable[[Any], Any] = _fetch, steps: A
             "confidenceThreshold": threshold,
         },
         "accuracy": accuracy,
-        "historical": _historical(geometry, fetch, steps),
+        "historical": historical,
         "tiles": {k: v for k, v in tiles.items() if v},
         "training": model["info"],
         "notes": notes,

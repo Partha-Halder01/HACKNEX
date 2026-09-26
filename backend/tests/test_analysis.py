@@ -448,3 +448,41 @@ def test_demo_bundle_has_demo_reliability_and_low_warns_in_text():
     assert b["reliability"]["level"] == "demo"
     b2 = run_analysis(_req(end_date=date(2024, 7, 31)))
     assert b2["reliability"]["level"] == "demo"
+
+
+# --------------------------------------------------------------------------- #
+# Real-time progress
+# --------------------------------------------------------------------------- #
+from app.analysis import progress as progress_mod  # noqa: E402
+
+
+def test_progress_demo_then_cached():
+    run_analysis(_req(), progress_id="p-demo")
+    snap = progress_mod.snapshot("p-demo")
+    assert snap["done"] and snap["error"] is None
+    assert [s["id"] for s in snap["steps"]] == progress_mod.PLAN_DEMO
+    assert all(s["status"] == "done" for s in snap["steps"])
+
+    run_analysis(_req(), progress_id="p-cached")  # same request -> from memory
+    snap = progress_mod.snapshot("p-cached")
+    assert [s["id"] for s in snap["steps"]] == progress_mod.PLAN_CACHED
+
+
+def test_gee_engine_reports_stages_in_order(monkeypatch):
+    monkeypatch.setattr(
+        gee_engine, "build_sentinel_composite",
+        lambda geometry, start_date, end_date: (_Img(f"comp:{start_date}"), {"imageCount": 7}),
+    )
+    from app.analysis import basemap
+    monkeypatch.setattr(basemap, "true_color_composite", lambda region, s, e: _Img(f"photo:{s}"))
+    seen = []
+    gee_engine.observe(_req(), fetch=_fake_fetch, steps=_FakeSteps(), report=lambda stage, **k: seen.append((stage, k.get("detail"))))
+    order = [s for s, _ in seen]
+    dedup = [s for i, s in enumerate(order) if i == 0 or order[i - 1] != s]
+    assert dedup == ["train", "test", "photos", "areacheck", "change", "tiles", "history"]
+    photos = [d for s, d in seen if s == "photos"]
+    assert photos[0]["i"] == 1 and photos[-1]["i"] == photos[-1]["n"] == 6
+
+
+def test_api_progress_unknown_id():
+    assert client.get("/api/analysis/progress/nope").json() == {"known": False}

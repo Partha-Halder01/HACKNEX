@@ -26,6 +26,8 @@ class AnalysisRunBody(BaseModel):
     windowDays: int = Field(default=90)
     language: Literal["en", "bn"] = "en"
     useAi: bool = False
+    # Random id chosen by the page, used to poll /analysis/progress/{id} while this runs.
+    progressId: Optional[str] = Field(default=None, max_length=64)
 
 
 class FieldPointBody(BaseModel):
@@ -56,6 +58,17 @@ async def get_basemap(year: Optional[int] = None) -> Dict[str, Any]:
     return await run_in_threadpool(build, year)
 
 
+@router.get("/progress/{progress_id}")
+async def get_progress(progress_id: str) -> Dict[str, Any]:
+    """Real-time steps of a running analysis (poll while POST /run is in flight)."""
+    from ...analysis import progress
+
+    snap = progress.snapshot(progress_id)
+    if snap is None:
+        return {"known": False}
+    return {"known": True, **snap}
+
+
 @router.post("/run")
 async def post_run(body: AnalysisRunBody) -> Dict[str, Any]:
     """Run the full analysis (area, change, carbon ±, scenarios, accuracy, narrative)."""
@@ -70,7 +83,7 @@ async def post_run(body: AnalysisRunBody) -> Dict[str, Any]:
         use_ai=body.useAi,
     )
     try:
-        bundle = await run_in_threadpool(run_analysis, req)
+        bundle = await run_in_threadpool(run_analysis, req, body.progressId)
     except AnalysisRequestError as e:
         raise HTTPException(status_code=422, detail=str(e))
     except Exception as e:
