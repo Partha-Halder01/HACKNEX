@@ -25,6 +25,8 @@ class Settings(BaseSettings):
 
     # Live analysis: cache results in memory per (location, dates, window).
     ANALYSIS_CACHE_SIZE: int = 64
+    # Pre-compute Earth Engine setup, basemap and the default analysis at startup.
+    WARMUP_ON_START: bool = True
     # Where field-verification points are appended when MongoDB is offline.
     FIELD_POINTS_PATH: str = "data/field_points.jsonl"
 

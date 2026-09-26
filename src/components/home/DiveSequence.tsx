@@ -66,7 +66,7 @@ function Chip({ children }: { children: ReactNode }) {
 function FrameLabel({ x, y, side, title, sub, o }: { x: number; y: number; side: 'left' | 'right'; title: string; sub: string; o: number }) {
   return (
     <div
-      className="absolute flex items-center gap-2"
+      className="absolute flex items-center gap-2 pointer-events-none select-none transition-opacity duration-300"
       style={{
         left: `${(x / FRAME_W) * 100}%`,
         top: `${(y / FRAME_H) * 100}%`,
@@ -75,11 +75,11 @@ function FrameLabel({ x, y, side, title, sub, o }: { x: number; y: number; side:
         opacity: o,
       }}
     >
-      <span className="size-2.5 shrink-0 rounded-full bg-white shadow-[0_0_0_4px_rgba(255,255,255,0.25)]" />
-      <span className="h-px w-10 bg-white/70" />
-      <span className={`whitespace-nowrap rounded-lg bg-black/35 px-2.5 py-1 backdrop-blur-sm ${side === 'left' ? 'text-right' : ''}`}>
-        <span className="block font-mono text-[11px] font-bold tracking-[0.14em] text-white">{title}</span>
-        <span className="block font-light-sub text-[11px] font-light text-white/80">{sub}</span>
+      <span className="size-2 shrink-0 rounded-full bg-emerald-300 shadow-[0_0_0_3px_rgba(52,211,153,0.35),0_0_12px_rgba(52,211,153,0.8)]" />
+      <span className="h-px w-8 bg-white/60" />
+      <span className={`whitespace-nowrap rounded-lg border border-white/15 bg-[#031a17]/80 px-2.5 py-1 backdrop-blur-md shadow-lg shadow-black/50 ${side === 'left' ? 'text-right' : ''}`}>
+        <span className="block font-mono text-[10px] sm:text-[10.5px] font-bold tracking-[0.14em] text-emerald-200 uppercase">{title}</span>
+        <span className="block font-mono text-[9.5px] sm:text-[10px] text-white/75">{sub}</span>
       </span>
     </div>
   )
@@ -178,9 +178,9 @@ export function DiveSequence({ lang, onOpenDashboard }: { lang: HomeLang; onOpen
         <canvas ref={canvasRef} className="absolute inset-0 h-full w-full" />
 
         {/* Readability shades */}
-        <div className="pointer-events-none absolute inset-x-0 top-0 h-40 bg-gradient-to-b from-black/45 to-transparent" />
+        <div className="pointer-events-none absolute inset-x-0 top-0 h-40 bg-gradient-to-b from-black/50 to-transparent" />
         <div
-          className="pointer-events-none absolute inset-y-0 left-0 w-[62%] bg-gradient-to-r from-[#04241d]/85 via-[#04241d]/40 to-transparent"
+          className="pointer-events-none absolute inset-y-0 left-0 w-[66%] lg:w-[56%] bg-gradient-to-r from-[#031c17]/95 via-[#031c17]/60 to-transparent"
           style={{ opacity: Math.max(hero, above * 0.9, carbon * 0.8) }}
         />
         <div
@@ -193,33 +193,58 @@ export function DiveSequence({ lang, onOpenDashboard }: { lang: HomeLang; onOpen
         <div className="pointer-events-none absolute hidden lg:block" style={{ left: box.x, top: box.y, width: box.w, height: box.h }}>
           <FrameLabel x={1005} y={205} side="left" title={T.labels.canopy[0]} sub={T.labels.canopy[1]} o={labels} />
           <FrameLabel x={1150} y={395} side="left" title={T.labels.water[0]} sub={T.labels.water[1]} o={labels} />
-          <FrameLabel x={905} y={530} side="right" title={T.labels.roots[0]} sub={T.labels.roots[1]} o={labels} />
-          <FrameLabel x={420} y={655} side="right" title={T.labels.carbon[0]} sub={T.labels.carbon[1]} o={labels} />
+          <FrameLabel x={905} y={520} side="right" title={T.labels.roots[0]} sub={T.labels.roots[1]} o={labels} />
+          <FrameLabel x={860} y={605} side="right" title={T.labels.carbon[0]} sub={T.labels.carbon[1]} o={labels} />
         </div>
 
         {/* HERO */}
-        <div className="absolute left-[6vw] top-[17vh] max-w-[720px]" style={panelStyle(hero, 0)}>
-          <p className="font-mono text-xs font-bold tracking-[0.22em] text-emerald-300">{T.hero.eyebrow}</p>
-          <h1 className={`mt-4 font-condensed leading-[0.92] tracking-wide text-white ${bn ? 'font-bengali text-5xl font-bold lg:text-6xl' : 'text-6xl lg:text-[5rem] xl:text-[5.75rem]'}`}>
+        <div
+          className="absolute inset-y-0 left-[6vw] flex flex-col justify-center max-w-[640px] xl:max-w-[700px] pt-14 pb-14 z-10"
+          style={panelStyle(hero, 0)}
+        >
+          {/* Eyebrow badge */}
+          <div className="inline-flex items-center gap-2 self-start rounded-full border border-emerald-400/30 bg-emerald-950/60 px-3 py-1 backdrop-blur-md shadow-2xs">
+            <span className="size-1.5 rounded-full bg-emerald-400 animate-pulse" />
+            <span className="font-mono text-[10px] sm:text-[11px] font-bold tracking-[0.22em] text-emerald-300">
+              {T.hero.eyebrow}
+            </span>
+          </div>
+
+          {/* Majestic Hero Headline */}
+          <h1
+            className={`mt-3.5 sm:mt-4 font-condensed font-black tracking-tight text-white leading-[0.93] ${
+              bn
+                ? 'font-bengali text-4xl sm:text-5xl lg:text-6xl font-bold'
+                : 'text-5xl sm:text-6xl lg:text-[4.25rem] xl:text-[4.75rem]'
+            }`}
+          >
             {T.hero.title1}
             <br />
             {T.hero.title2}
             <br />
-            <span className="text-emerald-300">{T.hero.title3}</span>
+            <span className="text-emerald-300 drop-shadow-[0_2px_24px_rgba(52,211,153,0.35)]">
+              {T.hero.title3}
+            </span>
           </h1>
-          <p className="font-light-sub mt-5 max-w-[520px] text-sm font-light leading-relaxed tracking-[0.22em] text-white/85">{T.hero.sub}</p>
-          <div className="mt-8 flex flex-wrap items-center gap-3">
+
+          {/* Subtitle */}
+          <p className="mt-3.5 sm:mt-4 max-w-[500px] font-light-sub text-xs sm:text-sm font-light leading-relaxed tracking-[0.16em] text-white/85">
+            {T.hero.sub}
+          </p>
+
+          {/* Action CTAs */}
+          <div className="mt-6 sm:mt-7 flex flex-wrap items-center gap-3">
             <button
               type="button"
               onClick={onOpenDashboard}
-              className="flex items-center gap-2 rounded-full bg-emerald-500 px-6 py-3 text-sm font-bold text-[#04241d] shadow-lg shadow-emerald-900/40 transition hover:bg-emerald-400"
+              className="inline-flex items-center gap-2 rounded-full bg-emerald-400 px-6 py-3 text-sm font-bold text-[#04241d] shadow-[0_4px_24px_rgba(16,185,129,0.4)] transition-all hover:bg-emerald-300 hover:shadow-[0_6px_28px_rgba(16,185,129,0.5)] transform hover:-translate-y-0.5 active:translate-y-0 cursor-pointer"
             >
               {T.hero.primary} <ArrowRight className="size-4" />
             </button>
             <button
               type="button"
               onClick={() => scrollToStage(0.1)}
-              className="flex items-center gap-2 rounded-full border border-white/40 bg-white/10 px-6 py-3 text-sm font-semibold text-white backdrop-blur transition hover:bg-white/20"
+              className="inline-flex items-center gap-2 rounded-full border border-white/30 bg-white/10 px-5.5 py-3 text-sm font-semibold text-white backdrop-blur-md transition-all hover:bg-white/20 hover:border-white/50 transform hover:-translate-y-0.5 active:translate-y-0 cursor-pointer"
             >
               {T.hero.secondary} <ArrowDown className="size-4" />
             </button>
@@ -368,9 +393,17 @@ export function DiveSequence({ lang, onOpenDashboard }: { lang: HomeLang; onOpen
         </div>
 
         {/* Scroll hint */}
-        <div className="absolute bottom-8 left-1/2 -translate-x-1/2 text-center" style={{ opacity: hero }}>
-          <div className="mx-auto flex h-10 w-6 justify-center rounded-full border-2 border-white/60 pt-2">
-            <span className="h-2 w-1 animate-bounce rounded-full bg-white" />
+        <div
+          className="absolute bottom-5 sm:bottom-7 left-1/2 -translate-x-1/2 text-center pointer-events-none transition-opacity duration-300 z-10"
+          style={{ opacity: hero }}
+        >
+          <div className="flex flex-col items-center gap-1.5">
+            <div className="flex h-8 w-5 justify-center rounded-full border border-white/40 bg-black/25 p-1 backdrop-blur-xs">
+              <span className="h-1.5 w-1 animate-bounce rounded-full bg-emerald-400" />
+            </div>
+            <span className="font-mono text-[8.5px] font-bold tracking-[0.2em] text-white/50 uppercase">
+              {bn ? 'স্ক্রোল করুন' : 'Scroll to explore'}
+            </span>
           </div>
         </div>
 

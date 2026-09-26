@@ -88,8 +88,8 @@ export function LocationMap({
   const bases: ('gee' | 'esri' | 'streets')[] = geeReady || basemap === undefined ? ['gee', 'esri', 'streets'] : ['esri', 'streets']
   const nextBase = bases[(bases.indexOf(effectiveBase) + 1) % bases.length]
   const BASE_LABEL = {
-    gee: { en: 'Sentinel-2 Tile', bn: 'আর্থ ইঞ্জিন ছবি' },
-    esri: { en: 'Esri Satellite', bn: 'Esri ছবি' },
+    gee: { en: 'Sentinel-2 photo (Earth Engine)', bn: 'সেন্টিনেল-২ ছবি (আর্থ ইঞ্জিন)' },
+    esri: { en: 'Esri photo', bn: 'Esri ছবি' },
     streets: { en: 'Streets / Topo', bn: 'রাস্তার মানচিত্র' },
   } as const
 
@@ -158,8 +158,14 @@ export function LocationMap({
             className="flex items-center gap-1.5 rounded-lg bg-white/95 px-2.5 py-1.5 text-xs font-semibold text-[#123f38] shadow-sm border border-[#d6e6de] hover:border-[#16865f] hover:bg-white transition-all cursor-pointer"
           >
             <Compass className="size-3.5 text-[#16865f]" />
-            <span>{BASE_LABEL[effectiveBase][lang]}</span>
-            <span className="text-[10px] text-[#6c817a]">({BASE_LABEL[nextBase][lang]})</span>
+            {/* Honest label: while the Earth Engine photo is still loading, the Esri photo
+                underneath is what is visible, so say so instead of claiming Sentinel-2. */}
+            <span>
+              {effectiveBase === 'gee' && !geeReady
+                ? lang === 'bn' ? 'Esri ছবি · আর্থ ইঞ্জিন লোড হচ্ছে…' : 'Esri photo · loading Sentinel-2…'
+                : BASE_LABEL[effectiveBase][lang]}
+            </span>
+            <span className="text-[10px] text-[#6c817a]">→ {BASE_LABEL[nextBase][lang]}</span>
           </button>
 
           {/* Spectral Overlay Selector (when analysis is ready) */}

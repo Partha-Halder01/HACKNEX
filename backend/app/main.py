@@ -16,8 +16,13 @@ async def lifespan(app: FastAPI):
     db = await connect_to_mongo()
     if db is not None:
         await create_indexes(db)
+    # 2. Warm Earth Engine, the basemap and the default analysis in the background
+    if settings.WARMUP_ON_START:
+        from .analysis.warmup import start_warmup
+
+        start_warmup()
     yield
-    # 2. Cleanup MongoDB client
+    # 3. Cleanup MongoDB client
     await close_mongo_connection()
 
 

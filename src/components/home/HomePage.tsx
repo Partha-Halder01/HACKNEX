@@ -50,7 +50,7 @@ export function HomePage({ onNavigate }: { onNavigate?: (path: string) => void }
             <button
               type="button"
               onClick={openDashboard}
-              className="flex items-center gap-1.5 rounded-full bg-emerald-500 px-4 py-2 text-sm font-bold text-[#04241d] transition hover:bg-emerald-400"
+              className="inline-flex items-center gap-1.5 rounded-full bg-emerald-400 px-4.5 py-2 text-xs sm:text-sm font-bold text-[#04241d] shadow-[0_2px_14px_rgba(16,185,129,0.35)] transition-all hover:bg-emerald-300 hover:shadow-[0_4px_18px_rgba(16,185,129,0.45)] transform hover:-translate-y-0.5 active:translate-y-0 cursor-pointer"
             >
               {T.nav.cta} <ArrowRight className="size-4" />
             </button>
