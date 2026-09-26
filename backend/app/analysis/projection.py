@@ -3,7 +3,8 @@
 These are illustrative "what if the recent pattern continues / changes" lines,
 not forecasts. Every scenario starts from the last observed area.
 
-- current_trend: start→end rate (same basis as the headline change)
+- current_trend: confirmed net change per year (pixel-by-pixel gain − loss,
+                 the same basis as the headline change)
 - higher_loss:   trend minus one more observed gross-loss rate (loss doubles)
 - recovery:      trend plus half the loss rate (loss halves) plus half the gain rate
 
@@ -67,20 +68,20 @@ def project_scenarios(
     points = sorted(points)
     end_t, end_area = points[-1]
     fitted_slope, slope_se = linear_trend(points, area_unc_pct)
-    # "Current trend" uses the same start→end rate as the headline change, so the
-    # page never says "grew" next to a shrinking "if things continue" line. The
-    # least-squares slope (robust to noisy endpoints) is reported alongside.
-    start_t, start_area = points[0]
-    slope = (end_area - start_area) / (end_t - start_t) if end_t > start_t else fitted_slope
-
     years = max(span_years, 1e-6)
     gain_rate, loss_rate = gain_ha / years, loss_ha / years
+    # "Current trend" is the confirmed pixel-level net change per year, the same
+    # figure as the headline change. Yearly map totals wobble with image
+    # conditions, so a start→end difference of two noisy totals can badly
+    # exaggerate the trend; the least-squares slope is reported alongside and
+    # its error sets the band width.
+    slope = gain_rate - loss_rate
     scenario_defs: List[Dict[str, Any]] = [
         {
             "id": "current_trend",
             "name": "Current trend",
             "nameBn": "বর্তমান প্রবণতা",
-            "description": "The start-to-end change continues at the same yearly rate.",
+            "description": "The confirmed yearly change (gain minus loss, pixel by pixel) continues.",
             "rate": slope,
             "assumed": False,
         },
@@ -127,7 +128,7 @@ def project_scenarios(
         )
 
     return {
-        "method": "Start-to-end rate + what-if rate scenarios (illustrative, not a forecast)",
+        "method": "Confirmed net-change rate + what-if rate scenarios (illustrative, not a forecast)",
         "trendHaPerYear": round(slope, 2),
         "fittedTrendHaPerYear": round(fitted_slope, 2),
         "trendStdErrHaPerYear": round(slope_se, 2),

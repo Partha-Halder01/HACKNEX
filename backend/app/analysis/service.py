@@ -104,7 +104,9 @@ def build_bundle(req: AnalysisRequest, obs: Dict[str, Any], warnings: List[str])
         "netChangeHa": round(ch["gainHa"] - ch["lossHa"], 2),
         "rawAreaDifferenceHa": round(end["mangroveHa"] - start["mangroveHa"], 2),
         "annualNetChangeHa": round((ch["gainHa"] - ch["lossHa"]) / max(req.span_years, 1e-6), 2),
-        "percentChange": _pct(end["mangroveHa"] - start["mangroveHa"], start["mangroveHa"]),
+        # Same basis as netChangeHa (confirmed pixel change), so "+X ha (Y%)" agree.
+        "percentChange": _pct(ch["gainHa"] - ch["lossHa"], start["mangroveHa"]),
+        "rawPercentChange": _pct(end["mangroveHa"] - start["mangroveHa"], start["mangroveHa"]),
     }
 
     area_unc = area_uncertainty_pct(obs.get("accuracy"))

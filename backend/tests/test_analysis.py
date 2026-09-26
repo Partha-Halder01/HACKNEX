@@ -123,6 +123,23 @@ def test_projection_scenarios_order_and_bounds():
             assert p["carbonLowMgC"] <= p["carbonMgC"] <= p["carbonHighMgC"]
 
 
+def test_current_trend_uses_confirmed_change_not_noisy_endpoints():
+    # A noisy last map total (+200 ha jump) must not drive the trend.
+    pts = [(2019.2, 1953), (2023.1, 2009), (2025.1, 1883), (2026.05, 2084)]
+    proj = project_scenarios(pts, gain_ha=24.3, loss_ha=3.4, span_years=7.0, aoi_area_ha=3800, area_unc_pct=3.6)
+    assert proj["trendHaPerYear"] == pytest.approx((24.3 - 3.4) / 7.0, abs=0.01)
+    trend = next(s for s in proj["scenarios"] if s["id"] == "current_trend")
+    assert trend["points"][-1]["mangroveHa"] == pytest.approx(2084 + 5 * (24.3 - 3.4) / 7.0, abs=0.05)
+
+
+def test_percent_change_matches_net_change():
+    b = run_analysis(_req())
+    ch, start = b["change"], b["summary"]["start"]["mangroveHa"]
+    assert ch["percentChange"] == pytest.approx(round(100 * ch["netChangeHa"] / start, 1), abs=0.051)
+    raw = b["summary"]["end"]["mangroveHa"] - start
+    assert ch["rawPercentChange"] == pytest.approx(round(100 * raw / start, 1), abs=0.051)
+
+
 # --------------------------------------------------------------------------- #
 # Narrative validator
 # --------------------------------------------------------------------------- #
