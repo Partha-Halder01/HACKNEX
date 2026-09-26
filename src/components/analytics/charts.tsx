@@ -3,8 +3,9 @@ import {
   Area,
   CartesianGrid,
   ComposedChart,
-  Legend,
   Line,
+  ReferenceArea,
+  ReferenceLine,
   ResponsiveContainer,
   Tooltip,
   XAxis,
@@ -13,12 +14,10 @@ import {
 import {
   Activity,
   AlertCircle,
-  Calendar,
   CheckCircle2,
   History,
   Info,
   Layers,
-  Satellite,
   ShieldCheck,
   TrendingDown,
   TrendingUp,
@@ -27,262 +26,143 @@ import type { AnalysisBundle } from '../../types/analysis'
 import type { Lang } from './ui'
 import { fmt, signed, t } from './ui'
 import { cn } from '../../lib/utils'
+import { CK, GlowDefs, LegendChip, StatTile, TooltipCard, TooltipRow, axisTick, makeDot, yearTicks } from './chartKit'
 
-const GREEN = '#16865f'
-const HISTORY = '#7c3aed'
-const RED = '#dc2626'
-const AMBER = '#d97706'
-const BLUE = '#2563eb'
-const GRID = '#e5efe9'
-const AXIS = { fontSize: 11, fill: '#6c817a' }
-
-const yearTick = (v: number) => String(Math.floor(v))
-
-/** Mangrove area per observation window; optional CGMD 1985–2018 context in a second colour. */
+/** Mangrove area per observation window, with the unsure-pixel ribbon and optional CGMD history. */
 export function TimelineChart({ bundle, lang }: { bundle: AnalysisBundle; lang: Lang }) {
   const [showHistory, setShowHistory] = useState(false)
+  const bn = lang === 'bn'
   const history = bundle.historical ?? []
-  const rows = [
-    ...(showHistory ? history.map((h) => ({ x: h.year + 0.5, cgmd: h.mangroveHa })) : []),
-    ...bundle.timeline.map((p) => ({
-      x: p.decimalYear,
-      label: p.label,
-      s2: p.mangroveHa,
-      band: [
-        Math.max(0, p.mangroveHa - p.lowConfidenceHa / 2),
-        p.mangroveHa + p.lowConfidenceHa / 2,
-      ] as [number, number],
-      lowConfidenceHa: p.lowConfidenceHa,
-      images: p.imageCount,
-    })),
-  ]
-  const values = rows.flatMap((r) => ('s2' in r ? [r.band![0], r.band![1]] : [r.cgmd]))
+  const tl = bundle.timeline
+  const s2Rows = tl.map((p) => ({
+    x: p.decimalYear,
+    label: p.label,
+    s2: p.mangroveHa,
+    band: [Math.max(0, p.mangroveHa - p.lowConfidenceHa / 2), p.mangroveHa + p.lowConfidenceHa / 2] as [number, number],
+    unsure: p.lowConfidenceHa,
+    images: p.imageCount,
+    window: `${p.startDate} → ${p.endDate}`,
+  }))
+  const histRows = showHistory ? history.map((h) => ({ x: h.year + 0.5, cgmd: h.mangroveHa })) : []
+  const rows = [...histRows, ...s2Rows]
+  const values = [...s2Rows.flatMap((r) => r.band), ...histRows.map((r) => r.cgmd)]
   const lo = Math.min(...values)
   const hi = Math.max(...values)
-  const pad = Math.max((hi - lo) * 0.25, hi * 0.02, 1)
-
-  const firstPt = bundle.timeline[0]
-  const latestPt = bundle.timeline[bundle.timeline.length - 1]
-  const totalChange = latestPt && firstPt ? latestPt.mangroveHa - firstPt.mangroveHa : 0
-  const pctChange = firstPt && firstPt.mangroveHa > 0 ? (totalChange / firstPt.mangroveHa) * 100 : 0
+  const pad = Math.max((hi - lo) * 0.18, hi * 0.01, 1)
+  const xMin = Math.min(...rows.map((r) => r.x)) - 0.25
+  const xMax = Math.max(...rows.map((r) => r.x)) + 0.25
+  const latest = tl[tl.length - 1]
+  const areas = tl.map((p) => p.mangroveHa)
+  const lastS2 = rows.length - 1
+  const Dot = makeDot({ lastIndex: lastS2, color: CK.green, label: (v) => `${fmt(v, 0, lang)} ha` })
 
   return (
     <div className="space-y-3.5">
-      {/* Top Quick Stats Strip */}
-      <div className="flex flex-wrap items-center justify-between gap-2.5 rounded-2xl bg-gradient-to-r from-emerald-50/80 via-slate-50/70 to-emerald-50/40 p-2.5 sm:p-3 border border-[#d6e6de]/80">
-        <div className="flex flex-wrap items-center gap-2">
-          {latestPt && (
-            <div className="flex items-center gap-1.5 rounded-xl bg-white px-2.5 py-1 text-xs font-semibold text-[#123f38] shadow-2xs border border-emerald-100">
-              <span className="size-2 rounded-full bg-[#16865f] animate-pulse" />
-              <span className="text-[#6c817a] font-normal">{lang === 'bn' ? 'সাম্প্রতিক:' : 'Latest:'}</span>
-              <span className="font-display font-bold text-[#0f352e]">{fmt(latestPt.mangroveHa, 1, lang)} ha</span>
-            </div>
-          )}
-
-          <div
-            className={cn(
-              'flex items-center gap-1.5 rounded-xl px-2.5 py-1 text-xs font-semibold shadow-2xs border',
-              totalChange >= 0
-                ? 'bg-emerald-50 text-emerald-800 border-emerald-200'
-                : 'bg-rose-50 text-rose-800 border-rose-200',
-            )}
-          >
-            {totalChange >= 0 ? (
-              <TrendingUp className="size-3.5 text-emerald-600" />
-            ) : (
-              <TrendingDown className="size-3.5 text-rose-600" />
-            )}
-            <span>
-              {signed(totalChange, 1, lang)} ha ({signed(pctChange, 1, lang)}%)
-            </span>
-          </div>
-
-          <div className="hidden sm:flex items-center gap-1.5 rounded-xl bg-white px-2.5 py-1 text-xs text-[#6c817a] border border-[#d6e6de]/70 shadow-2xs">
-            <Satellite className="size-3.5 text-[#16865f]" />
-            <span>
-              {bundle.timeline.length} {lang === 'bn' ? 'উইন্ডো পর্যবেক্ষণ' : 'Observation Windows'}
-            </span>
-          </div>
-        </div>
-
-        {/* CGMD History Interactive Toggle Pill */}
-        {history.length > 0 && (
-          <button
-            type="button"
-            onClick={() => setShowHistory(!showHistory)}
-            className={cn(
-              'inline-flex items-center gap-1.5 px-3 py-1 rounded-xl text-xs font-semibold transition-all border shadow-2xs cursor-pointer select-none',
-              showHistory
-                ? 'bg-purple-600 text-white border-purple-600 shadow-purple-200'
-                : 'bg-white text-purple-700 border-purple-200 hover:bg-purple-50',
-            )}
-          >
-            <History className={cn('size-3.5', showHistory ? 'text-white' : 'text-purple-600')} />
-            <span>{lang === 'bn' ? 'CGMD ইতিহাস' : 'CGMD History'} ({fmt(history[0].year, 0, lang).replace(/,/g, '')}–{fmt(history[history.length - 1].year, 0, lang).replace(/,/g, '')})</span>
-            <span className={cn('size-1.5 rounded-full ml-0.5', showHistory ? 'bg-white' : 'bg-purple-400')} />
-          </button>
-        )}
+      <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
+        <StatTile label={bn ? 'সর্বশেষ মানচিত্র' : 'Latest map'} value={`${fmt(latest.mangroveHa, 0, lang)} ha`} tone="green" hint={latest.label} />
+        <StatTile
+          label={bn ? 'সর্বনিম্ন – সর্বোচ্চ' : 'Lowest – highest'}
+          value={`${fmt(Math.min(...areas), 0, lang)}–${fmt(Math.max(...areas), 0, lang)}`}
+          hint={bn ? 'মানচিত্রের মোট (হেক্টর)' : 'map totals (ha)'}
+        />
+        <StatTile
+          label={bn ? 'নিশ্চিত পরিবর্তন' : 'Confirmed change'}
+          value={`${signed(bundle.change.netChangeHa, 1, lang)} ha`}
+          tone={bundle.change.netChangeHa >= 0 ? 'green' : 'red'}
+          hint={bn ? 'পিক্সেল ধরে (বৃদ্ধি − ক্ষতি)' : 'pixel by pixel (gain − loss)'}
+        />
+        <StatTile label={bn ? 'পর্যবেক্ষণ' : 'Observations'} value={`${tl.length} ${bn ? 'টি' : 'windows'}`} hint={`${tl.reduce((s, p) => s + (p.imageCount ?? 0), 0)} ${bn ? 'ছবি' : 'photos'}`} />
       </div>
 
-      {/* Chart Canvas */}
-      <div className="h-68 sm:h-76 w-full">
+      <div className="relative h-72 w-full rounded-2xl border border-[#e3eee8] bg-gradient-to-b from-white to-[#f7fbf9] p-2 sm:h-80">
         <ResponsiveContainer width="100%" height="100%">
-          <ComposedChart data={rows} margin={{ top: 10, right: 16, bottom: 4, left: 2 }}>
-            <defs>
-              <linearGradient id="s2AreaGrad" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stopColor="#10b981" stopOpacity={0.24} />
-                <stop offset="95%" stopColor="#10b981" stopOpacity={0.03} />
-              </linearGradient>
-            </defs>
-            <CartesianGrid stroke="#e5efe9" strokeDasharray="3 3" vertical={false} />
+          <ComposedChart data={rows} margin={{ top: 34, right: 18, bottom: 4, left: 0 }}>
+            <GlowDefs id="tl" color={CK.mint} />
+            <CartesianGrid stroke={CK.grid} strokeDasharray="4 6" vertical={false} />
+            {showHistory && histRows.length > 0 && (
+              <ReferenceArea
+                x1={xMin}
+                x2={s2Rows[0].x - 0.3}
+                fill={CK.violet}
+                fillOpacity={0.05}
+                label={{ value: bn ? 'CGMD রেফারেন্স মানচিত্র' : 'CGMD reference maps', position: 'insideTopLeft', fill: CK.violet, fontSize: 10.5, fontWeight: 700 }}
+              />
+            )}
             <XAxis
               dataKey="x"
               type="number"
-              domain={['dataMin - 0.3', 'dataMax + 0.3']}
-              tickFormatter={yearTick}
-              tick={AXIS}
+              domain={[xMin, xMax]}
+              ticks={yearTicks(xMin, xMax)}
+              tickFormatter={(v) => String(v)}
+              tick={axisTick}
               tickLine={false}
-              axisLine={{ stroke: '#d6e6de' }}
-              allowDecimals={false}
+              axisLine={{ stroke: '#dce8e1' }}
             />
-            <YAxis
-              tick={AXIS}
-              width={56}
-              domain={[Math.max(0, lo - pad), hi + pad]}
-              tickFormatter={(v) => `${fmt(v, 0)}`}
-              tickLine={false}
-              axisLine={false}
-            />
+            <YAxis tick={axisTick} width={48} domain={[Math.max(0, lo - pad), hi + pad]} tickFormatter={(v) => fmt(v, 0)} tickLine={false} axisLine={false} tickCount={5} />
             <Tooltip
+              cursor={{ stroke: CK.green, strokeOpacity: 0.35, strokeDasharray: '4 4' }}
               content={({ active, payload }) => {
-                if (!active || !payload || !payload.length) return null
-                const data = payload[0]?.payload as
-                  | {
-                      x: number
-                      label?: string
-                      s2?: number
-                      band?: [number, number]
-                      images?: number
-                      cgmd?: number
-                    }
-                  | undefined
-                if (!data) return null
-
+                const d = active ? (payload?.[0]?.payload as (typeof rows)[number] | undefined) : undefined
+                if (!d) return null
+                if ('cgmd' in d)
+                  return (
+                    <TooltipCard title={`${Math.floor(d.x)}`} badge="CGMD">
+                      <TooltipRow color={CK.violet} dashed label={bn ? 'রেফারেন্স মানচিত্র' : 'Reference map'} value={`${fmt(d.cgmd, 0, lang)} ha`} />
+                    </TooltipCard>
+                  )
                 return (
-                  <div className="rounded-2xl border border-emerald-100/90 bg-white/95 backdrop-blur-md p-3.5 shadow-xl text-xs space-y-2 min-w-[210px]">
-                    <div className="flex items-center gap-1.5 font-bold text-[#0f352e] border-b border-[#e5efe9] pb-1.5">
-                      <Calendar className="size-3.5 text-[#16865f]" />
-                      <span>{data.label ?? `Year ${Math.floor(data.x)}`}</span>
-                    </div>
-
-                    {typeof data.s2 === 'number' && (
-                      <div className="space-y-1">
-                        <div className="flex items-center justify-between gap-3">
-                          <span className="flex items-center gap-1.5 text-[#6c817a]">
-                            <span className="size-2 rounded-full bg-[#16865f]" />
-                            Sentinel-2 RF
-                          </span>
-                          <span className="font-display font-bold text-sm text-[#0f352e]">
-                            {fmt(data.s2, 1, lang)} ha
-                          </span>
-                        </div>
-
-                        {data.band && (
-                          <div className="flex items-center justify-between text-[11px] text-[#6c817a] pl-3.5">
-                            <span>{lang === 'bn' ? 'বিশ্বস্ততা পরিসর' : 'Confidence band'}</span>
-                            <span className="font-mono text-[#0f352e]">
-                              {fmt(data.band[0], 0, lang)} – {fmt(data.band[1], 0, lang)} ha
-                            </span>
-                          </div>
-                        )}
-
-                        {typeof data.images === 'number' && data.images > 0 && (
-                          <div className="flex items-center gap-1 text-[10px] text-[#16865f] bg-emerald-50/80 px-2 py-0.5 rounded-md mt-1 w-fit">
-                            <Satellite className="size-3" />
-                            <span>
-                              {data.images} {lang === 'bn' ? 'দৃশ্য সংযুক্ত' : 'scenes composited'}
-                            </span>
-                          </div>
-                        )}
-                      </div>
-                    )}
-
-                    {typeof data.cgmd === 'number' && (
-                      <div className="flex items-center justify-between gap-3 pt-1 border-t border-[#e5efe9]/70">
-                        <span className="flex items-center gap-1.5 text-purple-700">
-                          <span className="size-2 rounded-full bg-purple-600" />
-                          CGMD Record
-                        </span>
-                        <span className="font-display font-bold text-purple-900">
-                          {fmt(data.cgmd, 1, lang)} ha
-                        </span>
-                      </div>
-                    )}
-                  </div>
+                  <TooltipCard title={d.label} badge={`${d.images} ${bn ? 'ছবি' : 'photos'}`}>
+                    <p className="font-mono text-[10px] text-white/50">{d.window}</p>
+                    <TooltipRow color={CK.mint} label="Sentinel-2 RF" value={`${fmt(d.s2, 1, lang)} ha`} />
+                    <TooltipRow color="rgba(16,185,129,0.35)" label={bn ? 'অনিশ্চিত পরিসর' : 'Unsure range'} value={`${fmt(d.band[0], 0, lang)}–${fmt(d.band[1], 0, lang)}`} sub={`${fmt(d.unsure, 0, lang)} ha ${bn ? 'অনিশ্চিত পিক্সেল' : 'unsure pixels'}`} />
+                  </TooltipCard>
                 )
               }}
             />
+            <Area dataKey="band" type="monotone" stroke={CK.mint} strokeOpacity={0.35} strokeDasharray="3 4" fill={CK.mint} fillOpacity={0.1} isAnimationActive={false} activeDot={false} connectNulls />
             <Area
-              dataKey="band"
-              name={lang === 'bn' ? 'কম-নিশ্চিত পরিসর' : 'Low-confidence spread'}
-              stroke="none"
-              fill="url(#s2AreaGrad)"
-              type="monotone"
-            />
-            <Line
               dataKey="s2"
-              name="Sentinel-2 RF"
-              stroke="#16865f"
-              strokeWidth={3}
               type="monotone"
-              dot={{ r: 4.5, fill: '#16865f', stroke: '#ffffff', strokeWidth: 2 }}
-              activeDot={{ r: 7, fill: '#0f352e', stroke: '#ffffff', strokeWidth: 3 }}
+              stroke={CK.green}
+              strokeWidth={3}
+              fill="url(#tl-fill)"
+              baseValue={Math.max(0, lo - pad)}
+              filter="url(#tl-glow)"
+              dot={Dot}
+              activeDot={{ r: 7, fill: CK.ink, stroke: '#fff', strokeWidth: 3 }}
+              animationDuration={900}
               connectNulls
             />
             {showHistory && (
-              <Line
-                dataKey="cgmd"
-                name="CGMD (1985–2018)"
-                stroke="#7c3aed"
-                strokeDasharray="5 4"
-                strokeWidth={2.2}
-                type="monotone"
-                dot={{ r: 3.5, fill: '#7c3aed', stroke: '#ffffff', strokeWidth: 1.5 }}
-                connectNulls
-              />
+              <Line dataKey="cgmd" type="monotone" stroke={CK.violet} strokeWidth={2.2} strokeDasharray="6 5" dot={{ r: 3.5, fill: CK.violet, stroke: '#fff', strokeWidth: 1.5 }} connectNulls animationDuration={700} />
             )}
           </ComposedChart>
         </ResponsiveContainer>
       </div>
 
-      {/* Sleek Custom Legend */}
-      <div className="flex flex-wrap items-center justify-center gap-4 text-xs font-medium text-[#123f38]">
-        <div className="flex items-center gap-1.5">
-          <span className="size-2.5 rounded-full bg-[#16865f]" />
-          <span>Sentinel-2 RF</span>
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <div className="flex flex-wrap items-center gap-1.5">
+          <LegendChip color={CK.green} label="Sentinel-2 RF" />
+          <LegendChip color={CK.mint} kind="band" label={bn ? '± অর্ধেক অনিশ্চিত পিক্সেল' : '± half of unsure pixels'} />
+          {history.length > 0 && (
+            <LegendChip
+              color={CK.violet}
+              kind="dashed"
+              active={showHistory}
+              onClick={() => setShowHistory(!showHistory)}
+              label={
+                <>
+                  <History className="size-3" />
+                  CGMD {history[0].year}–{history[history.length - 1].year}
+                </>
+              }
+            />
+          )}
         </div>
-        <div className="flex items-center gap-1.5">
-          <span className="h-2 w-4 rounded-sm bg-emerald-200/80 border border-emerald-300" />
-          <span className="text-[#6c817a]">
-            {lang === 'bn' ? 'কম-নিশ্চিত পরিসর (±)' : 'Confidence band (±)'}
-          </span>
-        </div>
-        {showHistory && (
-          <div className="flex items-center gap-1.5 text-purple-700">
-            <span className="h-0.5 w-4 border-t-2 border-dashed border-purple-600" />
-            <span>CGMD (1985–2018)</span>
-          </div>
-        )}
-      </div>
-
-      {/* Microcopy Notice */}
-      <div className="flex items-start gap-2 rounded-xl bg-slate-50/70 border border-slate-200/60 p-2.5 text-[11px] text-[#556963]">
-        <Info className="mt-0.5 size-3.5 shrink-0 text-[#16865f]" />
-        <p className="leading-relaxed">
-          {lang === 'bn'
-            ? 'প্রতিটি বিন্দু একটি উপগ্রহ ছবির সময়কাল; ছায়া = কম-নিশ্চিত পিক্সেলের অর্ধেক (± ৫০%)।'
-            : 'Each point represents an automated composite image window; the shaded ribbon marks ± half of the low-confidence pixels.'}
-        </p>
+        <span className="flex items-center gap-1 text-[11px] text-[#6c817a]">
+          <Info className="size-3.5 text-[#16865f]" />
+          {bn ? 'প্রতিটি বিন্দু একটি উপগ্রহ-ছবির সময়কাল' : 'Each point is one satellite photo window'}
+        </span>
       </div>
     </div>
   )
@@ -599,155 +479,279 @@ export function CarbonPanel({ bundle, lang }: { bundle: AnalysisBundle; lang: La
   )
 }
 
-const SCENARIO_COLORS: Record<string, string> = { current_trend: BLUE, higher_loss: RED, recovery: GREEN }
+const SCENARIO_COLORS: Record<string, string> = { current_trend: CK.blue, higher_loss: CK.red, recovery: CK.mint }
+type ScenarioId = 'current_trend' | 'higher_loss' | 'recovery'
 
-/** Observed series followed by three scenario lines with uncertainty bands. */
+/**
+ * Observed history, then the three what-if lines. Only the focused scenario's
+ * range is shaded (three overlapping bands hid the lines); click a chip to switch.
+ */
 export function ScenarioChart({ bundle, lang, metric }: { bundle: AnalysisBundle; lang: Lang; metric: 'area' | 'carbon' }) {
+  const [focus, setFocus] = useState<ScenarioId>('current_trend')
+  const bn = lang === 'bn'
   const isArea = metric === 'area'
+  const scs = bundle.projection.scenarios
+  const unit = isArea ? 'ha' : 'Mg C'
+  const val = (p: { mangroveHa: number; carbonMgC: number }) => (isArea ? p.mangroveHa : p.carbonMgC)
+  const rng = (p: { lowHa: number; highHa: number; carbonLowMgC: number; carbonHighMgC: number }) =>
+    (isArea ? [p.lowHa, p.highHa] : [p.carbonLowMgC, p.carbonHighMgC]) as [number, number]
+
   const observed = isArea
     ? bundle.timeline.map((p) => ({ x: p.decimalYear, observed: p.mangroveHa }))
     : bundle.carbon.series.map((p) => ({ x: p.decimalYear, observed: p.carbonMgC }))
-  const byX = new Map<number, Record<string, unknown>>()
+  const byX = new Map<number, Record<string, number | [number, number] | undefined>>()
   observed.forEach((o) => byX.set(o.x, { ...o }))
-  for (const sc of bundle.projection.scenarios) {
+  for (const sc of scs) {
     for (const p of sc.points) {
-      const row = byX.get(p.decimalYear) ?? { x: p.decimalYear }
-      row[sc.id] = isArea ? p.mangroveHa : p.carbonMgC
-      row[`${sc.id}_band`] = isArea ? [p.lowHa, p.highHa] : [p.carbonLowMgC, p.carbonHighMgC]
-      byX.set(p.decimalYear, row)
+      const x = p.yearsAhead === 0 ? observed[observed.length - 1].x : p.decimalYear
+      const row = byX.get(x) ?? { x }
+      row[sc.id] = val(p)
+      row[`${sc.id}_band`] = rng(p)
+      byX.set(x, row)
     }
   }
   const rows = [...byX.values()].sort((a, b) => (a.x as number) - (b.x as number))
-  const unit = isArea ? 'ha' : 'Mg C'
+  const nowX = observed[observed.length - 1].x
+  const xMin = observed[0].x - 0.2
+  const xMax = Math.max(...rows.map((r) => r.x as number)) + 0.2
+
+  const focused = scs.find((s) => s.id === focus) ?? scs[0]
+  const vals = [
+    ...observed.map((o) => o.observed),
+    ...scs.flatMap((s) => s.points.map(val)),
+    ...focused.points.flatMap(rng),
+  ]
+  const lo = Math.min(...vals)
+  const hi = Math.max(...vals)
+  const pad = Math.max((hi - lo) * 0.1, hi * 0.005, 1)
+  const fmtV = (v: number) => (isArea ? `${fmt(v, 0, lang)} ha` : `${fmt(v / 1000, 0, lang)}k Mg C`)
+  const lastIdx = rows.length - 1
 
   return (
-    <div className="h-72 w-full">
-      <ResponsiveContainer width="100%" height="100%">
-        <ComposedChart data={rows} margin={{ top: 8, right: 12, bottom: 0, left: 4 }}>
-          <CartesianGrid stroke={GRID} strokeDasharray="3 3" vertical={false} />
-          <XAxis
-            dataKey="x"
-            type="number"
-            domain={['dataMin', 'dataMax']}
-            tickFormatter={yearTick}
-            tick={AXIS}
-            tickLine={false}
-            axisLine={{ stroke: '#d6e6de' }}
-            allowDecimals={false}
-          />
-          <YAxis
-            tick={AXIS}
-            width={60}
-            domain={['auto', 'auto']}
-            tickFormatter={(v) => fmt(v, 0)}
-            tickLine={false}
-            axisLine={false}
-          />
-          <Tooltip
-            content={({ active, payload, label }) => {
-              if (!active || !payload || !payload.length) return null
-              return (
-                <div className="rounded-xl border border-slate-200 bg-white/95 backdrop-blur-md p-3 shadow-xl text-xs space-y-1.5 min-w-[180px]">
-                  <div className="font-bold text-[#0f352e] border-b border-slate-100 pb-1">
-                    {lang === 'bn' ? 'বছর' : 'Year'} {Math.floor(Number(label))}
-                  </div>
-                  {payload.map((entry) => {
-                    if (entry.dataKey && String(entry.dataKey).endsWith('_band')) return null
-                    return (
-                      <div key={String(entry.dataKey)} className="flex items-center justify-between gap-3">
-                        <span className="flex items-center gap-1.5 text-[#556963]">
-                          <span
-                            className="size-2 rounded-full"
-                            style={{ backgroundColor: entry.color ?? '#16865f' }}
-                          />
-                          {entry.name}
-                        </span>
-                        <span className="font-semibold text-[#0f352e]">
-                          {fmt(Number(entry.value), isArea ? 1 : 0, lang)} {unit}
-                        </span>
-                      </div>
-                    )
-                  })}
-                </div>
-              )
-            }}
-          />
-          <Legend wrapperStyle={{ fontSize: 11, paddingTop: 8 }} />
-          {bundle.projection.scenarios.map((sc) => (
-            <Area
-              key={`${sc.id}_band`}
-              dataKey={`${sc.id}_band`}
-              stroke="none"
-              fill={SCENARIO_COLORS[sc.id]}
-              fillOpacity={0.08}
-              legendType="none"
-              name={`${lang === 'bn' ? sc.nameBn : sc.name} range`}
-              connectNulls
-            />
-          ))}
-          <Line
-            dataKey="observed"
-            name={lang === 'bn' ? 'পর্যবেক্ষিত' : 'Observed'}
-            stroke="#123f38"
-            strokeWidth={2.5}
-            dot={{ r: 3.5, fill: '#123f38' }}
-            connectNulls
-          />
-          {bundle.projection.scenarios.map((sc) => (
-            <Line
+    <div className="space-y-3">
+      {/* Scenario chips — also the legend; click to focus a scenario's range */}
+      <div className="grid gap-2 sm:grid-cols-3">
+        {scs.map((sc) => {
+          const end = sc.points[sc.points.length - 1]
+          const d = val(end) - val(sc.points[0])
+          const on = sc.id === focus
+          const color = SCENARIO_COLORS[sc.id]
+          return (
+            <button
               key={sc.id}
-              dataKey={sc.id}
-              name={lang === 'bn' ? sc.nameBn : sc.name}
-              stroke={SCENARIO_COLORS[sc.id]}
-              strokeDasharray={sc.id === 'current_trend' ? undefined : '5 4'}
-              strokeWidth={2}
-              dot={false}
+              type="button"
+              onClick={() => setFocus(sc.id)}
+              aria-pressed={on}
+              className={cn(
+                'group relative overflow-hidden rounded-xl border px-3 py-2 text-left transition-all cursor-pointer',
+                on ? 'bg-white shadow-md' : 'border-[#e2ece6] bg-white/60 hover:bg-white hover:shadow-sm',
+              )}
+              style={on ? { borderColor: color, boxShadow: `0 0 0 3px ${color}22` } : undefined}
+            >
+              <span className="absolute inset-y-0 left-0 w-1" style={{ background: color }} />
+              <span className="flex items-center justify-between gap-2">
+                <span className="text-[11.5px] font-bold text-[#123f38]">{bn ? sc.nameBn : sc.name}</span>
+                <span className="font-mono text-[10px] text-[#7d958d]">{end.year}</span>
+              </span>
+              <span className="mt-0.5 flex items-baseline gap-2">
+                <span className="font-display text-lg font-bold text-[#0f352e]">{fmtV(val(end))}</span>
+                <span className={cn('font-mono text-[11px] font-bold', d < 0 ? 'text-rose-600' : 'text-emerald-700')}>
+                  {signed(isArea ? d : d / 1000, 0, lang)}
+                  {isArea ? '' : 'k'}
+                </span>
+              </span>
+            </button>
+          )
+        })}
+      </div>
+
+      <div className="h-72 w-full rounded-2xl border border-[#e3eee8] bg-gradient-to-b from-white to-[#f7fbf9] p-2">
+        <ResponsiveContainer width="100%" height="100%">
+          <ComposedChart data={rows} margin={{ top: 30, right: 22, bottom: 4, left: 0 }}>
+            <GlowDefs id="obs" color={CK.green} top={0.22} />
+            <CartesianGrid stroke={CK.grid} strokeDasharray="4 6" vertical={false} />
+            <ReferenceArea
+              x1={nowX}
+              x2={xMax}
+              fill="#0f352e"
+              fillOpacity={0.035}
+              label={{ value: bn ? '“যদি এমন হয়” অংশ · পূর্বাভাস নয়' : 'WHAT-IF ZONE · NOT A FORECAST', position: 'insideTopRight', fill: '#7d958d', fontSize: 10, fontWeight: 700 }}
+            />
+            <ReferenceLine
+              x={nowX}
+              stroke={CK.ink}
+              strokeOpacity={0.5}
+              strokeDasharray="3 3"
+              label={{ value: bn ? 'এখন' : 'NOW', position: 'top', fill: CK.ink, fontSize: 10.5, fontWeight: 800 }}
+            />
+            <XAxis dataKey="x" type="number" domain={[xMin, xMax]} ticks={yearTicks(xMin, xMax)} tickFormatter={(v) => String(v)} tick={axisTick} tickLine={false} axisLine={{ stroke: '#dce8e1' }} />
+            <YAxis
+              tick={axisTick}
+              width={52}
+              domain={[Math.max(0, lo - pad), hi + pad]}
+              tickFormatter={(v) => (isArea ? fmt(v, 0) : `${fmt(v / 1000, 0)}k`)}
+              tickLine={false}
+              axisLine={false}
+              tickCount={5}
+            />
+            <Tooltip
+              cursor={{ stroke: CK.ink, strokeOpacity: 0.25, strokeDasharray: '4 4' }}
+              content={({ active, payload }) => {
+                const r = active ? (payload?.[0]?.payload as Record<string, number | [number, number]> | undefined) : undefined
+                if (!r) return null
+                const x = r.x as number
+                const isFuture = x > nowX + 0.01
+                return (
+                  <TooltipCard title={Math.floor(x)} badge={isFuture ? (bn ? 'যদি এমন হয়' : 'what-if') : bn ? 'মাপা' : 'measured'}>
+                    {typeof r.observed === 'number' && <TooltipRow color={CK.green} label={bn ? 'মাপা' : 'Observed'} value={fmtV(r.observed)} />}
+                    {isFuture &&
+                      scs.map((sc) => {
+                        const v = r[sc.id]
+                        const band = r[`${sc.id}_band`] as [number, number] | undefined
+                        if (typeof v !== 'number') return null
+                        return (
+                          <TooltipRow
+                            key={sc.id}
+                            color={SCENARIO_COLORS[sc.id]}
+                            dashed={sc.id !== 'current_trend'}
+                            label={bn ? sc.nameBn : sc.name}
+                            value={fmtV(v)}
+                            sub={band ? `${fmt(isArea ? band[0] : band[0] / 1000, 0, lang)}–${fmt(isArea ? band[1] : band[1] / 1000, 0, lang)}${isArea ? '' : 'k'}` : undefined}
+                          />
+                        )
+                      })}
+                  </TooltipCard>
+                )
+              }}
+            />
+            <Area
+              key={`${focused.id}-band`}
+              dataKey={`${focused.id}_band`}
+              stroke={SCENARIO_COLORS[focused.id]}
+              strokeOpacity={0.35}
+              strokeDasharray="3 4"
+              fill={SCENARIO_COLORS[focused.id]}
+              fillOpacity={0.12}
+              isAnimationActive
+              animationDuration={500}
+              activeDot={false}
               connectNulls
             />
-          ))}
-        </ComposedChart>
-      </ResponsiveContainer>
+            <Area
+              dataKey="observed"
+              type="monotone"
+              stroke={CK.green}
+              strokeWidth={3}
+              fill="url(#obs-fill)"
+              baseValue={Math.max(0, lo - pad)}
+              filter="url(#obs-glow)"
+              dot={{ r: 3.6, fill: '#fff', stroke: CK.green, strokeWidth: 2.2 }}
+              activeDot={{ r: 6, fill: CK.ink, stroke: '#fff', strokeWidth: 2.5 }}
+              animationDuration={800}
+              connectNulls
+            />
+            {scs.map((sc) => {
+              const on = sc.id === focus
+              return (
+                <Line
+                  key={sc.id}
+                  dataKey={sc.id}
+                  stroke={SCENARIO_COLORS[sc.id]}
+                  strokeWidth={on ? 3 : 1.8}
+                  strokeOpacity={on ? 1 : 0.55}
+                  strokeDasharray={sc.id === 'current_trend' ? undefined : '6 4'}
+                  dot={makeDot({ lastIndex: lastIdx, color: SCENARIO_COLORS[sc.id], label: on ? fmtV : undefined, showAll: false })}
+                  activeDot={{ r: 5, fill: SCENARIO_COLORS[sc.id], stroke: '#fff', strokeWidth: 2 }}
+                  animationDuration={900}
+                  animationBegin={300}
+                  connectNulls
+                />
+              )
+            })}
+          </ComposedChart>
+        </ResponsiveContainer>
+      </div>
+
+      <div className="flex flex-wrap items-center gap-1.5">
+        <LegendChip color={CK.green} label={bn ? 'মাপা (উপগ্রহ)' : 'Measured (satellite)'} />
+        <LegendChip color={SCENARIO_COLORS[focus]} kind="band" label={bn ? 'নির্বাচিত দৃশ্যের সম্ভাব্য পরিসর' : 'Likely range of the selected scenario'} />
+      </div>
     </div>
   )
 }
 
+/** Scenario comparison: rate per year, 3- and 5-year values with a range bar. */
 export function ScenarioTable({ bundle, lang }: { bundle: AnalysisBundle; lang: Lang }) {
-  const pick = (h: number) => bundle.projection.scenarios.map((sc) => ({ sc, p: sc.points.find((p) => p.yearsAhead === h)! }))
+  const bn = lang === 'bn'
+  const scs = bundle.projection.scenarios
+  const at = (sc: (typeof scs)[number], h: number) => sc.points.find((p) => p.yearsAhead === h) ?? sc.points[sc.points.length - 1]
+  const all = scs.flatMap((sc) => [at(sc, 3), at(sc, 5)]).flatMap((p) => [p.lowHa, p.highHa])
+  const min = Math.min(...all)
+  const max = Math.max(...all)
+  const pos = (v: number) => `${((v - min) / (max - min || 1)) * 100}%`
+
+  const Cell = ({ p, color }: { p: (typeof scs)[number]['points'][number]; color: string }) => (
+    <div className="min-w-[120px]">
+      <div className="flex items-baseline gap-1.5">
+        <span className="font-mono text-[13px] font-bold text-[#0f352e]">{fmt(p.mangroveHa, 0, lang)}</span>
+        <span className="font-mono text-[10.5px] text-[#7d958d]">
+          {fmt(p.lowHa, 0, lang)}–{fmt(p.highHa, 0, lang)}
+        </span>
+      </div>
+      <div className="relative mt-1 h-1.5 rounded-full bg-[#eef3f0]">
+        <span className="absolute inset-y-0 rounded-full" style={{ left: pos(p.lowHa), right: `calc(100% - ${pos(p.highHa)})`, background: color, opacity: 0.3 }} />
+        <span className="absolute top-1/2 size-2.5 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-white" style={{ left: pos(p.mangroveHa), background: color }} />
+      </div>
+    </div>
+  )
+
   return (
-    <div className="overflow-x-auto">
+    <div className="overflow-x-auto rounded-2xl border border-[#e3eee8]">
       <table className="w-full text-xs">
-        <thead>
-          <tr className="text-left text-[#6c817a]">
-            <th className="py-1.5 pr-2 font-semibold">{lang === 'bn' ? 'চিত্র' : 'Scenario'}</th>
-            <th className="py-1.5 pr-2 font-semibold">{lang === 'bn' ? 'প্রতি বছর' : 'ha / yr'}</th>
-            <th className="py-1.5 pr-2 font-semibold">{lang === 'bn' ? '৩ বছরে' : 'In 3 yrs'}</th>
-            <th className="py-1.5 font-semibold">{lang === 'bn' ? '৫ বছরে' : 'In 5 yrs'}</th>
+        <thead className="bg-[#f5f9f7] text-left font-mono text-[10px] uppercase tracking-wider text-[#6c817a]">
+          <tr>
+            <th className="px-3 py-2 font-semibold">{bn ? 'দৃশ্য' : 'Scenario'}</th>
+            <th className="px-3 py-2 font-semibold">{bn ? 'প্রতি বছর' : 'Per year'}</th>
+            <th className="px-3 py-2 font-semibold">{bn ? '৩ বছরে (হেক্টর)' : 'In 3 years (ha)'}</th>
+            <th className="px-3 py-2 font-semibold">{bn ? '৫ বছরে (হেক্টর)' : 'In 5 years (ha)'}</th>
           </tr>
         </thead>
         <tbody>
-          {pick(3).map(({ sc, p }) => {
-            const p5 = sc.points.find((q) => q.yearsAhead === 5)!
+          {scs.map((sc) => {
+            const color = SCENARIO_COLORS[sc.id]
             return (
-              <tr key={sc.id} className="border-t border-[#e5efe9]" title={sc.description}>
-                <td className="py-2 pr-2 font-semibold" style={{ color: SCENARIO_COLORS[sc.id] }}>
-                  {lang === 'bn' ? sc.nameBn : sc.name}
+              <tr key={sc.id} className="border-t border-[#e8f0ec] transition-colors hover:bg-[#f7fbf9]" title={sc.description}>
+                <td className="px-3 py-2.5">
+                  <span className="flex items-center gap-2 font-semibold text-[#123f38]">
+                    <span className="h-5 w-1 rounded-full" style={{ background: color }} />
+                    {bn ? sc.nameBn : sc.name}
+                  </span>
                 </td>
-                <td className="py-2 pr-2 font-mono font-medium">{signed(sc.annualNetChangeHa, 1, lang)}</td>
-                <td className="py-2 pr-2 font-mono">
-                  {fmt(p.mangroveHa, 0, lang)} <span className="text-[#6c817a]">({fmt(p.lowHa, 0, lang)}–{fmt(p.highHa, 0, lang)})</span>
+                <td className="px-3 py-2.5">
+                  <span
+                    className={cn(
+                      'rounded-md px-1.5 py-0.5 font-mono text-[11px] font-bold',
+                      sc.annualNetChangeHa < 0 ? 'bg-rose-50 text-rose-700' : 'bg-emerald-50 text-emerald-700',
+                    )}
+                  >
+                    {signed(sc.annualNetChangeHa, 1, lang)} ha
+                  </span>
                 </td>
-                <td className="py-2 font-mono">
-                  {fmt(p5.mangroveHa, 0, lang)} <span className="text-[#6c817a]">({fmt(p5.lowHa, 0, lang)}–{fmt(p5.highHa, 0, lang)})</span>
+                <td className="px-3 py-2.5">
+                  <Cell p={at(sc, 3)} color={color} />
+                </td>
+                <td className="px-3 py-2.5">
+                  <Cell p={at(sc, 5)} color={color} />
                 </td>
               </tr>
             )
           })}
         </tbody>
       </table>
-      <p className="mt-2 text-[11px] text-[#6c817a]">
-        {lang === 'bn'
-          ? 'এগুলি “যদি এমন হয়” চিত্র, পূর্বাভাস নয়। পরিসর = প্রবণতার অনিশ্চয়তা + এলাকা মাপার ত্রুটি।'
-          : 'What-if scenarios, not forecasts. Ranges combine trend uncertainty and area measurement error.'}
+      <p className="border-t border-[#e8f0ec] bg-[#fbfdfc] px-3 py-2 text-[11px] text-[#6c817a]">
+        {bn
+          ? 'এগুলি “যদি এমন হয়” চিত্র, পূর্বাভাস নয়। দাগ = সম্ভাব্য পরিসর (প্রবণতার অনিশ্চয়তা + মাপার ত্রুটি), বিন্দু = মাঝামাঝি মান।'
+          : 'What-if scenarios, not forecasts. Bar = likely range (trend uncertainty + measurement error), dot = middle value.'}
       </p>
     </div>
   )

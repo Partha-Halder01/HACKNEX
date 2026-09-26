@@ -32,6 +32,7 @@ import {
 } from 'recharts'
 import type { AnalysisBundle } from '../../types/analysis'
 import { AnimatedNumber } from './AnimatedWidgets'
+import { CK, GlowDefs, makeDot } from './chartKit'
 import type { Lang } from './ui'
 import { fmt } from './ui'
 
@@ -435,6 +436,13 @@ export function YearsChart({ bundle: b, lang }: { bundle: AnalysisBundle; lang: 
 
   const unit = metric === 'carbon' ? (bn ? 'টন CO₂e' : 't CO₂e') : bn ? 'হেক্টর' : 'ha'
   const tooltip = <ModernChartTooltip lang={lang} metric={metric} unit={unit} u={u} />
+  const lastDot = makeDot({
+    lastIndex: rows.length - 1,
+    color: CK.green,
+    label: (v) => (metric === 'delta' ? `${signedInt(v, lang)} ha` : `${fmt(v, 0, lang)} ${metric === 'carbon' ? 't' : 'ha'}`),
+  })
+  const windowDays = b.request.windowDays
+  const scaleM = b.request.scaleM
 
   return (
     <div className={`space-y-4 ${dim ? 'opacity-50' : ''}`}>
@@ -551,18 +559,12 @@ export function YearsChart({ bundle: b, lang }: { bundle: AnalysisBundle; lang: 
       </div>
 
       {/* 3. Main Chart Canvas with Visible Y-Axis and Light Guidelines */}
-      <div className="h-68 sm:h-74 w-full pt-1">
+      <div className="h-68 sm:h-74 w-full rounded-2xl border border-[#e3eee8] bg-gradient-to-b from-white to-[#f7fbf9] p-2">
         <ResponsiveContainer width="100%" height="100%">
           {chartMode === 'spline' ? (
             <AreaChart data={rows} margin={{ top: 18, right: 16, bottom: 4, left: 4 }}>
-              <defs>
-                <linearGradient id="splineEmeraldGrad" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%" stopColor="#10b981" stopOpacity={0.28} />
-                  <stop offset="65%" stopColor="#10b981" stopOpacity={0.06} />
-                  <stop offset="100%" stopColor="#10b981" stopOpacity={0.0} />
-                </linearGradient>
-              </defs>
-              <CartesianGrid stroke="#e8f0ec" strokeDasharray="3 3" vertical={false} />
+              <GlowDefs id="yc" color={CK.mint} />
+              <CartesianGrid stroke={CK.grid} strokeDasharray="4 6" vertical={false} />
               <XAxis
                 dataKey="label"
                 interval={0}
@@ -580,23 +582,40 @@ export function YearsChart({ bundle: b, lang }: { bundle: AnalysisBundle; lang: 
               />
               <Tooltip content={tooltip} cursor={{ stroke: 'rgba(16, 185, 129, 0.35)', strokeWidth: 1.5, strokeDasharray: '4 4' }} />
               {metric !== 'delta' && (
-                <Area type="monotone" dataKey="band" stroke="none" fill="#10b981" fillOpacity={0.08} isAnimationActive={false} activeDot={false} />
+                <Area type="monotone" dataKey="band" stroke={CK.mint} strokeOpacity={0.35} strokeDasharray="3 4" fill={CK.mint} fillOpacity={0.1} isAnimationActive={false} activeDot={false} />
               )}
               <ReferenceLine y={metric === 'delta' ? 0 : (firstRow.val ?? 0)} stroke="#6c817a" strokeDasharray="3 3" strokeOpacity={0.6} />
               <Area
                 type="monotone"
                 dataKey="val"
                 connectNulls
-                stroke="#16865f"
+                stroke={CK.green}
                 strokeWidth={3}
-                fill={metric === 'delta' ? 'none' : 'url(#splineEmeraldGrad)'}
-                dot={{ r: 4.5, fill: '#ffffff', stroke: '#16865f', strokeWidth: 2.5 }}
-                activeDot={{ r: 6.5, fill: '#0a362a', stroke: '#ffffff', strokeWidth: 3 }}
+                fill={metric === 'delta' ? 'none' : 'url(#yc-fill)'}
+                baseValue={domain[0]}
+                filter="url(#yc-glow)"
+                dot={lastDot}
+                activeDot={{ r: 6.5, fill: CK.ink, stroke: '#ffffff', strokeWidth: 3 }}
+                animationDuration={900}
               />
             </AreaChart>
           ) : (
             <BarChart data={rows} margin={{ top: 22, right: 16, bottom: 4, left: 4 }}>
-              <CartesianGrid stroke="#e8f0ec" strokeDasharray="3 3" vertical={false} />
+              <defs>
+                <linearGradient id="yc-bar" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stopColor="#34d399" />
+                  <stop offset="100%" stopColor="#10b981" stopOpacity={0.55} />
+                </linearGradient>
+                <linearGradient id="yc-bar-last" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stopColor="#16865f" />
+                  <stop offset="100%" stopColor="#0f5d44" />
+                </linearGradient>
+                <linearGradient id="yc-bar-neg" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stopColor="#fb7185" stopOpacity={0.6} />
+                  <stop offset="100%" stopColor="#e11d48" />
+                </linearGradient>
+              </defs>
+              <CartesianGrid stroke={CK.grid} strokeDasharray="4 6" vertical={false} />
               <XAxis
                 dataKey="label"
                 interval={0}
@@ -616,7 +635,7 @@ export function YearsChart({ bundle: b, lang }: { bundle: AnalysisBundle; lang: 
               {metric === 'delta' && <ReferenceLine y={0} stroke="#6c817a" />}
               <Bar dataKey="val" radius={[6, 6, 0, 0]} maxBarSize={44}>
                 {rows.map((r, i) => (
-                  <Cell key={i} fill={dim ? '#9ca3af' : (r.val ?? 0) < 0 ? '#f43f5e' : i === rows.length - 1 ? '#16865f' : '#34d399'} />
+                  <Cell key={i} fill={dim ? '#9ca3af' : (r.val ?? 0) < 0 ? 'url(#yc-bar-neg)' : i === rows.length - 1 ? 'url(#yc-bar-last)' : 'url(#yc-bar)'} />
                 ))}
                 <LabelList
                   dataKey="val"
@@ -664,10 +683,10 @@ export function YearsChart({ bundle: b, lang }: { bundle: AnalysisBundle; lang: 
           <Satellite className="size-3.5 text-[#16865f]" />
           {bn
             ? 'প্রতিটি বিন্দু = ওই সময়ের মেঘমুক্ত সেন্টিনেল-২ ছবির মিডিয়ান কম্পোজিট।'
-            : 'Each point = median surface reflectance from 90-day dry season passes.'}
+            : `Each point = median of the cloud-free Sentinel-2 photos in a ${windowDays}-day window (hover for dates).`}
         </span>
         <span className="inline-flex items-center gap-1 rounded-md bg-emerald-50 px-2 py-0.5 text-emerald-800 font-bold border border-emerald-200/70 text-[11px]">
-          ESA Copernicus Sentinel-2 MSI (10m)
+          ESA Sentinel-2 · {scaleM} m analysis
         </span>
       </div>
     </div>
