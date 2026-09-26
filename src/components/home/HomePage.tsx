@@ -5,10 +5,10 @@ import { HOME_TEXT, type HomeLang } from './content'
 import { DiveSequence, STAGES } from './DiveSequence'
 
 export function HomePage({ onNavigate }: { onNavigate?: (path: string) => void }) {
-  const [lang, setLang] = useState<HomeLang>(() => (new URLSearchParams(window.location.search).get('lang') === 'bn' ? 'bn' : 'en'))
+  const lang: HomeLang = 'en'
   const [scrolled, setScrolled] = useState(false)
   const T = HOME_TEXT[lang]
-  const bn = lang === 'bn'
+  const bn = false
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 40)
@@ -18,7 +18,7 @@ export function HomePage({ onNavigate }: { onNavigate?: (path: string) => void }
   }, [])
 
   const openDashboard = () => {
-    const path = `/dashboard${bn ? '?lang=bn' : ''}`
+    const path = '/dashboard'
     if (onNavigate) onNavigate(path)
     else window.location.href = path
   }
@@ -32,7 +32,7 @@ export function HomePage({ onNavigate }: { onNavigate?: (path: string) => void }
   }
 
   return (
-    <div className={`min-h-screen bg-[#031a17] text-white ${bn ? 'font-bengali' : ''}`}>
+    <div className="min-h-screen bg-[#031a17] text-white">
       {/* Header */}
       <header
         className={`fixed inset-x-0 top-0 z-50 transition-colors duration-300 ${
@@ -47,18 +47,6 @@ export function HomePage({ onNavigate }: { onNavigate?: (path: string) => void }
             <button type="button" onClick={() => goToStage(STAGES.trust)} className="hover:text-white">{T.nav.trust}</button>
           </nav>
           <div className="ml-auto flex items-center gap-3 md:ml-0">
-            <div className="flex overflow-hidden rounded-full border border-white/30 font-mono text-xs font-bold">
-              {(['en', 'bn'] as const).map((l) => (
-                <button
-                  key={l}
-                  type="button"
-                  onClick={() => setLang(l)}
-                  className={`px-3 py-1.5 ${lang === l ? 'bg-white text-[#04241d]' : 'text-white hover:bg-white/10'}`}
-                >
-                  {l === 'en' ? 'EN' : 'বাং'}
-                </button>
-              ))}
-            </div>
             <button
               type="button"
               onClick={openDashboard}

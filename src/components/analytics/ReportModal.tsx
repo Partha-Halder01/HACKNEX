@@ -11,11 +11,11 @@ import {
   FileDown,
   FileText,
   Globe,
+  Info,
   Leaf,
   Loader2,
   MapPin,
   Printer,
-  ShieldCheck,
   TrendingDown,
   TrendingUp,
   X,
@@ -174,7 +174,7 @@ export function ReportModal({ bundle, params, lang: initialLang, onClose }: Repo
           <div className="flex items-center gap-2">
             <span className="flex size-2 rounded-full bg-emerald-600 animate-pulse" />
             <span className="font-mono text-xs font-bold text-[#113f37]">
-              {bn ? 'অফিসিয়াল স্যাটেলাইট অডিট রিপোর্ট প্রস্তুত' : 'Official Satellite Audit Report Generated'}
+              {bn ? 'স্যাটেলাইট বিশ্লেষণ প্রতিবেদন' : 'Satellite Analysis Report Preview'}
             </span>
           </div>
 
@@ -207,7 +207,7 @@ export function ReportModal({ bundle, params, lang: initialLang, onClose }: Repo
               onClick={handleDownloadPdf}
               disabled={downloadingPdf}
               className="flex items-center gap-1.5 rounded-lg border border-[#16865f] bg-[#16865f] px-3 py-1 text-xs font-semibold text-white shadow-2xs hover:bg-[#126f4f] transition cursor-pointer disabled:opacity-50"
-              title={bn ? 'সরাসরি PDF ফাইল ডাউনলোড করুন' : 'Download official PDF file'}
+              title={bn ? 'সরাসরি PDF ফাইল ডাউনলোড করুন' : 'Download PDF report'}
             >
               {downloadingPdf ? (
                 <Loader2 className="size-3.5 animate-spin" />
@@ -252,10 +252,10 @@ export function ReportModal({ bundle, params, lang: initialLang, onClose }: Repo
           </div>
         </div>
 
-        {/* Printable Official Report Document Canvas */}
+        {/* Printable Report Document Canvas */}
         <div id="printable-report" className="p-6 sm:p-10 lg:p-12 text-[#123c37] bg-white font-sans">
           
-          {/* 1. Official Header & Crest */}
+          {/* 1. Header & Branding */}
           <div className="border-b-2 border-[#16865f] pb-5 mb-6">
             <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
               <div className="space-y-1">
@@ -264,13 +264,13 @@ export function ReportModal({ bundle, params, lang: initialLang, onClose }: Repo
                   <div>
                     <h2 className="sr-only">{BRAND.name}</h2>
                     <p className="font-mono text-[10px] text-[#637d74]">
-                      {bn ? 'উপকূলীয় বাস্তুতন্ত্র টেলিমেট্রি ও কার্বন নিরীক্ষা মানমন্দির' : 'Centre for Coastal Biosphere Telemetry & Earth Observation'}
+                      {bn ? 'উপকূলীয় বাস্তুতন্ত্র টেলিমেট্রি ও কার্বন পর্যবেক্ষণ' : 'Centre for Coastal Biosphere Telemetry & Earth Observation'}
                     </p>
                   </div>
                 </div>
 
                 <h1 className="mt-3 font-condensed text-2xl sm:text-3xl lg:text-4xl font-black tracking-wide text-[#072d27]">
-                  {bn ? 'স্যাটেলাইট ব্লু কার্বন ও ম্যানগ্রোভ ক্যানোপি মূল্যায়ন প্রতিবেদন' : 'SATELLITE BLUE CARBON & CANOPY AUDIT REPORT'}
+                  {bn ? 'স্যাটেলাইট ব্লু কার্বন ও ম্যানগ্রোভ ক্যানোপি মূল্যায়ন প্রতিবেদন' : 'SATELLITE BLUE CARBON & CANOPY ASSESSMENT REPORT'}
                 </h1>
                 <p className="font-mono text-xs font-medium text-[#46665c]">
                   {bn
@@ -374,8 +374,8 @@ export function ReportModal({ bundle, params, lang: initialLang, onClose }: Repo
                 <div className="font-mono text-2xl font-black text-[#0b3d34]">
                   {signed(ch.annualNetChangeHa, 2, reportLang)} <span className="text-xs font-normal">ha/yr</span>
                 </div>
-                <div className="font-mono text-[10px] text-[#16865f]">
-                  {bn ? 'উপগ্রহে নির্ভুলভাবে চিহ্নিত' : 'Satellite verified'}
+                <div className="font-mono text-[10px] text-[#5c7a70]">
+                  {bn ? 'উপগ্রহ ভিত্তিক আনুমানিক' : 'Satellite estimate'}
                 </div>
               </div>
             </div>
@@ -660,38 +660,40 @@ export function ReportModal({ bundle, params, lang: initialLang, onClose }: Repo
             </div>
           </div>
 
-          {/* 10. Scientific Accuracy & Formal Sign-off Seal */}
+          {/* 10. Scientific Notice & Research Disclaimer */}
           <div className="border-t-2 border-[#16865f] pt-5 mt-6 text-xs text-[#527167]">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-              <div className="space-y-1">
+            <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
+              <div className="space-y-1 max-w-xl">
                 <p className="font-mono text-[10.5px] font-semibold text-[#18483e]">
                   {acc ? (
                     <>
-                      {bn ? 'মডেল সামগ্রিক নির্ভুলতা:' : 'Model Overall Accuracy:'} {(acc.overallAccuracy * 100).toFixed(1)}% · Kappa: {acc.kappa.toFixed(3)} · {fmt(acc.sampleCount, 0, reportLang)} {bn ? 'নমুনা বিন্দু' : 'verification points'}
+                      {bn ? 'মডেল সামগ্রিক সামঞ্জস্য:' : 'Model Validation Agreement:'} {(acc.overallAccuracy * 100).toFixed(1)}% · Kappa: {acc.kappa.toFixed(3)} · {fmt(acc.sampleCount, 0, reportLang)} {bn ? 'নমুনা বিন্দু' : 'sample points'}
                     </>
                   ) : (
                     <>
-                      {bn ? 'ইউরোপীয় মহাকাশ সংস্থা (ESA) কোপার্নিকাস সেন্টিনেল-২ এমএসআই এল২এ মানদণ্ডে বিশ্লেষিত।' : 'Processed via Copernicus Sentinel-2 MSI Level-2A surface reflectance pipeline.'}
+                      {bn ? 'ইউরোপীয় মহাকাশ সংস্থা (ESA) কোপার্নিকাস সেন্টিনেল-২ এমএসআই এল২এ উপগ্রহ তথ্যে বিশ্লেষিত।' : 'Processed via Copernicus Sentinel-2 MSI Level-2A surface reflectance pipeline.'}
                     </>
                   )}
                 </p>
-                <p className="font-mono text-[9.5px] text-[#6d8a80]">
+                <p className="font-mono text-[9.5px] text-[#6d8a80] leading-relaxed">
                   {bn
-                    ? 'আইপিসিসি ২০১৩ ওয়েটল্যান্ডস সাপ্লিমেন্ট টিয়ার-১ কার্বন ঘনত্ব মডেল এবং গিরি এট আল. ম্যানগ্রোভ ক্যানোপি অ্যালগরিদম ভিত্তিক।'
+                    ? 'আইপিসিসি ২০১৩ ওয়েটল্যান্ডস সাপ্লিমেন্ট টিয়ার-১ কার্বন ঘনত্ব মডেল এবং গিরি এট আল. ম্যানগ্রোভ ক্যানোপি অ্যালগরিদম ভিত্তিক আনুমানিক হিসাব।'
                     : 'Grounded on IPCC 2013 Wetlands Supplement Tier-1 parameters and multi-temporal Random Forest spectral classification.'}
                 </p>
               </div>
 
-              {/* Digital Certification Stamp */}
-              <div className="flex items-center gap-2.5 rounded-xl border border-[#c6dfd2] bg-[#f4f9f6] p-2.5 shrink-0">
-                <div className="flex size-7 items-center justify-center rounded-full bg-emerald-700 text-white">
-                  <ShieldCheck className="size-4" />
-                </div>
-                <div className="font-mono text-[10px]">
-                  <p className="font-bold text-[#0c3b32]">
-                    {bn ? 'সুন্দরবন প্ল্যাটফর্ম প্রত্যয়িত' : 'SBC VERIFIED PLATFORM'}
+              {/* Research Disclaimer Notice */}
+              <div className="flex items-start gap-2.5 rounded-xl border border-amber-200 bg-amber-50/70 p-3 shrink-0 max-w-sm">
+                <Info className="size-4 shrink-0 text-amber-700 mt-0.5" />
+                <div className="font-mono text-[9.5px] leading-relaxed text-amber-950">
+                  <p className="font-bold">
+                    {bn ? 'গবেষণা ও পর্যবেক্ষণমূলক নোটিশ' : 'Research & Monitoring Notice'}
                   </p>
-                  <p className="text-[#597b71]">HASH: {b.analysisId.slice(0, 14)}</p>
+                  <p className="mt-0.5 text-amber-800">
+                    {bn
+                      ? 'উপগ্রহ চিত্র ও মডেল ভিত্তিক অনুমান ১০০% নির্ভুল নয়। এটি কোনো বাণিজ্যিক কার্বন ক্রেডিট বা আইনি সত্যতার দাবি করে না।'
+                      : 'Model estimates are indicative and not 100% ground-accurate. Does not constitute certified carbon credits or legal claims.'}
+                  </p>
                 </div>
               </div>
             </div>

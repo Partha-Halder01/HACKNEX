@@ -311,7 +311,7 @@ export function AnalyticsDashboard({ onNavigate }: { onNavigate?: (path: string)
 
           {/* Clean Action Toolbar (Refined, no clutter) */}
           <div className="flex items-center gap-2">
-            {/* Generate & View Official Report */}
+            {/* Generate & View Analysis Report */}
             <button
               type="button"
               onClick={handleGenerateReport}
@@ -322,7 +322,7 @@ export function AnalyticsDashboard({ onNavigate }: { onNavigate?: (path: string)
                   ? 'border-[#16865f] bg-[#16865f] text-white hover:bg-[#126b4c]'
                   : 'border-[#d6e6de] bg-white text-[#526a63] opacity-60 cursor-not-allowed'
               )}
-              title={bn ? 'অফিসিয়াল রিপোর্ট তৈরি ও দেখুন' : 'Generate and view official audit report'}
+              title={bn ? 'রিপোর্ট তৈরি ও দেখুন' : 'Generate and view analysis report'}
             >
               {isGeneratingReport ? (
                 <Loader2 className="size-3.5 animate-spin" />
@@ -343,23 +343,6 @@ export function AnalyticsDashboard({ onNavigate }: { onNavigate?: (path: string)
             >
               {copied ? <Check className="size-3.5 text-emerald-600" /> : <Share2 className="size-3.5" />}
             </button>
-
-            {/* Segmented Language Switcher */}
-            <div className="flex overflow-hidden rounded-lg border border-[#d6e6de] font-mono text-[11px] font-bold shadow-2xs print:hidden">
-              {(['en', 'bn'] as const).map((l) => (
-                <button
-                  key={l}
-                  type="button"
-                  onClick={() => set('language', l)}
-                  className={cn(
-                    'px-2.5 py-0.5 transition-colors cursor-pointer',
-                    lang === l ? 'bg-[#123c37] text-white' : 'bg-white text-[#526a63] hover:bg-[#f2f6f3]'
-                  )}
-                >
-                  {l === 'en' ? 'EN' : 'বাং'}
-                </button>
-              ))}
-            </div>
           </div>
         </div>
 

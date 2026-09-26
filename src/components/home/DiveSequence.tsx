@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState, type CSSProperties, type ReactNode } from 'react'
-import { ArrowDown, ArrowRight, BrainCircuit, FileText, Leaf, Satellite, ShieldCheck, TreePine, TrendingDown, Users } from 'lucide-react'
+import { ArrowDown, ArrowRight, Ban, BrainCircuit, FileText, Gauge, Leaf, Map as MapIcon, Satellite, ShieldCheck, TrendingDown, TriangleAlert, Users } from 'lucide-react'
 import { HOME_TEXT, type HomeLang } from './content'
 import { FRAME_COUNT, FRAME_H, FRAME_W, coverBox, useFrameSequence } from './useFrameSequence'
 
@@ -102,6 +102,7 @@ function InfoPanel({ o, eyebrow, title, bn, children }: { o: number; eyebrow: st
 
 const STEP_ICONS = [Satellite, BrainCircuit, Leaf, FileText]
 const WHY_ICONS = [TrendingDown, ShieldCheck, Users]
+const TRUST_ICONS = [MapIcon, Gauge, TriangleAlert, Ban]
 
 export function DiveSequence({ lang, onOpenDashboard }: { lang: HomeLang; onOpenDashboard: () => void }) {
   const T = HOME_TEXT[lang]
@@ -304,19 +305,22 @@ export function DiveSequence({ lang, onOpenDashboard }: { lang: HomeLang; onOpen
           </ol>
         </InfoPanel>
 
-        {/* WHY TRUST IT */}
+        {/* WHY TRUST IT — plain promises, no figures claimed */}
         <InfoPanel o={trust} eyebrow={T.trust.eyebrow} title={T.trust.title} bn={bn}>
-          <div className="grid gap-5 md:grid-cols-4">
-            {T.trust.stats.map(([value, label]) => (
-              <div key={label} className="rounded-2xl border border-white/10 bg-white/[0.05] p-6">
-                <p className="font-condensed text-6xl tracking-wide text-emerald-300">{value}</p>
-                <p className="mt-2 text-sm leading-relaxed text-white/80">{label}</p>
-              </div>
-            ))}
+          <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-4">
+            {T.trust.points.map(([title, body], i) => {
+              const Icon = TRUST_ICONS[i]
+              return (
+                <article key={title} className="rounded-2xl border border-white/10 bg-white/[0.05] p-6">
+                  <span className={`grid size-11 place-items-center rounded-xl ${i === 2 ? 'bg-amber-400/15 text-amber-300' : 'bg-emerald-400/15 text-emerald-300'}`}>
+                    <Icon className="size-6" />
+                  </span>
+                  <h3 className="mt-4 font-display text-lg font-bold text-white">{title}</h3>
+                  <p className="mt-2 text-sm leading-relaxed text-white/75">{body}</p>
+                </article>
+              )
+            })}
           </div>
-          <p className="mt-6 flex max-w-3xl gap-2 text-sm text-white/65">
-            <TreePine className="mt-0.5 size-4 shrink-0 text-amber-300" /> {T.trust.note}
-          </p>
         </InfoPanel>
 
         {/* CALL TO ACTION */}

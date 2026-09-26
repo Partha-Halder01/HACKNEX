@@ -369,9 +369,9 @@ def generate_analysis_bundle_pdf(bundle: Dict[str, Any], language: str = "en") -
     story = []
 
     # 1. Header Section
-    header_tag = "SUNDARBAN BLUE CARBON OBSERVATORY · SATELLITE AUDIT REPORT"
+    header_tag = "SUNDARBAN BLUE CARBON OBSERVATORY · SATELLITE ANALYSIS REPORT"
     if is_bn:
-        header_tag = "সুন্দরবন ব্লু কার্বন মানমন্দির · স্যাটেলাইট নিরীক্ষা প্রতিবেদন"
+        header_tag = "সুন্দরবন ব্লু কার্বন মানমন্দির · স্যাটেলাইট বিশ্লেষণ প্রতিবেদন"
     logo = _logo()
     if logo:
         story.extend([logo, Spacer(1, 4)])
@@ -595,11 +595,11 @@ def generate_analysis_bundle_pdf(bundle: Dict[str, Any], language: str = "en") -
 
     disc_text = (
         f"<font size='7' color='#6c817a'>"
-        f"{accuracy_note}Derived from Harmonized Copernicus Sentinel-2 MSI BOA Reflectance. "
-        f"Complies with IPCC 2013 Wetlands Supplement. Sundarban Blue Carbon Observatory."
+        f"{accuracy_note}Derived from Copernicus Sentinel-2 MSI surface reflectance. "
+        f"Indicative scientific estimate for research & monitoring; not 100% ground-truth and not certified carbon credit issuance. Sundarban Blue Carbon Observatory."
         f"</font>"
     )
-    story.append(Paragraph(disc_text, ParagraphStyle("AuditDisc", parent=meta_style, alignment=1)))
+    story.append(Paragraph(disc_text, ParagraphStyle("ReportDisc", parent=meta_style, alignment=1)))
 
     doc.build(story)
     pdf_bytes = buffer.getvalue()

@@ -52,24 +52,23 @@ export const HOME_TEXT = {
     },
     how: {
       eyebrow: 'HOW IT WORKS',
-      title: 'FROM A SATELLITE PHOTO TO A PLAIN ANSWER',
+      title: 'FOUR SIMPLE STEPS',
       steps: [
-        ['Satellite photos', 'Cloud-free Sentinel-2 photos of the same dry-season months (Jan–Mar) each year, processed on Google Earth Engine.'],
-        ['AI forest map', 'A Random Forest model, trained on the scientific CGMD mangrove map (1984–2023), marks every 10 m pixel as mangrove or not.'],
-        ['Change & carbon', 'Gain, loss and uncertain change; carbon from IPCC Tier 1 factors with a ± range; 5-year what-if scenarios.'],
-        ['A plain answer', '“The forest here grew / shrank”, how sure we are, in Bengali and English — shareable on WhatsApp or as PDF.'],
+        ['We take photos from space', 'A satellite photographs the Sundarbans every few days. We pick clear, cloud-free photos from the same dry months each year, so the years can be compared fairly.'],
+        ['The computer learns what mangrove looks like', 'We teach the computer with a trusted scientists’ map of mangroves. It then checks every small patch of land and marks it: mangrove forest, or not.'],
+        ['We compare the years', 'Putting two years side by side shows where the forest grew and where it was lost. From the forest area we estimate the carbon it holds, using standard international figures.'],
+        ['You get a simple answer', '“The forest here grew” or “shrank” — and how sure we are. In Bengali or English, easy to share on WhatsApp or print.'],
       ],
     },
     trust: {
       eyebrow: 'WHY TRUST IT',
       title: 'HONEST ABOUT WHAT IT KNOWS — AND WHAT IT DOESN’T',
-      stats: [
-        ['93.5%', 'agreement with the scientific map on a year the model never saw (2023)'],
-        ['−2%', 'difference from the reference forest area at Sajnekhali'],
-        ['🟢🟡🔴', 'every result says how sure it is — and says “don’t trust this” when needed'],
-        ['0', 'carbon-credit claims — estimates for monitoring and planning only'],
+      points: [
+        ['Checked against a scientists’ map', 'Every result is compared with an independent mangrove map made by scientists, and the page shows whether the two agree.'],
+        ['Tells you how sure it is', 'Each answer comes with a simple green, yellow or red light. Red means: don’t rely on these numbers.'],
+        ['Warns when it may be wrong', 'Near villages, trees and fields can look like mangrove, and photos from different seasons can mislead. The page says so plainly.'],
+        ['No money or credit claims', 'Carbon figures are estimates for monitoring and planning — not carbon credits, and not a promise of income.'],
       ],
-      note: 'It also warns when it can be wrong: near villages, where trees and fields can look like mangrove, and when photos are from different seasons.',
     },
     cta: {
       title: 'PICK ANY PLACE IN THE SUNDARBANS',
@@ -128,24 +127,23 @@ export const HOME_TEXT = {
     },
     how: {
       eyebrow: 'কীভাবে কাজ করে',
-      title: 'উপগ্রহের ছবি থেকে সহজ উত্তর',
+      title: 'চারটি সহজ ধাপ',
       steps: [
-        ['উপগ্রহ ছবি', 'প্রতি বছরের একই শুকনো মাসের (জানু–মার্চ) মেঘমুক্ত সেন্টিনেল-২ ছবি, Google Earth Engine-এ তৈরি।'],
-        ['AI বনের মানচিত্র', 'বৈজ্ঞানিক CGMD ম্যানগ্রোভ মানচিত্র (১৯৮৪–২০২৩) থেকে শেখা Random Forest মডেল প্রতি ১০ মিটার জায়গা ম্যানগ্রোভ কি না চিহ্নিত করে।'],
-        ['পরিবর্তন ও কার্বন', 'বৃদ্ধি, ক্ষতি ও অনিশ্চিত পরিবর্তন; IPCC টিয়ার ১ দিয়ে কার্বন, ± পরিসর সহ; আগামী ৫ বছরের সম্ভাব্য চিত্র।'],
-        ['সহজ উত্তর', '“এখানকার বন বেড়েছে / কমেছে”, কতটা নিশ্চিত — বাংলা ও ইংরেজিতে, WhatsApp বা PDF-এ শেয়ার করা যায়।'],
+        ['মহাকাশ থেকে ছবি তোলা', 'একটি উপগ্রহ কয়েক দিন পরপর সুন্দরবনের ছবি তোলে। আমরা প্রতি বছরের একই শুকনো মাসের পরিষ্কার, মেঘহীন ছবি বেছে নিই, যাতে বছরগুলো ঠিকভাবে তুলনা করা যায়।'],
+        ['কম্পিউটার ম্যানগ্রোভ চিনতে শেখে', 'বিজ্ঞানীদের তৈরি একটি নির্ভরযোগ্য ম্যানগ্রোভ মানচিত্র দিয়ে কম্পিউটারকে শেখানো হয়। তারপর সে প্রতিটি ছোট জায়গা দেখে চিহ্ন দেয়: ম্যানগ্রোভ বন, নাকি নয়।'],
+        ['বছরগুলো তুলনা করা', 'দুই বছর পাশাপাশি রাখলে দেখা যায় কোথায় বন বেড়েছে, কোথায় হারিয়েছে। বনের এলাকা থেকে আন্তর্জাতিক মান অনুযায়ী জমা কার্বনের হিসাব করা হয়।'],
+        ['আপনি পান সহজ উত্তর', '“এখানকার বন বেড়েছে” বা “কমেছে” — আর কতটা নিশ্চিত। বাংলা বা ইংরেজিতে, WhatsApp-এ শেয়ার বা প্রিন্ট করা যায়।'],
       ],
     },
     trust: {
       eyebrow: 'কেন বিশ্বাস করবেন',
       title: 'কী জানে আর কী জানে না — দুটোই সৎভাবে বলে',
-      stats: [
-        ['৯৩.৫%', 'মডেল যে বছর দেখেনি (২০২৩), সেই বছরের বৈজ্ঞানিক মানচিত্রের সঙ্গে মিল'],
-        ['−২%', 'সজনেখালিতে রেফারেন্স বনের এলাকার সঙ্গে পার্থক্য'],
-        ['🟢🟡🔴', 'প্রতিটি ফলাফল বলে কতটা নিশ্চিত — দরকারে বলে “এটা বিশ্বাস করবেন না”'],
-        ['০', 'কার্বন ক্রেডিটের দাবি — শুধু পর্যবেক্ষণ ও পরিকল্পনার জন্য আনুমানিক হিসাব'],
+      points: [
+        ['বিজ্ঞানীদের মানচিত্রের সঙ্গে মেলানো', 'প্রতিটি ফলাফল বিজ্ঞানীদের তৈরি আলাদা একটি ম্যানগ্রোভ মানচিত্রের সঙ্গে মেলানো হয়, আর দুটো মিলল কি না পেজেই দেখানো হয়।'],
+        ['বলে কতটা নিশ্চিত', 'প্রতিটি উত্তরের সঙ্গে থাকে সবুজ, হলুদ বা লাল আলো। লাল মানে: এই সংখ্যার উপর ভরসা করবেন না।'],
+        ['ভুল হতে পারলে সতর্ক করে', 'গ্রামের কাছে গাছপালা ও খেত ম্যানগ্রোভের মতো দেখাতে পারে, আর আলাদা মৌসুমের ছবি ভুল বোঝাতে পারে। পেজ তা সরাসরি জানায়।'],
+        ['টাকা বা ক্রেডিটের দাবি নেই', 'কার্বনের সংখ্যা শুধু পর্যবেক্ষণ ও পরিকল্পনার জন্য আনুমানিক হিসাব — কার্বন ক্রেডিট নয়, আয়ের প্রতিশ্রুতিও নয়।'],
       ],
-      note: 'ভুল হতে পারে এমন জায়গাতেও সতর্ক করে: গ্রামের কাছে (গাছপালা ও খেত ম্যানগ্রোভের মতো দেখায়), আর দুই তারিখ আলাদা মৌসুমে হলে।',
     },
     cta: {
       title: 'সুন্দরবনের যেকোনো জায়গা বেছে নিন',
