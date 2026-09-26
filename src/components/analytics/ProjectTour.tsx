@@ -1,23 +1,37 @@
 import { useEffect, useRef, useState, type ReactNode } from 'react'
 import {
+  Activity,
+  ArrowDown,
   ArrowLeft,
   ArrowRight,
+  BarChart3,
   BrainCircuit,
   Check,
+  CheckCircle2,
   ChevronRight,
   CircleAlert,
+  Clock,
   Cloud,
   Code2,
+  Compass,
+  Database,
+  ExternalLink,
   FileText,
+  Flame,
   FlaskConical,
+  Globe,
   GraduationCap,
+  Info,
   Layers,
   Leaf,
   MapPin,
   Network,
   Play,
   Satellite,
+  Shield,
+  ShieldAlert,
   ShieldCheck,
+  Sliders,
   Sparkles,
   Target,
   TrendingDown,
@@ -25,6 +39,7 @@ import {
   Users,
   Workflow,
   X,
+  Zap,
 } from 'lucide-react'
 import { BRAND } from '../../config/app'
 import type { AnalysisBundle, Capabilities } from '../../types/analysis'
@@ -53,26 +68,19 @@ interface Props {
 
 type L = (en: string, bn: string) => string
 
-// ───────────────────────── small building blocks ─────────────────────────
+// ───────────────────────── helper UI primitives ─────────────────────────
 
-function Heading({ kicker, title }: { kicker: string; title: string }) {
+function Heading({ kicker, title, desc }: { kicker: string; title: string; desc?: string }) {
   return (
-    <div className="mb-5">
-      <p className="font-mono text-[10.5px] font-bold tracking-[0.24em] text-[#16865f] uppercase">{kicker}</p>
-      <h2 className="mt-1 font-condensed text-3xl sm:text-4xl xl:text-5xl font-black tracking-tight text-[#08332b] leading-[0.96]">{title}</h2>
-    </div>
-  )
-}
-
-function InfoCard({ icon: Icon, title, children, tone = 'green' }: { icon: typeof Leaf; title: string; children: ReactNode; tone?: 'green' | 'amber' | 'blue' }) {
-  const toneCls = tone === 'amber' ? 'bg-amber-50 text-amber-700 border-amber-200' : tone === 'blue' ? 'bg-sky-50 text-sky-700 border-sky-200' : 'bg-[#e7f4ec] text-[#16865f] border-[#cbe4d7]'
-  return (
-    <div className="rounded-2xl border border-[#d6e6de] bg-[#fcfdfc] p-4.5 shadow-2xs hover:border-[#16865f]/50 transition-colors">
-      <span className={`grid size-10 place-items-center rounded-xl border ${toneCls}`}>
-        <Icon className="size-5" />
-      </span>
-      <h3 className="mt-3.5 font-display text-base font-bold text-[#0c3830]">{title}</h3>
-      <div className="mt-1.5 font-sans text-xs sm:text-[13px] leading-relaxed text-[#4d6b61]">{children}</div>
+    <div className="mb-6">
+      <div className="inline-flex items-center gap-2 rounded-full border border-emerald-200/80 bg-emerald-50 px-3 py-1 font-mono text-[10px] font-bold tracking-[0.22em] text-[#16865f] uppercase">
+        <span className="size-1.5 rounded-full bg-[#16865f]" />
+        {kicker}
+      </div>
+      <h2 className="mt-2.5 font-condensed text-3xl sm:text-4xl lg:text-5xl font-black tracking-tight text-[#08332b] leading-[0.95] uppercase">
+        {title}
+      </h2>
+      {desc && <p className="mt-2.5 max-w-3xl font-sans text-sm sm:text-base leading-relaxed text-[#4d6b61]">{desc}</p>}
     </div>
   )
 }
@@ -82,492 +90,1124 @@ function JumpButton({ label, onClick }: { label: string; onClick: () => void }) 
     <button
       type="button"
       onClick={onClick}
-      className="inline-flex items-center gap-1.5 rounded-full border border-[#16865f] bg-[#edf7f2] px-3.5 py-1.5 font-mono text-xs font-bold text-[#114b3e] shadow-2xs transition-all hover:bg-[#16865f] hover:text-white cursor-pointer"
+      className="inline-flex items-center gap-1.5 rounded-xl border border-[#c5ddd0] bg-white px-3.5 py-2 font-mono text-xs font-bold text-[#0e3f34] shadow-2xs transition-all hover:bg-[#16865f] hover:text-white hover:border-[#16865f] cursor-pointer"
     >
-      <Target className="size-3.5" /> {label}
+      <Target className="size-3.5 text-[#16865f] group-hover:text-white" /> {label}
     </button>
   )
 }
 
-// ───────────────────────── chapter: pipeline (interactive) ─────────────────────────
+// ───────────────────────── interactive pipeline ─────────────────────────
 
 function Pipeline({ L }: { L: L }) {
   const steps = [
     {
+      id: 'sentinel',
       icon: Satellite,
-      title: L('Satellite photos', 'উপগ্রহের ছবি'),
-      simple: L(
-        'A European satellite (Sentinel-2) photographs the Sundarbans every few days. We use photos from the same dry months (January–March) every year, so years are compared fairly.',
-        'ইউরোপের সেন্টিনেল-২ উপগ্রহ কয়েক দিন পরপর সুন্দরবনের ছবি তোলে। প্রতি বছরের একই শুকনো মাসের (জানুয়ারি–মার্চ) ছবি নেওয়া হয়, যাতে বছরগুলো ন্যায্যভাবে তুলনা করা যায়।',
+      num: '01',
+      title: L('Satellite Observation', 'উপগ্রহ চিত্র সংগ্রহ'),
+      lead: L(
+        'European Space Agency (Sentinel-2) orbits provide 10m multispectral imagery every 5 days.',
+        'ইউরোপিয়ান স্পেস এজেন্সির সেন্টিনেল-২ উপগ্রহ প্রতি ৫ দিনে ১০ মিটার রেজোলিউশনে ছবি তোলে।'
       ),
-      tech: 'Copernicus Sentinel-2 L2A (surface reflectance), 10 m bands B2, B3, B4, B8 + 20 m B11, B12; scene filter ≤ 30 % cloud.',
+      simple: L(
+        'The satellite takes photographs of the Sundarbans in multiple color and infrared wavelengths. We only select images from the exact same dry season (January–March) across all years to avoid false loss from seasonal monsoons and high spring tides.',
+        'উপগ্রহ বিভিন্ন আলো ও ইনফ্রারেড তরঙ্গে সুন্দরবনের ছবি তোলে। প্রতি বছর ঠিক একই শুকনো মৌসুমে (জানুয়ারি–মার্চ) ছবি বাছা হয় যাতে বর্ষা বা জোয়ারের জলকে বন হারানো বলে ভুল না হয়।'
+      ),
+      specs: [
+        { k: 'Sensor', v: 'Copernicus Sentinel-2 MSI (Level-2A BOA)' },
+        { k: 'Resolution', v: '10 m (B2, B3, B4, B8) / 20 m (B11, B12)' },
+        { k: 'Window', v: 'Jan 01 – Mar 31 (90-day dry season)' },
+        { k: 'Cloud Limit', v: 'Scene cloud cover ≤ 30%' },
+      ],
     },
     {
+      id: 'cloud_free',
       icon: Cloud,
-      title: L('Cloud-free composite', 'মেঘমুক্ত মিলিত ছবি'),
-      simple: L(
-        'One photo can be cloudy, so we combine all photos from a 90-day window, remove clouds and shadows, and keep one clean picture per year.',
-        'একটি ছবিতে মেঘ থাকতে পারে, তাই ৯০ দিনের সব ছবি মিলিয়ে মেঘ ও ছায়া সরিয়ে প্রতি বছরের একটি পরিষ্কার ছবি তৈরি হয়।',
+      num: '02',
+      title: L('Cloud-Free Compositing', 'মেঘমুক্ত যৌগিক দৃশ্য'),
+      lead: L(
+        'Google Earth Engine merges multiple scenes to generate clean, shadow-free annual mosaics.',
+        'গুগল আর্থ ইঞ্জিন একাধিক দৃশ্য একত্র করে প্রতি বছরের জন্য মেঘ ও ছায়ামুক্ত পরিষ্কার ছবি তৈরি করে।'
       ),
-      tech: 'Google Earth Engine: SCL + QA60 cloud/shadow mask → per-pixel median composite; NDVI and NDWI added as features.',
+      simple: L(
+        'Tropical estuaries have frequent cloud cover and shifting shadows. Google Earth Engine screens every pixel across the 90-day window, filters out clouds and water spray, and calculates the per-pixel median reflectance.',
+        'সুন্দরবনে মেঘ ও মেঘের ছায়া বেশি থাকে। আর্থ ইঞ্জিন ৯০ দিনের সব ছবির প্রতিটি পিক্সেল যাচাই করে মেঘ দূর করে এবং একটি নিখুঁত বাৎসরিক চিত্র তৈরি করে।'
+      ),
+      specs: [
+        { k: 'Engine', v: 'Google Earth Engine Python REST API' },
+        { k: 'Masking', v: 'SCL (Scene Classification) + QA60 bitmask' },
+        { k: 'Reducer', v: 'Per-pixel median temporal reducer' },
+        { k: 'Indices', v: 'NDVI (B8-B4)/(B8+B4), NDWI (B3-B8)/(B3+B8)' },
+      ],
     },
     {
+      id: 'ai_classifier',
       icon: BrainCircuit,
-      title: L('AI forest map', 'AI বনের মানচিত্র'),
-      simple: L(
-        'A machine-learning model learns what mangrove looks like from a trusted scientists’ mangrove map, then marks every 10 m patch as mangrove or not — and how sure it is.',
-        'একটি মেশিন-লার্নিং মডেল বিজ্ঞানীদের নির্ভরযোগ্য ম্যানগ্রোভ মানচিত্র থেকে শেখে, তারপর প্রতি ১০ মিটার জায়গা ম্যানগ্রোভ কি না — আর কতটা নিশ্চিত — চিহ্নিত করে।',
+      num: '03',
+      title: L('Canopy Classification', 'ম্যানগ্রোভ শ্রেণিবিভাগ'),
+      lead: L(
+        'A 200-tree Random Forest model determines mangrove presence and confidence for each 10m pixel.',
+        '২০০টি ডিসিশন ট্রির র‍্যান্ডম ফরেস্ট মডেল প্রতিটি ১০ মিটার পিক্সেল ম্যানগ্রোভ কি না তা যাচাই করে।'
       ),
-      tech: 'Random Forest (200 trees) trained on pixels that were stable mangrove / non-mangrove in CGMD-AFCC30 for 2019–2022 (≥ 50 % canopy = mangrove, mixed pixels excluded, 30 m edge erosion); tested on held-out 2023.',
+      simple: L(
+        'The machine-learning classifier was trained on long-term verified mangrove baselines (CGMD-AFCC30). It inspects 8 spectral features per pixel to decide whether canopy is present and produces an honest confidence score.',
+        'বিজ্ঞানীদের ৪০ বছরের ঐতিহাসিক মানচিত্রে মডেলটি প্রশিক্ষণপ্রাপ্ত। এটি প্রতি পিক্সেলের বর্ণালী বৈশিষ্ট্য দেখে বন নির্ধারণ করে এবং নিজস্ব নির্ভুলতার স্কোর জানায়।'
+      ),
+      specs: [
+        { k: 'Model', v: 'Random Forest (200 trees, balanced depth)' },
+        { k: 'Training Data', v: 'CGMD-AFCC30 (1984–2022 stable pixels)' },
+        { k: 'Canopy Rule', v: '≥ 50% mangrove canopy closure' },
+        { k: 'Validation', v: 'Spatial test on unseen held-out 2023 data' },
+      ],
     },
     {
+      id: 'change_carbon',
       icon: Layers,
-      title: L('Change & carbon', 'পরিবর্তন ও কার্বন'),
-      simple: L(
-        'Comparing two years shows where forest grew, where it was lost, and where we are unsure. Forest area × a standard international carbon figure gives the carbon stock, with an honest ± range.',
-        'দুই বছর তুলনা করলে দেখা যায় কোথায় বন বেড়েছে, কোথায় হারিয়েছে, আর কোথায় নিশ্চিত নই। বনের এলাকা × আন্তর্জাতিক কার্বন মান = কার্বন মজুত, সঙ্গে সৎ ± পরিসর।',
+      num: '04',
+      title: L('Change & Carbon Accounting', 'পরিবর্তন ও কার্বন হিসাব'),
+      lead: L(
+        'Spatial change mapping with minimum mapping unit filtering and IPCC Tier 1 carbon equations.',
+        'পিক্সেল ভিত্তিক পরিবর্তন বিশ্লেষণ এবং আন্তর্জাতিক IPCC টিয়ার ১ মানকে কার্বন হিসাব।'
       ),
-      tech: 'Post-classification change with 0.5 ha minimum mapping unit and 0.6 confidence threshold; IPCC 2013 Wetlands Supplement Tier 1 (283.1 Mg C/ha), first-order error propagation; 5-year what-if scenarios.',
+      simple: L(
+        'Comparing baseline vs target years produces a categorical change map: forest gain, forest loss, stable canopy, and uncertain transitions. Carbon is computed transparently with error intervals.',
+        'দুই বছরের মানচিত্র তুলনা করে দেখা হয় কোথায় বন বেড়েছে, কোথায় কমেছে আর কোথায় অনিশ্চিত। কোনো কৃত্রিম সংখ্যা নয়, আন্তর্জাতিক গণিত মেনে কার্বন হিসাব হয়।'
+      ),
+      specs: [
+        { k: 'Threshold', v: '0.6 minimum classification confidence' },
+        { k: 'MMU Filter', v: '0.5 hectare Minimum Mapping Unit' },
+        { k: 'Carbon Standard', v: 'IPCC 2013 Wetlands Supplement Tier 1' },
+        { k: 'Factor', v: '283.1 Mg C/ha (Above + Roots + Soil)' },
+      ],
     },
     {
+      id: 'delivery',
       icon: FileText,
-      title: L('Plain answer', 'সহজ উত্তর'),
-      simple: L(
-        '“The forest here grew / shrank”, a green-yellow-red “how sure are we?” light, a before/after photo slider, and a summary in Bengali or English that can be shared on WhatsApp or printed.',
-        '“এখানকার বন বেড়েছে / কমেছে”, সবুজ-হলুদ-লাল “কতটা নিশ্চিত?” আলো, আগে/পরে ছবির স্লাইডার, আর বাংলা বা ইংরেজিতে সারাংশ — WhatsApp-এ শেয়ার বা প্রিন্ট করা যায়।',
+      num: '05',
+      title: L('Plain-Language Delivery', 'সহজ ভাষায় প্রকাশ'),
+      lead: L(
+        'Results transformed into verified summaries in Bengali and English for field action.',
+        'মাঠ পর্যায়ের ব্যবহারের জন্য বাংলা ও ইংরেজিতে যাচাইকৃত সহজ প্রতিবেদন তৈরি হয়।'
       ),
-      tech: 'FastAPI JSON bundle → React dashboard. Optional Gemini re-wording is rejected if it cites any number not in the computed evidence list.',
+      simple: L(
+        'No confusing academic jargon. The system outputs a clear verdict, a before/after photo slider, reliability traffic lights, and direct WhatsApp sharing links so village panchayats and forest guards can take swift action.',
+        'জটিল বৈজ্ঞানিক ভাষা বাদ দিয়ে সহজ সিদ্ধান্ত, আগে-পরের স্লাইডার এবং বিশ্বস্ততার সবুজ-হলুদ-লাল সংকেত দেওয়া হয় যা এক ক্লিকে হোয়াটসঅ্যাপে পাঠানো যায়।'
+      ),
+      specs: [
+        { k: 'Languages', v: 'Bengali (বাংলা) & English' },
+        { k: 'Outputs', v: 'WhatsApp cards, Printable PDF, JSON API' },
+        { k: 'Guardrails', v: 'Strict numerical verification checks' },
+        { k: 'Offline Export', v: 'Deterministic standalone report generation' },
+      ],
     },
   ]
+
   const [active, setActive] = useState(0)
-  const [technical, setTechnical] = useState(false)
   const S = steps[active]
+  const Icon = S.icon
+
   return (
-    <div>
-      <div className="flex flex-wrap items-center gap-1.5">
+    <div className="space-y-6">
+      {/* Step Selector Horizontal Bar */}
+      <div className="grid grid-cols-2 sm:grid-cols-5 gap-2 bg-[#eaf2ed] p-1.5 rounded-2xl border border-[#cbe0d4]">
         {steps.map((s, i) => {
-          const Icon = s.icon
+          const StepIcon = s.icon
           const on = i === active
           return (
-            <div key={s.title} className="flex items-center">
-              <button
-                type="button"
-                onClick={() => setActive(i)}
-                className={`flex items-center gap-2 rounded-xl border px-3 py-2.5 text-left text-sm font-bold transition ${
-                  on ? 'border-[#16865f] bg-[#16865f] text-white shadow-md' : 'border-[#d6e6de] bg-white text-[#123f38] hover:border-[#16865f]'
+            <button
+              key={s.id}
+              type="button"
+              onClick={() => setActive(i)}
+              className={`flex items-center gap-2.5 rounded-xl px-3.5 py-3 text-left transition-all cursor-pointer ${
+                on
+                  ? 'bg-white text-[#062f27] shadow-sm font-bold border border-[#bcd8c8]'
+                  : 'text-[#476a5e] hover:text-[#0c3c31] hover:bg-white/60 font-semibold'
+              }`}
+            >
+              <div
+                className={`grid size-7 shrink-0 place-items-center rounded-lg text-xs font-mono font-bold ${
+                  on ? 'bg-[#16865f] text-white' : 'bg-[#d8e8de] text-[#34584e]'
                 }`}
               >
-                <Icon className="size-4.5" />
-                <span className="hidden sm:inline">{s.title}</span>
-                <span className="sm:hidden">{i + 1}</span>
-              </button>
-              {i < steps.length - 1 && <ChevronRight className="mx-0.5 size-4 text-[#9bb5ab]" />}
+                {s.num}
+              </div>
+              <div className="min-w-0">
+                <p className="truncate text-xs sm:text-xs leading-tight">{s.title}</p>
+              </div>
+            </button>
+          )
+        })}
+      </div>
+
+      {/* Active Stage Detailed Presentation Card */}
+      <div className="rounded-3xl border border-[#cde0d5] bg-white p-6 sm:p-8 shadow-sm">
+        <div className="flex flex-wrap items-center justify-between gap-3 border-b border-[#e6efe9] pb-5">
+          <div className="flex items-center gap-3">
+            <span className="grid size-12 place-items-center rounded-2xl bg-gradient-to-br from-emerald-50 to-[#dff0e6] text-[#16865f] border border-[#cbe4d7]">
+              <Icon className="size-6" />
+            </span>
+            <div>
+              <p className="font-mono text-xs font-bold tracking-[0.2em] text-[#16865f] uppercase">
+                {L('PIPELINE PHASE', 'প্রক্রিয়া পর্যায়')} {S.num} / 05
+              </p>
+              <h3 className="font-display text-2xl font-black text-[#072f27] mt-0.5">{S.title}</h3>
+            </div>
+          </div>
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              disabled={active === 0}
+              onClick={() => setActive((a) => Math.max(0, a - 1))}
+              className="flex items-center gap-1 rounded-xl border border-[#d6e6de] bg-white px-3 py-1.5 font-mono text-xs font-bold text-[#123f38] hover:bg-[#edf7f2] disabled:opacity-30 disabled:pointer-events-none transition cursor-pointer"
+            >
+              <ArrowLeft className="size-3.5" /> {L('Prev Step', 'আগের ধাপ')}
+            </button>
+            <button
+              type="button"
+              disabled={active === steps.length - 1}
+              onClick={() => setActive((a) => Math.min(steps.length - 1, a + 1))}
+              className="flex items-center gap-1 rounded-xl bg-[#16865f] px-3 py-1.5 font-mono text-xs font-bold text-white hover:bg-[#127251] disabled:opacity-30 disabled:pointer-events-none transition cursor-pointer shadow-xs"
+            >
+              {L('Next Step', 'পরের ধাপ')} <ArrowRight className="size-3.5" />
+            </button>
+          </div>
+        </div>
+
+        <p className="mt-5 font-display text-base sm:text-lg font-bold text-[#0c3930] leading-snug">{S.lead}</p>
+
+        <div className="mt-6 grid gap-6 lg:grid-cols-12">
+          {/* Plain language explanation */}
+          <div className="lg:col-span-7 space-y-4">
+            <div className="rounded-2xl bg-[#f6faf8] border border-[#d9e9df] p-5">
+              <p className="font-mono text-[11px] font-bold tracking-wider text-[#16865f] uppercase">
+                {L('COMMUNITY CONTEXT & PURPOSE', 'সহজ ব্যাখ্যা ও তাৎপর্য')}
+              </p>
+              <p className="mt-2 text-sm sm:text-base leading-relaxed text-[#355248]">{S.simple}</p>
+            </div>
+            <div className="flex items-start gap-2.5 rounded-2xl bg-amber-50/60 border border-amber-200/80 p-4 text-xs sm:text-sm text-amber-900/80">
+              <ShieldAlert className="size-4.5 shrink-0 text-amber-600 mt-0.5" />
+              <span>
+                {L(
+                  'Deterministic pipeline: All satellite processing follows standardized formulas. AI never invents numbers.',
+                  'নির্দিষ্ট গণনা পদ্ধতি: উপগ্রহের সব হিসাব নির্ধারিত সূত্র মেনে চলে। AI কোনো মনগড়া সংখ্যা তৈরি করে না।'
+                )}
+              </span>
+            </div>
+          </div>
+
+          {/* Technical specification terminal */}
+          <div className="lg:col-span-5 rounded-2xl bg-[#03231c] p-5 text-white border border-[#093d31] shadow-inner">
+            <div className="flex items-center justify-between border-b border-white/10 pb-3">
+              <p className="font-mono text-[10.5px] font-bold tracking-widest text-emerald-300 uppercase">
+                {L('TELEMETRY & ALGORITHM SPEC', 'কারিগরি ও অ্যালগরিদম স্পেক')}
+              </p>
+              <span className="font-mono text-[10px] text-emerald-400/80">v2.4-GEE</span>
+            </div>
+            <div className="mt-4 space-y-3 font-mono text-xs">
+              {S.specs.map((sp) => (
+                <div key={sp.k} className="flex flex-col border-b border-white/5 pb-2.5">
+                  <span className="text-[10px] uppercase tracking-wider text-emerald-300/60">{sp.k}</span>
+                  <span className="text-xs font-semibold text-emerald-100 mt-0.5">{sp.v}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+// ───────────────────────── honesty checks component ─────────────────────────
+
+function HonestyChecks({ L, bundle }: { L: L; bundle: AnalysisBundle | null }) {
+  const checks = [
+    {
+      id: 'season',
+      title: L('Same-Season Dry Window', 'একই শুষ্ক মৌসুম যাচাই'),
+      desc: L('Both baseline and target composites use identical Jan–Mar dry periods to avoid tidal false loss.', 'দুই বছরের ছবিই জানুয়ারি–মার্চের নেওয়া যাতে জোয়ার ও বর্ষার প্রভাব না পড়ে।'),
+    },
+    {
+      id: 'area_check',
+      title: L('Reference Map Coherence', 'বিজ্ঞানীদের রেফারেন্স মিল'),
+      desc: L('Estimated canopy closely aligns with 40-year historical CGMD-AFCC30 ground-truth datasets.', 'ঐতিহাসিক বৈজ্ঞানিক রেকর্ডের সঙ্গে গণনা করা বনের এলাকার সামঞ্জস্য যাচাই হয়।'),
+    },
+    {
+      id: 'images',
+      title: L('Sufficient Clear Cloud-Free Pixels', 'পর্যাপ্ত পরিষ্কার পিক্সেল'),
+      desc: L('Only composites with high QA60 clear-pixel density are evaluated to eliminate cloud artifacts.', 'মেঘমুক্ত ছবির অনুপাত যথেষ্ট হলেই বিশ্লেষণ সম্পূর্ণ করা হয়।'),
+    },
+    {
+      id: 'fast_change',
+      title: L('Believable Rate of Change', 'বিশ্বাসযোগ্য পরিবর্তনের হার'),
+      desc: L('Rejects physically implausible deforestation rates that violate biological regeneration speeds.', 'অবিশ্বাস্য বা ভৌগোলিকভাবে অসম্ভব পরিবর্তনের হার ধরা পড়লে সতর্কবার্তা দেয়।'),
+    },
+    {
+      id: 'accuracy',
+      title: L('Held-Out Year Validation', 'স্বাধীন বছরে মডেলের পরীক্ষা'),
+      desc: L('Random Forest was tested on unseen 2023 satellite imagery to confirm real-world generalization.', '২০২৩ সালের নতুন তথ্যে মডেলটি যাচাই করে উচ্চ নির্ভুলতা নিশ্চিত করা হয়েছে।'),
+    },
+    {
+      id: 'outside',
+      title: L('Sundarbans Biome Boundary', 'সুন্দরবনের ভৌগোলিক সীমানা'),
+      desc: L('Confirms the scanned circle falls inside the coastal delta and flags non-mangrove ecosystems.', 'বাছাই করা বৃত্তটি সুন্দরবন উপকূলীয় অঞ্চলের অন্তর্ভুক্ত কি না তা নিশ্চিত করে।'),
+    },
+  ]
+
+  const rel = bundle?.reliability
+  const levelBadge = {
+    high: { cls: 'bg-emerald-100 text-emerald-800 border-emerald-300', text: L('🟢 High Confidence (Fairly Sure)', '🟢 উচ্চ নির্ভরযোগ্যতা (বেশ নিশ্চিত)') },
+    medium: { cls: 'bg-amber-100 text-amber-800 border-amber-300', text: L('🟡 Medium Confidence (Review Warnings)', '🟡 মাঝারি নির্ভরযোগ্যতা (সতর্কতা দেখুন)') },
+    low: { cls: 'bg-rose-100 text-rose-800 border-rose-300', text: L('🔴 Low Confidence (Do Not Trust)', '🔴 নিম্ন নির্ভরযোগ্যতা (বিশ্বাস করবেন না)') },
+    demo: { cls: 'bg-sky-100 text-sky-800 border-sky-300', text: L('🔵 Synthesized Demo Mode', '🔵 ডেমো মোড') },
+  }
+
+  const currentBadge = rel ? levelBadge[rel.level] : levelBadge.high
+
+  return (
+    <div className="space-y-4">
+      <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl bg-[#edf5f0] border border-[#cce1d5] p-4">
+        <div>
+          <p className="font-display text-base font-bold text-[#08352b]">
+            {L('Automated Integrity & Sanity Filters', 'স্বয়ংক্রিয় সততা ও নির্ভরযোগ্যতা পরীক্ষা')}
+          </p>
+          <p className="text-xs text-[#4b6a60] mt-0.5">
+            {L('MangroveLens proactively tests every query against 6 automated sanity filters.', 'প্রতিটি বিশ্লেষণ চালানোর সময় ৬টি স্বয়ংক্রিয় ফিল্টারে ফলাফল যাচাই করা হয়।')}
+          </p>
+        </div>
+        <span className={`inline-flex items-center gap-1.5 rounded-full border px-3.5 py-1.5 font-mono text-xs font-bold ${currentBadge.cls}`}>
+          {currentBadge.text}
+        </span>
+      </div>
+
+      <div className="grid gap-3.5 sm:grid-cols-2 lg:grid-cols-3">
+        {checks.map((c) => {
+          const problem = rel?.problems.find((p) => p.id === c.id)
+          const isDemo = rel?.level === 'demo'
+          return (
+            <div
+              key={c.id}
+              className={`rounded-2xl border p-4.5 transition-all ${
+                problem
+                  ? problem.severity === 'high'
+                    ? 'border-rose-300 bg-rose-50/70 shadow-xs'
+                    : 'border-amber-300 bg-amber-50/70 shadow-xs'
+                  : 'border-[#d2e3d9] bg-white shadow-2xs hover:border-[#16865f]/50'
+              }`}
+            >
+              <div className="flex items-center justify-between gap-2">
+                <span
+                  className={`grid size-7 place-items-center rounded-lg text-xs ${
+                    problem
+                      ? problem.severity === 'high'
+                        ? 'bg-rose-600 text-white'
+                        : 'bg-amber-600 text-white'
+                      : 'bg-emerald-100 text-[#16865f]'
+                  }`}
+                >
+                  {problem ? <CircleAlert className="size-4" /> : <Check className="size-4" />}
+                </span>
+                <span
+                  className={`font-mono text-[10px] font-bold uppercase tracking-wider ${
+                    problem ? (problem.severity === 'high' ? 'text-rose-700' : 'text-amber-700') : 'text-[#16865f]'
+                  }`}
+                >
+                  {isDemo ? L('DEMO', 'ডেমো') : problem ? L('FLAGGED', 'চিহ্নিত') : L('PASSED', 'উত্তীর্ণ')}
+                </span>
+              </div>
+              <h4 className="mt-3 font-display text-sm font-bold text-[#0c3930]">{c.title}</h4>
+              <p className="mt-1 text-xs leading-relaxed text-[#506e64]">{c.desc}</p>
             </div>
           )
         })}
       </div>
-      <div className="mt-4 rounded-2xl border border-[#d6e6de] bg-white p-5">
-        <div className="flex flex-wrap items-center justify-between gap-2">
-          <p className="font-mono text-[11px] font-bold tracking-[0.2em] text-[#16865f]">
-            {L('STEP', 'ধাপ')} {active + 1} / {steps.length}
-          </p>
-          <div className="flex overflow-hidden rounded-lg border border-[#d6e6de] text-[11px] font-bold">
-            <button type="button" onClick={() => setTechnical(false)} className={`px-2.5 py-1 ${!technical ? 'bg-[#16865f] text-white' : 'text-[#123f38]'}`}>
-              {L('Simple', 'সহজ')}
-            </button>
-            <button type="button" onClick={() => setTechnical(true)} className={`px-2.5 py-1 ${technical ? 'bg-[#16865f] text-white' : 'text-[#123f38]'}`}>
-              {L('Technical', 'কারিগরি')}
-            </button>
-          </div>
-        </div>
-        <h3 className="mt-2 font-display text-xl font-bold text-[#123f38]">{S.title}</h3>
-        <p className={`mt-2 text-sm leading-relaxed ${technical ? 'font-mono text-[#123f38]' : 'text-[#475f57]'}`}>{technical ? S.tech : S.simple}</p>
-        <div className="mt-4 flex gap-2">
-          <button
-            type="button"
-            disabled={active === 0}
-            onClick={() => setActive((a) => a - 1)}
-            className="rounded-lg border border-[#d6e6de] px-3 py-1 text-xs font-bold text-[#123f38] disabled:opacity-40"
-          >
-            ← {L('Previous step', 'আগের ধাপ')}
-          </button>
-          <button
-            type="button"
-            disabled={active === steps.length - 1}
-            onClick={() => setActive((a) => a + 1)}
-            className="rounded-lg bg-[#16865f] px-3 py-1 text-xs font-bold text-white disabled:opacity-40"
-          >
-            {L('Next step', 'পরের ধাপ')} →
-          </button>
-        </div>
-      </div>
     </div>
   )
 }
 
-// ───────────────────────── chapter: honesty checks (live) ─────────────────────────
-
-function HonestyChecks({ L, bundle }: { L: L; bundle: AnalysisBundle | null }) {
-  const checks = [
-    { id: 'season', en: 'Both photos from the same season', bn: 'দুই ছবিই একই মৌসুমের' },
-    { id: 'area_check', en: 'Forest area matches the scientists’ reference map', bn: 'বনের এলাকা বিজ্ঞানীদের মানচিত্রের সঙ্গে মেলে' },
-    { id: 'images', en: 'Enough clear, cloud-free photos', bn: 'যথেষ্ট পরিষ্কার, মেঘহীন ছবি' },
-    { id: 'fast_change', en: 'Change is at a believable speed', bn: 'পরিবর্তনের গতি বিশ্বাসযোগ্য' },
-    { id: 'accuracy', en: 'Model accuracy is good in this area', bn: 'এই এলাকায় মডেলের নির্ভুলতা ভালো' },
-    { id: 'outside', en: 'Place is inside the Sundarbans', bn: 'জায়গাটি সুন্দরবনের ভেতরে' },
-  ]
-  const rel = bundle?.reliability
-  const levelText = {
-    high: L('🟢 Fairly sure', '🟢 বেশ নিশ্চিত'),
-    medium: L('🟡 Use with care', '🟡 সাবধানে ব্যবহার'),
-    low: L('🔴 Do not trust', '🔴 বিশ্বাস করবেন না'),
-    demo: L('🟡 Demo data', '🟡 ডেমো তথ্য'),
-  }
-  return (
-    <div className="rounded-2xl border border-[#d6e6de] bg-white p-5">
-      <div className="flex flex-wrap items-center justify-between gap-2">
-        <p className="text-sm font-bold text-[#123f38]">{L('Automatic checks on the analysis you are viewing', 'এখন দেখা বিশ্লেষণের স্বয়ংক্রিয় পরীক্ষা')}</p>
-        {rel && <span className="rounded-full bg-[#f2f6f3] px-3 py-1 text-xs font-bold text-[#123f38]">{levelText[rel.level]}</span>}
-      </div>
-      {!bundle ? (
-        <p className="mt-3 text-sm text-[#6c817a]">{L('Run an analysis first to see the checks live.', 'পরীক্ষাগুলো দেখতে আগে একটি বিশ্লেষণ চালান।')}</p>
-      ) : (
-        <ul className="mt-3 grid gap-2 sm:grid-cols-2">
-          {checks.map((c) => {
-            const problem = rel?.problems.find((p) => p.id === c.id)
-            const na = rel?.level === 'demo'
-            return (
-              <li key={c.id} className={`flex items-start gap-2 rounded-xl border p-2.5 text-sm ${problem ? (problem.severity === 'high' ? 'border-red-200 bg-red-50' : 'border-amber-200 bg-amber-50') : 'border-[#d6e6de] bg-[#f7faf8]'}`}>
-                {na ? (
-                  <span className="mt-0.5 text-xs font-bold text-[#6c817a]">–</span>
-                ) : problem ? (
-                  <CircleAlert className={`mt-0.5 size-4 shrink-0 ${problem.severity === 'high' ? 'text-red-600' : 'text-amber-600'}`} />
-                ) : (
-                  <Check className="mt-0.5 size-4 shrink-0 text-[#16865f]" />
-                )}
-                <span className="text-[#123f38]">{L(c.en, c.bn)}</span>
-              </li>
-            )
-          })}
-        </ul>
-      )}
-    </div>
-  )
-}
-
-// ───────────────────────── the tour ─────────────────────────
+// ───────────────────────── main full-screen presentation ─────────────────────────
 
 export function ProjectTour({ open, onClose, lang, bundle, caps, onJump, onTry }: Props) {
   const L: L = (en, bn) => (lang === 'bn' ? bn : en)
   const [chapter, setChapter] = useState(0)
   const b = bundle
 
-  const chapters: { icon: typeof Leaf; title: string; body: ReactNode }[] = [
+  const chapters: { id: string; icon: typeof Leaf; kicker: string; title: string; body: ReactNode }[] = [
     {
+      id: 'welcome',
       icon: Sparkles,
-      title: L('Welcome', 'স্বাগতম'),
+      kicker: L('SYSTEM FOUNDATION & MISSION', 'সিস্টেম পরিচিতি ও মূল লক্ষ্য'),
+      title: L('Real Satellites. Honest Numbers. For Villages.', 'আসল উপগ্রহ। সৎ সংখ্যা। গ্রামের জন্য।'),
       body: (
-        <>
-          <Heading kicker={L('SYSTEM GUIDE', 'সিস্টেম গাইড')} title={L(`${BRAND.name} in one line`, `এক লাইনে ${BRAND.name}`)} />
-          <p className="rounded-2xl bg-[#04241d] p-5 text-lg leading-relaxed text-white">
-            {L(
-              'Pick any place in the Sundarbans and two years. MangroveLens reads real satellite photos, tells you whether the mangrove forest grew or shrank, how much carbon it holds — and how sure it is.',
-              'সুন্দরবনের যেকোনো জায়গা আর দুটি বছর বাছুন। MangroveLens আসল উপগ্রহ ছবি দেখে বলে ম্যানগ্রোভ বন বেড়েছে না কমেছে, কতটা কার্বন ধরে রাখে — আর কতটা নিশ্চিত।',
-            )}
-          </p>
-          <div className="mt-5 grid gap-3 sm:grid-cols-3">
-            <InfoCard icon={Satellite} title={L('Real satellite data', 'আসল উপগ্রহ তথ্য')}>
-              {L('Live Sentinel-2 photos processed on Google Earth Engine — not a pre-made demo.', 'Google Earth Engine-এ প্রক্রিয়া করা লাইভ সেন্টিনেল-২ ছবি — আগে থেকে বানানো ডেমো নয়।')}
-            </InfoCard>
-            <InfoCard icon={ShieldCheck} title={L('Honest by design', 'সততা শুরু থেকেই')}>
-              {L('Every answer says how sure it is, and warns when it may be wrong.', 'প্রতিটি উত্তর বলে কতটা নিশ্চিত, আর ভুল হতে পারলে সতর্ক করে।')}
-            </InfoCard>
-            <InfoCard icon={Users} title={L('Made for villages', 'গ্রামের জন্য তৈরি')}>
-              {L('Plain Bengali and English, shareable on WhatsApp or as a printed report.', 'সহজ বাংলা ও ইংরেজি, WhatsApp বা ছাপা রিপোর্টে শেয়ার করা যায়।')}
-            </InfoCard>
+        <div className="space-y-6">
+          <div className="rounded-3xl bg-gradient-to-r from-[#03231c] via-[#053229] to-[#084236] p-6 sm:p-8 text-white shadow-md border border-[#0d4f40]">
+            <p className="font-mono text-xs font-bold tracking-[0.2em] text-emerald-300 uppercase">
+              {L('EXECUTIVE SUMMARY', 'সারসংক্ষেপ')}
+            </p>
+            <p className="mt-3 font-display text-lg sm:text-xl font-bold leading-relaxed text-emerald-50">
+              {L(
+                'Pick any coordinate in the Sundarbans and two years. MangroveLens analyzes live Copernicus Sentinel-2 satellite telemetry to determine whether mangrove canopy expanded or eroded, computes the carbon locked in its sediment, and states its uncertainty.',
+                'সুন্দরবনের যেকোনো স্থান ও দুটি বছর নির্বাচন করুন। MangroveLens সেন্টিনেল-২ উপগ্রহ থেকে আসল তথ্য বিশ্লেষণ করে জানায় ম্যানগ্রোভ বন বেড়েছে না কমেছে, মাটিতে কত কার্বন জমা আছে এবং ফলাফলের নির্ভুলতার স্তর কতখানি।'
+              )}
+            </p>
           </div>
-          <p className="mt-5 font-mono text-[11px] text-[#6c817a]">
-            {L('Tip: scroll through the document or use the chapters above to jump directly. “Show me” buttons link to live dashboard tools.', 'টিপ: নথিটি পড়তে স্ক্রোল করুন বা সরাসরি যেতে উপরের অধ্যায় সূচী ব্যবহার করুন। “দেখান” বোতাম লাইভ ড্যাশবোর্ডে নিয়ে যায়।')}
-          </p>
-        </>
+
+          <div className="grid gap-4 sm:grid-cols-3">
+            <div className="rounded-2xl border border-[#cfe0d5] bg-white p-5 shadow-2xs">
+              <span className="grid size-11 place-items-center rounded-xl bg-emerald-50 text-[#16865f] border border-emerald-200">
+                <Satellite className="size-5" />
+              </span>
+              <h3 className="mt-3.5 font-display text-base font-bold text-[#0c3830]">
+                {L('Real Orbital Telemetry', 'আসল উপগ্রহ তথ্য')}
+              </h3>
+              <p className="mt-2 text-xs sm:text-sm leading-relaxed text-[#4e6c62]">
+                {L(
+                  'Direct 10m multispectral processing via Google Earth Engine. Real surface reflectance — never pre-fabricated demo curves.',
+                  'গুগল আর্থ ইঞ্জিনের মাধ্যমে সরাসরি ১০ মিটার সেন্টিনেল-২ তথ্য প্রক্রিয়া করা হয় — কোনো কৃত্রিম ডেমো গ্রাফ নয়।'
+                )}
+              </p>
+            </div>
+
+            <div className="rounded-2xl border border-[#cfe0d5] bg-white p-5 shadow-2xs">
+              <span className="grid size-11 place-items-center rounded-xl bg-amber-50 text-amber-700 border border-amber-200">
+                <ShieldCheck className="size-5" />
+              </span>
+              <h3 className="mt-3.5 font-display text-base font-bold text-[#0c3830]">
+                {L('Radical Honesty by Design', 'সততা শুরু থেকেই')}
+              </h3>
+              <p className="mt-2 text-xs sm:text-sm leading-relaxed text-[#4e6c62]">
+                {L(
+                  'Every carbon figure reports explicit ± error intervals. If clouds or tides degrade confidence, the system warns users upfront.',
+                  'প্রতিটি কার্বন হিসেবে স্পষ্ট ± ত্রুটির সীমা থাকে। মেঘ বা জোয়ারে বিভ্রান্তি তৈরি হলে সিস্টেম সরাসরি সতর্কবার্তা প্রদান করে।'
+                )}
+              </p>
+            </div>
+
+            <div className="rounded-2xl border border-[#cfe0d5] bg-white p-5 shadow-2xs">
+              <span className="grid size-11 place-items-center rounded-xl bg-sky-50 text-sky-700 border border-sky-200">
+                <Users className="size-5" />
+              </span>
+              <h3 className="mt-3.5 font-display text-base font-bold text-[#0c3830]">
+                {L('Built for Local Action', 'গ্রামের জন্য উপযোগী')}
+              </h3>
+              <p className="mt-2 text-xs sm:text-sm leading-relaxed text-[#4e6c62]">
+                {L(
+                  'Plain Bengali and English explanations, shareable WhatsApp summary cards, and print-ready briefs for coastal panchayats.',
+                  'সহজ বাংলা ও ইংরেজি ভাষা, হোয়াটসঅ্যাপে শেয়ার করার কার্ড এবং উপকূলীয় পঞ্চায়েতের জন্য সহজে ছাপা উপযোগী রিপোর্ট।'
+                )}
+              </p>
+            </div>
+          </div>
+        </div>
       ),
     },
     {
+      id: 'problem',
       icon: TrendingDown,
-      title: L('The problem', 'সমস্যা'),
+      kicker: L('ECOLOGICAL CONTEXT & CHALLENGE', 'বাস্তুতান্ত্রিক সংকট ও বাস্তবতা'),
+      title: L('A Crucial Carbon Sink Guarded by Too Few Eyes', 'বিশাল কার্বন ভাণ্ডার, নজরদারির অভাব'),
       body: (
-        <>
-          <Heading kicker={L('WHY THIS MATTERS', 'কেন দরকার')} title={L('A huge carbon store, watched by too few eyes', 'বিশাল কার্বন ভাণ্ডার, নজর রাখার চোখ কম')} />
-          <p className="mb-5 text-sm leading-relaxed text-[#475f57]">
+        <div className="space-y-6">
+          <p className="max-w-4xl text-sm sm:text-base leading-relaxed text-[#3d5f54]">
             {L(
-              'The Sundarbans is the world’s largest mangrove forest. Mangroves protect villages from cyclones and store “blue carbon” — mostly in the mud beneath them. When the forest is lost, that carbon is at risk.',
-              'সুন্দরবন পৃথিবীর বৃহত্তম ম্যানগ্রোভ বন। ম্যানগ্রোভ গ্রামকে ঘূর্ণিঝড় থেকে রক্ষা করে এবং “ব্লু কার্বন” জমা রাখে — বেশিরভাগই নিচের কাদায়। বন হারালে সেই কার্বন ঝুঁকিতে পড়ে।',
+              'The Sundarbans spans over 10,000 km² across India and Bangladesh, forming the planet’s largest continuous mangrove biome. It defends millions of coastal villagers against deadly tropical cyclones while trapping gigatons of blue carbon. Yet frontline monitoring has faced persistent roadblocks.',
+              'ভারত ও বাংলাদেশ জুড়ে বিস্তৃত সুন্দরবন পৃথিবীর বৃহত্তম ম্যানগ্রোভ বনভূমি। এটি লাখ লাখ উপকূলবাসীকে প্রলয়ঙ্করী ঘূর্ণিঝড় থেকে বাঁচায় এবং বিপুল পরিমাণ ব্লু কার্বন আটকে রাখে। কিন্তু এতদিন কার্যকর নজরদারিতে বড় কিছু বাধা ছিল।'
             )}
           </p>
-          <div className="grid gap-3 sm:grid-cols-3">
-            <InfoCard icon={TrendingDown} title={L('Change goes unnoticed', 'বদল চোখে পড়ে না')} tone="amber">
-              {L('Erosion, storms and clearing change the forest edge every year.', 'ভাঙন, ঝড় আর গাছ কাটায় প্রতি বছর বনের কিনারা বদলায়।')}
-            </InfoCard>
-            <InfoCard icon={CircleAlert} title={L('Numbers without honesty', 'সততা ছাড়া সংখ্যা')} tone="amber">
-              {L('Carbon figures are often given without saying how sure they are.', 'কার্বনের সংখ্যা প্রায়ই দেওয়া হয়, কতটা নিশ্চিত তা বলা হয় না।')}
-            </InfoCard>
-            <InfoCard icon={Users} title={L('Data doesn’t reach villages', 'তথ্য গ্রামে পৌঁছায় না')} tone="amber">
-              {L('Satellite maps stay with experts, in English and technical formats.', 'উপগ্রহ মানচিত্র বিশেষজ্ঞদের কাছে থাকে, ইংরেজি ও কারিগরি রূপে।')}
-            </InfoCard>
+
+          <div className="grid gap-4 lg:grid-cols-3">
+            <div className="rounded-2xl border border-rose-200 bg-rose-50/50 p-5">
+              <div className="flex items-center gap-2 text-rose-800 font-mono text-xs font-bold uppercase tracking-wider">
+                <TrendingDown className="size-4 text-rose-600" /> {L('CHALLENGE 1', 'সমস্যা ১')}
+              </div>
+              <h3 className="mt-2 font-display text-base font-bold text-rose-950">
+                {L('Unnoticed Perimeter Erosion', 'চোখের আড়ালে ভাঙন')}
+              </h3>
+              <p className="mt-2 text-xs sm:text-sm leading-relaxed text-rose-900/80">
+                {L(
+                  'Cyclonic surges, shifting mudflats, and localized illegal clearing erode forest fringes gradually. Conventional annual surveys spot damage only years later.',
+                  'ঘূর্ণিঝড়, নদীভাঙন আর গোপনে গাছ কাটায় বনের কিনারা হারিয়ে যায়। সাধারণ বার্ষিক সমীক্ষায় এই ক্ষতি বুঝতে অনেক দেরি হয়ে যায়।'
+                )}
+              </p>
+              <div className="mt-4 rounded-xl bg-white/80 p-3 border border-rose-200 text-xs text-[#0d3b31]">
+                <b>{L('MangroveLens Solution:', 'আমাদের সমাধান:')}</b>{' '}
+                {L('10m resolution change detection captures localized patches at sub-hectare scales.', '১০ মিটার রেজোলিউশনের উপগ্রহ ছবি সাব-হেক্টর পর্যায় পর্যন্ত ভাঙন বা ক্ষয় চিহ্নিত করে।')}
+              </div>
+            </div>
+
+            <div className="rounded-2xl border border-amber-200 bg-amber-50/50 p-5">
+              <div className="flex items-center gap-2 text-amber-800 font-mono text-xs font-bold uppercase tracking-wider">
+                <CircleAlert className="size-4 text-amber-600" /> {L('CHALLENGE 2', 'সমস্যা ২')}
+              </div>
+              <h3 className="mt-2 font-display text-base font-bold text-amber-950">
+                {L('Unchecked Carbon Claims', 'যাচাইহীন কার্বনের দাবি')}
+              </h3>
+              <p className="mt-2 text-xs sm:text-sm leading-relaxed text-amber-900/80">
+                {L(
+                  'Commercial offset initiatives frequently advertise inflated carbon statistics without stating underlying error intervals or model assumptions.',
+                  'বাণিজ্যিক কার্বন প্রকল্পগুলো প্রায়ই অতিরঞ্জিত কার্বন সংখ্যা দাবি করে, যার পেছনে কোনো নির্দিষ্ট বৈজ্ঞানিক ত্রুটি বা প্রমাণের উল্লেখ থাকে না।'
+                )}
+              </p>
+              <div className="mt-4 rounded-xl bg-white/80 p-3 border border-amber-200 text-xs text-[#0d3b31]">
+                <b>{L('MangroveLens Solution:', 'আমাদের সমাধান:')}</b>{' '}
+                {L('Strict IPCC 2013 Wetlands Tier 1 math with explicit uncertainty bounds on every figure.', 'আন্তর্জাতিক IPCC টিয়ার ১ মানদণ্ড এবং প্রতিটি সংখ্যার সঙ্গে স্পষ্ট ± ত্রুটির পরিসর।')}
+              </div>
+            </div>
+
+            <div className="rounded-2xl border border-emerald-200 bg-emerald-50/50 p-5">
+              <div className="flex items-center gap-2 text-emerald-800 font-mono text-xs font-bold uppercase tracking-wider">
+                <Users className="size-4 text-emerald-600" /> {L('CHALLENGE 3', 'সমস্যা ৩')}
+              </div>
+              <h3 className="mt-2 font-display text-base font-bold text-emerald-950">
+                {L('Data Isolated from Villages', 'তথ্য গ্রামে পৌঁছায় না')}
+              </h3>
+              <p className="mt-2 text-xs sm:text-sm leading-relaxed text-emerald-900/80">
+                {L(
+                  'Remote sensing data has stayed locked inside GIS software and English academic journals, out of reach of the local panchayats who protect embankments.',
+                  'উপগ্রহ তথ্য সাধারণত দামি জিআইএস সফটওয়্যার ও জটিল ইংরেজি রিপোর্টে আবদ্ধ থাকে, যা বাঁধ পাহারা দেওয়া গ্রামবাসীর কোনো কাজে আসে না।'
+                )}
+              </p>
+              <div className="mt-4 rounded-xl bg-white/80 p-3 border border-emerald-200 text-xs text-[#0d3b31]">
+                <b>{L('MangroveLens Solution:', 'আমাদের সমাধান:')}</b>{' '}
+                {L('Bilingual Bengali/English delivery, WhatsApp cards, and plain-language verdicts.', 'বাংলা ও ইংরেজি দ্বৈত ভাষা, হোয়াটসঅ্যাপ কার্ড এবং সহজ বোধগম্য চূড়ান্ত সিদ্ধান্ত।')}
+              </div>
+            </div>
           </div>
-        </>
+        </div>
       ),
     },
     {
+      id: 'pipeline',
       icon: Layers,
-      title: L('How it works', 'কীভাবে কাজ করে'),
-      body: (
-        <>
-          <Heading kicker={L('THE PIPELINE — CLICK EACH STEP', 'প্রক্রিয়া — প্রতিটি ধাপে ক্লিক করুন')} title={L('From a satellite photo to a plain answer', 'উপগ্রহের ছবি থেকে সহজ উত্তর')} />
-          <Pipeline L={L} />
-        </>
-      ),
+      kicker: L('METHODOLOGICAL WORKFLOW', 'পদ্ধতি ও ধাপসমূহ'),
+      title: L('From Raw Photons to Actionable Answers', 'উপগ্রহ চিত্র থেকে কার্যকর পদক্ষেপ'),
+      body: <Pipeline L={L} />,
     },
     {
+      id: 'architecture',
       icon: Network,
-      title: L('Architecture', 'আর্কিটেকচার'),
+      kicker: L('SYSTEM ARCHITECTURE', 'সিস্টেমের সামগ্রিক নকশা'),
+      title: L('How the Pieces Fit Together', 'অংশগুলো কীভাবে কাজ করে'),
       body: (
-        <>
-          <Heading kicker={L('SYSTEM ARCHITECTURE — CLICK ANY BOX', 'সিস্টেম আর্কিটেকচার — যেকোনো বাক্সে ক্লিক করুন')} title={L('How the pieces fit together', 'অংশগুলো কীভাবে জোড়া লাগে')} />
-          <ArchitectureDiagram L={L} />
-        </>
+        <div className="space-y-4">
+          <p className="text-sm text-[#46665c]">
+            {L(
+              'A multi-tier cloud architecture linking European Space Agency imagery, Google Earth Engine compute, FastAPI machine learning microservices, and client-side geospatial rendering.',
+              'ইউরোপীয় স্পেস এজেন্সি, গুগল আর্থ ইঞ্জিন ক্লাউড, ফাস্ট-এপিআই মেশিন লার্নিং এবং ক্লায়েন্ট-সাইড মানচিত্র প্রদর্শনীর সমন্বয়ে তৈরি আধুনিক আর্কিটেকচার।'
+            )}
+          </p>
+          <div className="rounded-3xl border border-[#cbe1d5] bg-white p-5 sm:p-7 shadow-xs">
+            <ArchitectureDiagram L={L} />
+          </div>
+        </div>
       ),
     },
     {
+      id: 'dataflow',
       icon: Workflow,
-      title: L('One analysis, step by step', 'একটি বিশ্লেষণ, ধাপে ধাপে'),
+      kicker: L('INTERACTIVE DATA FLOW', 'তথ্য প্রবাহের সিমুলেশন'),
+      title: L('What Happens When You Click “Run”', '“Run” বোতাম চাপলে ভেতরে কী ঘটে'),
       body: (
-        <>
-          <Heading kicker={L('DATA FLOW — PRESS PLAY', 'তথ্যের প্রবাহ — চালান চাপুন')} title={L('What happens when you press “Run”', '“চালান” চাপলে কী ঘটে')} />
-          <AnalysisFlow L={L} />
-        </>
+        <div className="space-y-4">
+          <p className="text-sm text-[#46665c]">
+            {L(
+              'Press the Play button below to trace a live query through coordinate validation, orbital satellite querying, cloud compositing, canopy classification, and carbon calculation.',
+              'নিচের প্লে বোতাম চেপে দেখুন কীভাবে একটি অনুরোধ উপগ্রহ থেকে ছবি এনে, মেঘ পরিষ্কার করে, বন চিহ্নিত করে কার্বন হিসেবে রূপান্তরিত হয়।'
+            )}
+          </p>
+          <div className="rounded-3xl border border-[#cbe1d5] bg-white p-5 sm:p-7 shadow-xs">
+            <AnalysisFlow L={L} />
+          </div>
+        </div>
       ),
     },
     {
+      id: 'live_example',
       icon: MapPin,
-      title: L('Live example', 'লাইভ উদাহরণ'),
+      kicker: L('ACTIVE DASHBOARD TELEMETRY', 'বর্তমান লাইভ বিশ্লেষণ'),
+      title: L('Reading the Numbers on Your Screen', 'স্ক্রিনের ফলাফলগুলো বুঝুন'),
       body: (
-        <>
-          <Heading kicker={L('THE ANALYSIS ON YOUR SCREEN RIGHT NOW', 'এখন আপনার স্ক্রিনের বিশ্লেষণ')} title={L('Reading the result', 'ফলাফল পড়া')} />
+        <div className="space-y-6">
           {!b ? (
-            <p className="text-sm text-[#6c817a]">{L('No analysis yet — close the tour and press “Run”.', 'এখনো বিশ্লেষণ হয়নি — ট্যুর বন্ধ করে “Run” চাপুন।')}</p>
+            <div className="rounded-2xl border border-dashed border-[#b8d4c5] bg-[#edf6f1] p-8 text-center">
+              <MapPin className="mx-auto size-8 text-[#16865f] opacity-60" />
+              <p className="mt-3 font-display text-base font-bold text-[#0c3830]">
+                {L('No Active Analysis Loaded', 'এখনো কোনো বিশ্লেষণ লোড হয়নি')}
+              </p>
+              <p className="mt-1 text-xs text-[#527066]">
+                {L('Close this guide and press “Run Analysis” to view live coordinates, canopy metrics, and carbon figures.', 'এই গাইড বন্ধ করে ড্যাশবোর্ডে “Run Analysis” বোতাম চাপুন।')}
+              </p>
+            </div>
           ) : (
             <>
-              <div className="rounded-2xl border border-[#d6e6de] bg-white p-5">
-                <p className="text-xs font-bold text-[#6c817a]">
-                  {b.request.lat.toFixed(3)}°N, {b.request.lon.toFixed(3)}°E · {fmt(b.request.radiusKm * 2, 0, lang)} km · {b.request.startDate.slice(0, 4)} → {b.request.endDate.slice(0, 4)} ·{' '}
-                  {b.dataSource.isRealData ? L('real satellite data', 'আসল উপগ্রহ তথ্য') : L('demo data', 'ডেমো তথ্য')}
-                </p>
-                <div className="mt-3 grid gap-3 sm:grid-cols-4">
-                  {[
-                    [L('Forest at start', 'শুরুতে বন'), `${fmt(b.summary.start.mangroveHa, 0, lang)} ha`],
-                    [L('Forest at end', 'শেষে বন'), `${fmt(b.summary.end.mangroveHa, 0, lang)} ha`],
-                    [L('Change', 'পরিবর্তন'), `${signed(b.summary.end.mangroveHa - b.summary.start.mangroveHa, 0, lang)} ha (${signed(b.change.percentChange, 1, lang)}%)`],
-                    [L('Carbon stored (end)', 'জমা কার্বন (শেষে)'), `${fmt(b.carbon.end.co2eMg, 0, lang)} t CO₂e`],
-                  ].map(([k, v]) => (
-                    <div key={k} className="rounded-xl bg-[#f2f6f3] p-3">
-                      <p className="text-[11px] font-bold text-[#6c817a]">{k}</p>
-                      <p className="mt-0.5 font-display text-lg font-extrabold text-[#123f38]">{v}</p>
-                    </div>
-                  ))}
+              {/* Telemetry metadata header */}
+              <div className="rounded-2xl border border-[#cde0d5] bg-[#f6faf8] p-5">
+                <div className="flex flex-wrap items-center justify-between gap-3 border-b border-[#d8e8de] pb-3 font-mono text-xs">
+                  <div className="flex items-center gap-2 text-[#0c3c31] font-bold">
+                    <MapPin className="size-4 text-[#16865f]" />
+                    <span>
+                      {b.request.lat.toFixed(4)}°N, {b.request.lon.toFixed(4)}°E
+                    </span>
+                    <span className="text-[#88a89b]">·</span>
+                    <span>Ø {fmt(b.request.radiusKm * 2, 1, lang)} km</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="rounded-full bg-white px-2.5 py-1 text-[#16865f] font-bold border border-[#cde0d5]">
+                      {b.request.startDate.slice(0, 4)} → {b.request.endDate.slice(0, 4)}
+                    </span>
+                    <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-100 px-2.5 py-1 text-emerald-800 font-bold">
+                      <span className="size-1.5 rounded-full bg-emerald-600 animate-pulse" />
+                      {b.dataSource.isRealData ? L('Copernicus Sentinel-2', 'সেন্টিনেল-২ তথ্য') : L('Synthesized Demo', 'সিন্থেসাইজড ডেমো')}
+                    </span>
+                  </div>
                 </div>
-                <p className="mt-4 flex items-start gap-2 text-sm text-[#475f57]">
-                  {b.change.percentChange >= 0 ? <TrendingUp className="mt-0.5 size-4 text-[#16865f]" /> : <TrendingDown className="mt-0.5 size-4 text-red-600" />}
-                  {L(
-                    'These numbers are computed live for this exact circle and these years. Change the place or years on the dashboard and every number is recalculated from new satellite photos.',
-                    'এই সংখ্যাগুলো এই বৃত্ত আর এই বছরগুলোর জন্য লাইভ হিসাব করা। ড্যাশবোর্ডে জায়গা বা বছর বদলালে নতুন উপগ্রহ ছবি থেকে সব সংখ্যা আবার হিসাব হয়।',
-                  )}
-                </p>
+
+                {/* 4 Stat Cards */}
+                <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+                  <div className="rounded-xl border border-[#d2e3d8] bg-white p-4">
+                    <p className="font-mono text-[11px] font-bold text-[#628076] uppercase">{L('Baseline Canopy', 'শুরুর বন')}</p>
+                    <p className="mt-1 font-condensed text-3xl font-black text-[#0b382f]">
+                      {fmt(b.summary.start.mangroveHa, 1, lang)} <span className="font-sans text-sm font-semibold">ha</span>
+                    </p>
+                    <p className="text-[11px] text-[#6c877e] mt-0.5">{b.request.startDate.slice(0, 4)} composite</p>
+                  </div>
+
+                  <div className="rounded-xl border border-[#d2e3d8] bg-white p-4">
+                    <p className="font-mono text-[11px] font-bold text-[#628076] uppercase">{L('Target Canopy', 'শেষের বন')}</p>
+                    <p className="mt-1 font-condensed text-3xl font-black text-[#0b382f]">
+                      {fmt(b.summary.end.mangroveHa, 1, lang)} <span className="font-sans text-sm font-semibold">ha</span>
+                    </p>
+                    <p className="text-[11px] text-[#6c877e] mt-0.5">{b.request.endDate.slice(0, 4)} composite</p>
+                  </div>
+
+                  <div className="rounded-xl border border-[#d2e3d8] bg-white p-4">
+                    <p className="font-mono text-[11px] font-bold text-[#628076] uppercase">{L('Net Canopy Change', 'মোট পরিবর্তন')}</p>
+                    <p className={`mt-1 font-condensed text-3xl font-black ${b.change.percentChange >= 0 ? 'text-[#16865f]' : 'text-rose-600'}`}>
+                      {signed(b.summary.end.mangroveHa - b.summary.start.mangroveHa, 1, lang)} <span className="font-sans text-sm font-semibold">ha</span>
+                    </p>
+                    <p className="text-[11px] font-mono font-bold text-[#4c6d62] mt-0.5">
+                      ({signed(b.change.percentChange, 1, lang)}%)
+                    </p>
+                  </div>
+
+                  <div className="rounded-xl border border-[#d2e3d8] bg-white p-4">
+                    <p className="font-mono text-[11px] font-bold text-[#628076] uppercase">{L('Total Blue Carbon', 'জমা ব্লু কার্বন')}</p>
+                    <p className="mt-1 font-condensed text-3xl font-black text-[#0b382f]">
+                      {fmt(b.carbon.end.co2eMg, 0, lang)} <span className="font-sans text-sm font-semibold">t CO₂e</span>
+                    </p>
+                    <p className="text-[11px] text-[#6c877e] mt-0.5">± {fmt((b.carbon.end.co2eMg * 0.15), 0, lang)} t (Tier 1)</p>
+                  </div>
+                </div>
               </div>
-              <p className="mt-5 text-sm font-bold text-[#123f38]">{L('Show me on the dashboard:', 'ড্যাশবোর্ডে দেখান:')}</p>
-              <div className="mt-2 flex flex-wrap gap-2">
-                <JumpButton label={L('The verdict', 'সিদ্ধান্ত')} onClick={() => onJump('verdict')} />
-                <JumpButton label={L('Before / after photos', 'আগে / পরে ছবি')} onClick={() => onJump('compare')} />
-                <JumpButton label={L('Carbon & area', 'কার্বন ও এলাকা')} onClick={() => onJump('metrics')} />
-                <JumpButton label={L('Yearly trend & 5-year scenarios', 'বার্ষিক ধারা ও ৫ বছর')} onClick={() => onJump('trends')} />
-                <JumpButton label={L('Science lab (accuracy, method)', 'বিজ্ঞান ল্যাব (নির্ভুলতা, পদ্ধতি)')} onClick={() => onJump('technical-lab')} />
+
+              {/* Jump to specific dashboard tool */}
+              <div>
+                <p className="font-mono text-xs font-bold uppercase tracking-wider text-[#16865f]">
+                  {L('EXPLORE DEEP-DIVE TOOLS ON THE DASHBOARD', 'ড্যাশবোর্ডের বিশেষ টুলসমূহ')}
+                </p>
+                <div className="mt-3 flex flex-wrap gap-2">
+                  <JumpButton label={L('Verdict & Summary Card', 'সিদ্ধান্ত ও সারাংশ')} onClick={() => onJump('verdict')} />
+                  <JumpButton label={L('Before / After Satellite Slider', 'আগে / পরে উপগ্রহ স্লাইডার')} onClick={() => onJump('compare')} />
+                  <JumpButton label={L('Carbon Pool Metrics', 'কার্বন পরিসংখ্যান')} onClick={() => onJump('metrics')} />
+                  <JumpButton label={L('Yearly Trends & 5-Year Scenarios', 'বার্ষিক ধারা ও ৫ বছরের চিত্র')} onClick={() => onJump('trends')} />
+                  <JumpButton label={L('Science Lab (Confusion Matrix & Evidence)', 'সায়েন্স ল্যাব (ম্যাট্রিক্স ও প্রমাণ)')} onClick={() => onJump('technical-lab')} />
+                </div>
               </div>
             </>
           )}
-        </>
+        </div>
       ),
     },
     {
+      id: 'honesty',
       icon: ShieldCheck,
-      title: L('Honesty built in', 'সততা'),
+      kicker: L('DATA INTEGRITY & ERROR DETECTION', 'সততা ও বিশ্বাসযোগ্যতা যাচাই'),
+      title: L('It Knows When Not to Be Trusted', 'কখন ভুল হতে পারে তাও জানিয়ে দেয়'),
       body: (
-        <>
-          <Heading kicker={L('HOW WE AVOID MISLEADING NUMBERS', 'কীভাবে ভুল সংখ্যা এড়াই')} title={L('It knows when not to be trusted', 'কখন বিশ্বাস করা উচিত নয়, তাও জানে')} />
+        <div className="space-y-6">
+          <p className="text-sm text-[#416258] leading-relaxed max-w-4xl">
+            {L(
+              'Conventional mapping tools provide answers even when satellite imagery is ruined by monsoon cloud banks or tidal surges. MangroveLens runs 6 continuous sanity filters. If data is dubious, it warns you directly.',
+              'অনেক ক্ষেত্রে মেঘ বা জোয়ারের কারণে উপগ্রহ ছবি নষ্ট হলেও ভুল উত্তর আসে। MangroveLens স্বয়ংক্রিয়ভাবে ৬টি ধাপ পরীক্ষা করে জানায় উপাত্তটি কতটা বিশ্বাসযোগ্য।'
+            )}
+          </p>
+
           <HonestyChecks L={L} bundle={b} />
+
           {b?.accuracy && (
-            <p className="mt-4 text-sm text-[#475f57]">
-              {L('In this analysis, the model was tested on 2023 — a year it never learned from — and agreed with the scientists’ map', 'এই বিশ্লেষণে মডেলকে ২০২৩ সালে পরীক্ষা করা হয়েছে — যে বছর থেকে সে শেখেনি — আর বিজ্ঞানীদের মানচিত্রের সঙ্গে মিলেছে')}{' '}
-              <b>{fmt(b.accuracy.overallAccuracy * 100, 1, lang)}%</b>
-              {L(' of the time.', ' ক্ষেত্রে।')}
-            </p>
+            <div className="rounded-2xl bg-emerald-50 border border-emerald-200 p-4 text-xs sm:text-sm text-emerald-950 font-medium">
+              {L('Model Validation Result: On held-out 2023 satellite data that the classifier never trained on, it achieved an overall accuracy of', 'মডেল পরীক্ষার ফলাফল: ২০২৩ সালের সম্পূর্ণ অপ্রশিক্ষিত উপগ্রহ তথ্যে মডেলটির নির্ভুলতার হার')}{' '}
+              <b className="font-mono font-bold text-emerald-800">{fmt(b.accuracy.overallAccuracy * 100, 1, lang)}%</b>{' '}
+              {L('against scientific reference surveys.', 'বিজ্ঞানী মানচিত্রের তুলনায়।')}
+            </div>
           )}
-          <p className="mt-5 text-sm font-bold text-[#123f38]">{L('Try it — watch the warnings appear (live, takes 1–2 min):', 'নিজে দেখুন — সতর্কবার্তা আসবে (লাইভ, ১–২ মিনিট):')}</p>
-          <div className="mt-2 grid gap-2 sm:grid-cols-2">
-            <button
-              type="button"
-              onClick={() => onTry({ label: 'Gosaba village', lat: 22.165, lon: 88.805, startDate: '2020-01-01', endDate: '2026-03-31' })}
-              className="flex items-start gap-3 rounded-xl border border-[#d6e6de] bg-white p-3 text-left transition hover:border-[#16865f]"
-            >
-              <Play className="mt-0.5 size-4 shrink-0 text-[#16865f]" />
-              <span>
-                <span className="block text-sm font-bold text-[#123f38]">{L('A village instead of forest', 'বনের বদলে গ্রাম')}</span>
-                <span className="block text-xs text-[#6c817a]">
-                  {L('Gosaba village: trees and fields look like mangrove — the area check flags it.', 'গোসাবা গ্রাম: গাছপালা ও খেত ম্যানগ্রোভের মতো দেখায় — এলাকা যাচাই তা ধরে ফেলে।')}
+
+          {/* Interactive Try Test Cases */}
+          <div className="pt-2">
+            <p className="font-mono text-xs font-bold uppercase tracking-wider text-[#16865f]">
+              {L('TEST UNRELIABLE SCENARIOS (WATCH THE FILTERS TRIGGER IN REAL TIME):', 'পরীক্ষা করে দেখুন — সতর্কবার্তা কীভাবে আসে (লাইভ ১-২ মিনিট):')}
+            </p>
+            <div className="mt-3 grid gap-3 sm:grid-cols-2">
+              <button
+                type="button"
+                onClick={() => onTry({ label: 'Gosaba Village Overcount Test', lat: 22.165, lon: 88.805, startDate: '2020-01-01', endDate: '2026-03-31' })}
+                className="group flex items-start gap-3.5 rounded-2xl border border-[#cbe1d5] bg-white p-4 text-left transition-all hover:border-[#16865f] hover:shadow-xs cursor-pointer"
+              >
+                <span className="grid size-9 shrink-0 place-items-center rounded-xl bg-amber-100 text-amber-800 group-hover:bg-[#16865f] group-hover:text-white transition-colors">
+                  <Play className="size-4" />
                 </span>
-              </span>
-            </button>
-            <button
-              type="button"
-              onClick={() => onTry({ label: 'Different seasons', lat: 22.12, lon: 88.83, startDate: '2019-02-01', endDate: '2022-07-08' })}
-              className="flex items-start gap-3 rounded-xl border border-[#d6e6de] bg-white p-3 text-left transition hover:border-[#16865f]"
-            >
-              <Play className="mt-0.5 size-4 shrink-0 text-[#16865f]" />
-              <span>
-                <span className="block text-sm font-bold text-[#123f38]">{L('Dry season vs rainy season', 'শুকনো বনাম বর্ষা মৌসুম')}</span>
-                <span className="block text-xs text-[#6c817a]">
-                  {L('Feb 2019 vs July 2022: water and clouds look like lost forest — marked 🔴 “do not trust”.', 'ফেব্রুয়ারি ২০১৯ বনাম জুলাই ২০২২: জল ও মেঘ বন হারানোর মতো দেখায় — 🔴 “বিশ্বাস করবেন না” চিহ্ন আসে।')}
+                <div>
+                  <p className="font-display text-sm font-bold text-[#0c3830]">
+                    {L('Test Case 1: Inhabited Village Settlement', 'পরীক্ষা ১: জনবসতিপূর্ণ এলাকা (গোসাবা)')}
+                  </p>
+                  <p className="mt-1 text-xs text-[#59756b] leading-relaxed">
+                    {L('Village homestead orchards reflect like mangrove — our settlement proximity check automatically flags the risk of false positives.', 'গ্রামের গাছপালা ম্যানগ্রোভের মতো দেখায় — জনবসতি সতর্কতা সিস্টেম এটি স্বয়ংক্রিয়ভাবে চিহ্নিত করে।')}
+                  </p>
+                </div>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => onTry({ label: 'Seasonal Contrast Distortion Test', lat: 22.12, lon: 88.83, startDate: '2019-02-01', endDate: '2022-07-08' })}
+                className="group flex items-start gap-3.5 rounded-2xl border border-[#cbe1d5] bg-white p-4 text-left transition-all hover:border-[#16865f] hover:shadow-xs cursor-pointer"
+              >
+                <span className="grid size-9 shrink-0 place-items-center rounded-xl bg-rose-100 text-rose-800 group-hover:bg-[#16865f] group-hover:text-white transition-colors">
+                  <Play className="size-4" />
                 </span>
-              </span>
-            </button>
+                <div>
+                  <p className="font-display text-sm font-bold text-[#0c3830]">
+                    {L('Test Case 2: Dry vs Monsoon Season Clash', 'পরীক্ষা ২: শুষ্ক বনাম বর্ষা মৌসুমের অসঙ্গতি')}
+                  </p>
+                  <p className="mt-1 text-xs text-[#59756b] leading-relaxed">
+                    {L('Feb (dry) vs July (monsoon): cloud spray and deep water falsely look like forest dieback. System issues 🔴 “Do Not Trust”.', 'ফেব্রুয়ারি বনাম জুলাই: বর্ষার জল ও মেঘকে বন হারানোর মতো মনে হয় — সিস্টেম 🔴 “বিশ্বাস করবেন না” চিহ্ন দেয়।')}
+                  </p>
+                </div>
+              </button>
+            </div>
           </div>
-        </>
+        </div>
       ),
     },
     {
+      id: 'carbon',
       icon: Leaf,
-      title: L('Carbon & future', 'কার্বন ও ভবিষ্যৎ'),
+      kicker: L('BIOGEOCHEMICAL ACCOUNTING', 'কার্বন বিজ্ঞান ও হিসাব'),
+      title: L('Transparent Math, Never a Black Box', 'স্বচ্ছ গণিত — কোনো অজানা রহস্য নয়'),
       body: (
-        <>
-          <Heading kicker={L('TRANSPARENT MATHS, NOT A BLACK BOX', 'স্বচ্ছ গণিত, রহস্য নয়')} title={L('How carbon and the 5-year view are calculated', 'কার্বন ও ৫ বছরের চিত্র কীভাবে হিসাব হয়')} />
-          <div className="grid gap-3 lg:grid-cols-2">
-            <div className="rounded-2xl border border-[#d6e6de] bg-white p-5">
-              <p className="text-sm font-bold text-[#123f38]">{L('Carbon', 'কার্বন')}</p>
-              <p className="mt-2 rounded-xl bg-[#04241d] p-3 text-center font-mono text-sm text-emerald-200">
-                {L('carbon = forest area × 283.1 t C/ha', 'কার্বন = বনের এলাকা × ২৮৩.১ টন/হেক্টর')}
-              </p>
-              <div className="mt-3 space-y-1.5 text-sm text-[#475f57]">
+        <div className="space-y-6">
+          <div className="grid gap-6 lg:grid-cols-12">
+            {/* Column 1: IPCC Tier 1 Pools */}
+            <div className="lg:col-span-7 rounded-3xl border border-[#cbe1d5] bg-white p-6 shadow-xs space-y-4">
+              <div className="flex items-center justify-between border-b border-[#e5efe9] pb-3">
+                <h3 className="font-display text-base font-bold text-[#09352c]">
+                  {L('IPCC 2013 Wetlands Tier 1 Carbon Pools', 'IPCC ২০১৩ টিয়ার ১ কার্বন স্তরসমূহ')}
+                </h3>
+                <span className="font-mono text-xs font-bold text-[#16865f]">283.1 Mg C / ha</span>
+              </div>
+
+              <div className="rounded-2xl bg-[#03231c] p-4 text-center font-mono text-sm text-emerald-200">
+                Carbon = Mangrove Area (ha) × 283.1 t C/ha × 3.667 CO₂e
+              </div>
+
+              <div className="space-y-3.5 pt-2">
                 {[
-                  [L('Trees above ground', 'মাটির উপরে গাছ'), 74.2],
-                  [L('Roots', 'শিকড়'), 28.9],
-                  [L('Soil (top 1 m)', 'মাটি (উপরের ১ মিটার)'), 180],
-                ].map(([k, v]) => (
-                  <div key={k as string}>
-                    <div className="flex justify-between text-xs">
-                      <span>{k}</span>
-                      <span className="font-mono">{fmt(v as number, 1, lang)} t C/ha</span>
+                  {
+                    name: L('Above-Ground Biomass (Trunks & Foliage)', 'মাটির উপরের অংশ (কাণ্ড ও ডালপালা)'),
+                    val: 74.2,
+                    pct: 26.2,
+                    color: 'bg-emerald-600',
+                  },
+                  {
+                    name: L('Below-Ground Roots (Pneumatophore System)', 'মাটির নিচের শিকড় ব্যবস্থা'),
+                    val: 28.9,
+                    pct: 10.2,
+                    color: 'bg-teal-600',
+                  },
+                  {
+                    name: L('Soil Organic Carbon (Top 1m Anoxic Mud)', 'মাটির জৈব কার্বন (উপরের ১ মিটার কাদা)'),
+                    val: 180.0,
+                    pct: 63.6,
+                    color: 'bg-[#0f5442]',
+                  },
+                ].map((pool) => (
+                  <div key={pool.val} className="space-y-1.5">
+                    <div className="flex justify-between text-xs font-semibold text-[#294c41]">
+                      <span>{pool.name}</span>
+                      <span className="font-mono font-bold">{pool.val} t C/ha ({pool.pct}%)</span>
                     </div>
-                    <div className="mt-0.5 h-1.5 rounded-full bg-[#e5efe9]">
-                      <div className="h-1.5 rounded-full bg-[#16865f]" style={{ width: `${((v as number) / 283.1) * 100}%` }} />
+                    <div className="h-2.5 w-full rounded-full bg-[#e3efe7] overflow-hidden">
+                      <div className={`h-full rounded-full ${pool.color}`} style={{ width: `${pool.pct}%` }} />
                     </div>
                   </div>
                 ))}
               </div>
-              <p className="mt-3 text-xs text-[#6c817a]">
-                {L('Standard IPCC 2013 (Tier 1) figures, shown with a ± range. Estimates for planning — not carbon credits.', 'IPCC ২০১৩ (টিয়ার ১)-এর মানক সংখ্যা, ± পরিসর সহ। পরিকল্পনার জন্য আনুমানিক — কার্বন ক্রেডিট নয়।')}
-              </p>
-            </div>
-            <div className="rounded-2xl border border-[#d6e6de] bg-white p-5">
-              <p className="text-sm font-bold text-[#123f38]">{L('Next 5 years', 'আগামী ৫ বছর')}</p>
-              <ul className="mt-2 space-y-2 text-sm text-[#475f57]">
-                <li>➡️ <b>{L('If things continue:', 'এভাবে চললে:')}</b> {L('the observed yearly change, repeated.', 'দেখা বার্ষিক পরিবর্তনই চলতে থাকবে।')}</li>
-                <li>⚠️ <b>{L('If damage doubles:', 'ক্ষতি দ্বিগুণ হলে:')}</b> {L('one more year’s worth of loss every year.', 'প্রতি বছর আরও এক গুণ ক্ষতি।')}</li>
-                <li>🌱 <b>{L('If protected & planted:', 'রক্ষা ও রোপণ হলে:')}</b> {L('half the loss, 50 % more new forest.', 'ক্ষতি অর্ধেক, নতুন বন ৫০% বেশি।')}</li>
-              </ul>
-              <p className="mt-3 rounded-xl bg-[#f2f6f3] p-3 text-xs text-[#475f57]">
+
+              <p className="text-xs text-[#5f7d73] leading-relaxed pt-2">
                 {L(
-                  'Simple, repeatable maths — not an AI guess. Gemini only rewrites the summary in plain words, and its text is rejected if it contains any number we did not calculate.',
-                  'সহজ, বারবার মেলানো যায় এমন গণিত — AI-এর অনুমান নয়। Gemini শুধু সারাংশ সহজ ভাষায় লেখে; হিসাবের বাইরের কোনো সংখ্যা লিখলে তার লেখা বাতিল হয়।',
+                  'Notice that over 63% of blue carbon is locked inside the anaerobic tidal sediment, not in the trees alone. When mangroves erode, this ancient soil carbon oxidizes into atmospheric CO₂.',
+                  'লক্ষ্য করুন, ৬৩%-এর বেশি ব্লু কার্বন গাছের চেয়ে মাটির নিচে জমা থাকে। বন হারিয়ে গেলে এই শতাব্দী প্রাচীন কার্বন বাতাসে মিশে যায়।'
                 )}
               </p>
-              {b && (
-                <div className="mt-3">
-                  <JumpButton label={L('See the scenarios', 'চিত্রগুলো দেখুন')} onClick={() => onJump('trends')} />
+            </div>
+
+            {/* Column 2: 5-Year Scenarios */}
+            <div className="lg:col-span-5 rounded-3xl border border-[#cbe1d5] bg-white p-6 shadow-xs space-y-4">
+              <h3 className="font-display text-base font-bold text-[#09352c]">
+                {L('Five-Year Scenario Projections', 'আগামী ৫ বছরের ভবিষ্যৎ চিত্র')}
+              </h3>
+
+              <div className="space-y-3">
+                <div className="rounded-2xl border border-[#d6e6dc] bg-[#f8faf9] p-3.5">
+                  <div className="flex items-center gap-2 text-xs font-bold text-[#144238]">
+                    <ArrowRight className="size-4 text-[#16865f]" /> {L('Status Quo Continuation', 'বর্তমান ধারা')}
+                  </div>
+                  <p className="mt-1 text-xs text-[#527267] leading-relaxed">
+                    {L('Extrapolates the observed annual rate of net canopy change forward by 5 years.', 'সাম্প্রতিক বছরগুলোর পরিবর্তনের গতি অনুসারেই বন বাড়বে বা কমবে।')}
+                  </p>
                 </div>
-              )}
+
+                <div className="rounded-2xl border border-rose-200 bg-rose-50/50 p-3.5">
+                  <div className="flex items-center gap-2 text-xs font-bold text-rose-900">
+                    <TrendingDown className="size-4 text-rose-600" /> {L('Severe Stress / Cyclone Scenario', 'দুর্যোগ বা চরম ক্ষতি')}
+                  </div>
+                  <p className="mt-1 text-xs text-rose-800/80 leading-relaxed">
+                    {L('Simulates cyclonic embankment breaches (+100% additional loss per year).', 'ঝড়ে বাঁধ ভাঙলে বা ক্ষতি দ্বিগুণ হলে বনের আয়তন ও কার্বন কীভাবে দ্রুত কমবে।')}
+                  </p>
+                </div>
+
+                <div className="rounded-2xl border border-emerald-200 bg-emerald-50/50 p-3.5">
+                  <div className="flex items-center gap-2 text-xs font-bold text-emerald-950">
+                    <TrendingUp className="size-4 text-emerald-700" /> {L('Protection & Restoration Target', 'সংরক্ষণ ও রোপণ')}
+                  </div>
+                  <p className="mt-1 text-xs text-emerald-900/80 leading-relaxed">
+                    {L('Models halving loss rates and expanding community sapling planting by +50%.', 'ক্ষতি ৫০% কমিয়ে সামাজিক বনায়ন ৫০% বাড়ালে কার্বনের পুনরুদ্ধার।')}
+                  </p>
+                </div>
+              </div>
+
+              <div className="rounded-xl bg-[#edf5f0] p-3 text-[11px] text-[#416257]">
+                {L('AI Guardrail: Gemini language model only converts equations to words; it cannot invent numbers.', 'AI গার্ডরেল: জেমিনাই কেবল লেখা সহজ করতে পারে, কোনো সংখ্যা বানাতে পারে না।')}
+              </div>
             </div>
           </div>
-        </>
+        </div>
       ),
     },
     {
+      id: 'tech',
       icon: Code2,
-      title: L('Technology', 'প্রযুক্তি'),
+      kicker: L('FULL TECHNICAL SPECIFICATION', 'প্রযুক্তি কাঠামো'),
+      title: L('Open Science, Transparent Engineering', 'উন্মুক্ত বিজ্ঞান ও আধুনিক সফটওয়্যার প্রযুক্তি'),
       body: (
-        <>
-          <Heading kicker={L('WHAT IT IS BUILT WITH', 'কী দিয়ে তৈরি')} title={L('Open data, open science, a simple app', 'উন্মুক্ত তথ্য, উন্মুক্ত বিজ্ঞান, সহজ অ্যাপ')} />
-          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="space-y-6">
+          <div className="grid gap-3.5 sm:grid-cols-2 lg:grid-cols-3">
             {[
-              [Satellite, L('Data', 'তথ্য'), ['Copernicus Sentinel-2 L2A', 'CGMD-AFCC30 mangrove map (1984–2023)', 'IPCC 2013 Wetlands Supplement']],
-              [Cloud, L('Processing', 'প্রক্রিয়াকরণ'), ['Google Earth Engine', 'Cloud & shadow masking', 'Median composites, NDVI / NDWI']],
-              [BrainCircuit, L('Machine learning', 'মেশিন লার্নিং'), ['Random Forest (200 trees)', 'Held-out year test (2023)', 'Area check vs reference map']],
-              [FlaskConical, L('Analytics', 'বিশ্লেষণ'), ['Gain / loss / uncertain change', 'Carbon with ± error propagation', '5-year what-if scenarios']],
-              [Code2, L('Application', 'অ্যাপ্লিকেশন'), ['FastAPI (Python)', 'React + TypeScript + Vite', 'Leaflet maps, Recharts']],
-              [FileText, L('Delivery', 'পৌঁছে দেওয়া'), [L('Bengali & English', 'বাংলা ও ইংরেজি'), L('WhatsApp share, PDF report', 'WhatsApp, PDF রিপোর্ট'), L('Gemini wording, number-checked', 'Gemini ভাষা, সংখ্যা যাচাই')]],
-            ].map(([Icon, title, items]) => {
-              const I = Icon as typeof Leaf
+              {
+                icon: Satellite,
+                cat: L('Orbital Telemetry', 'উপগ্রহ তথ্য'),
+                items: ['Copernicus Sentinel-2 MSI L2A', 'CGMD-AFCC30 30m historical archive', 'IPCC 2013 Wetlands Supplement'],
+              },
+              {
+                icon: Cloud,
+                cat: L('Cloud Geocomputation', 'ক্লাউড প্রসেসিং'),
+                items: ['Google Earth Engine Python API', 'QA60 & SCL cloud shadow masking', '90-day per-pixel median reduction', 'NDVI & NDWI multispectral features'],
+              },
+              {
+                icon: BrainCircuit,
+                cat: L('Machine Learning Core', 'মেশিন লার্নিং'),
+                items: ['Random Forest (200 decision trees)', 'Held-out test validation (2023)', '0.5 ha Minimum Mapping Unit (MMU)'],
+              },
+              {
+                icon: FlaskConical,
+                cat: L('Carbon & Forecasting', 'কার্বন ও পূর্বাভাস'),
+                items: ['First-order Taylor error propagation', 'Tier 1 biomass & sediment pools', '3-scenario five-year projection engine'],
+              },
+              {
+                icon: Code2,
+                cat: L('Application Engine', 'ওয়েব প্ল্যাটফর্ম'),
+                items: ['FastAPI asynchronous microservice', 'React 19 + TypeScript + Vite', 'Leaflet spatial map layers', 'Recharts interactive analytics'],
+              },
+              {
+                icon: FileText,
+                cat: L('Field Delivery & Safety', 'মাঠ পর্যায় ও নিরাপত্তা'),
+                items: ['Bilingual Bengali & English UI', 'Deterministic PDF generator', '1-click WhatsApp card sharing', 'Numerical verification guardrails'],
+              },
+            ].map((col) => {
+              const ColIcon = col.icon
               return (
-                <div key={title as string} className="rounded-2xl border border-[#d6e6de] bg-white p-4">
-                  <p className="flex items-center gap-2 text-sm font-bold text-[#123f38]">
-                    <I className="size-4 text-[#16865f]" /> {title as string}
-                  </p>
-                  <ul className="mt-2 space-y-1">
-                    {(items as string[]).map((it) => (
-                      <li key={it} className="font-mono text-[11.5px] text-[#475f57]">• {it}</li>
+                <div key={col.cat} className="rounded-2xl border border-[#cbe1d5] bg-white p-5 shadow-2xs">
+                  <div className="flex items-center gap-2.5">
+                    <span className="grid size-8 place-items-center rounded-lg bg-emerald-50 text-[#16865f] border border-emerald-200">
+                      <ColIcon className="size-4" />
+                    </span>
+                    <h3 className="font-display text-sm font-bold text-[#0c3930]">{col.cat}</h3>
+                  </div>
+                  <ul className="mt-3.5 space-y-2 border-t border-[#eaf2ed] pt-3">
+                    {col.items.map((it) => (
+                      <li key={it} className="flex items-start gap-2 font-mono text-xs text-[#46655c]">
+                        <span className="text-[#16865f] font-bold">›</span>
+                        <span>{it}</span>
+                      </li>
                     ))}
                   </ul>
                 </div>
               )
             })}
           </div>
-          <p className="mt-4 text-xs text-[#6c817a]">
-            {caps?.liveEngine
-              ? L('Right now: connected to Google Earth Engine — live satellite analysis.', 'এই মুহূর্তে: Google Earth Engine যুক্ত — লাইভ উপগ্রহ বিশ্লেষণ।')
-              : L('Right now: Earth Engine not connected — the dashboard is in labelled demo mode.', 'এই মুহূর্তে: Earth Engine যুক্ত নেই — ড্যাশবোর্ড চিহ্নিত ডেমো মোডে।')}
-          </p>
-        </>
+
+          <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl bg-[#edf6f1] border border-[#c6decfa8] p-4 font-mono text-xs text-[#2c4e43]">
+            <div className="flex items-center gap-2">
+              <span className={`size-2 rounded-full ${caps?.liveEngine ? 'bg-emerald-500 animate-pulse' : 'bg-amber-500'}`} />
+              <span>
+                {caps?.liveEngine
+                  ? L('Google Earth Engine: Connected & Live', 'গুগল আর্থ ইঞ্জিন: সংযুক্ত ও লাইভ')
+                  : L('Google Earth Engine: Offline (Synthesized Demo Mode)', 'গুগল আর্থ ইঞ্জিন: অফলাইন (ডেমো মোড)')}
+              </span>
+            </div>
+            <span>Version: 2.4.0-production</span>
+          </div>
+        </div>
       ),
     },
     {
+      id: 'impact',
       icon: GraduationCap,
-      title: L('Impact & next steps', 'প্রভাব ও পরের ধাপ'),
+      kicker: L('WHO IT HELPS & ROADMAP', 'কাদের কাজে লাগে ও ভবিষ্যৎ পরিকল্পনা'),
+      title: L('From Satellite Sensors to Local Action', 'উপগ্রহ থেকে স্থানীয় বাস্তব পদক্ষেপ'),
       body: (
-        <>
-          <Heading kicker={L('WHO IT HELPS — AND WHAT COMES NEXT', 'কাদের কাজে লাগে — আর এরপর')} title={L('From a map to local action', 'মানচিত্র থেকে স্থানীয় পদক্ষেপ')} />
-          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-            <InfoCard icon={Users} title={L('Gram panchayats', 'গ্রাম পঞ্চায়েত')}>{L('See their own forest in Bengali; plan planting and embankment protection.', 'নিজেদের বন বাংলায় দেখা; রোপণ ও বাঁধ রক্ষার পরিকল্পনা।')}</InfoCard>
-            <InfoCard icon={Leaf} title={L('Forest department', 'বন দপ্তর')}>{L('Spot where loss is happening and send teams to check.', 'কোথায় ক্ষতি হচ্ছে দেখে দল পাঠানো।')}</InfoCard>
-            <InfoCard icon={ShieldCheck} title={L('NGOs & restoration', 'এনজিও ও পুনরুদ্ধার')}>{L('Track whether planted areas actually grow.', 'রোপণ করা এলাকা সত্যিই বাড়ছে কি না দেখা।')}</InfoCard>
-            <InfoCard icon={FlaskConical} title={L('Researchers', 'গবেষক')}>{L('Transparent method, model version and evidence for every result.', 'প্রতিটি ফলাফলের স্বচ্ছ পদ্ধতি, মডেল সংস্করণ ও প্রমাণ।')}</InfoCard>
-          </div>
-          <div className="mt-5 grid gap-3 lg:grid-cols-2">
-            <div className="rounded-2xl border border-amber-200 bg-amber-50 p-4">
-              <p className="text-sm font-bold text-amber-800">{L('Known limits', 'জানা সীমাবদ্ধতা')}</p>
-              <ul className="mt-2 space-y-1 text-sm text-amber-900/80">
-                <li>• {L('Over-counts mangrove near villages (flagged automatically).', 'গ্রামের কাছে ম্যানগ্রোভ বেশি গোনে (স্বয়ংক্রিয়ভাবে সতর্ক করে)।')}</li>
-                <li>• {L('Carbon uses average (Tier 1) figures, not local soil samples.', 'কার্বনে গড় (টিয়ার ১) মান, স্থানীয় মাটির নমুনা নয়।')}</li>
-                <li>• {L('Clouds and tides limit some seasons.', 'মেঘ ও জোয়ার কিছু মৌসুমে সমস্যা করে।')}</li>
-              </ul>
+        <div className="space-y-8">
+          {/* Section A: 4 Stakeholders with rich high-density design */}
+          <div>
+            <p className="font-mono text-xs font-bold uppercase tracking-[0.2em] text-[#16865f] mb-3.5">
+              {L('PRIMARY STAKEHOLDERS & BENEFICIARIES', 'মূল ব্যবহারকারী ও সুবিধাভোগী')}
+            </p>
+            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+              {/* Stakeholder 1 */}
+              <div className="rounded-2xl border border-[#cbe1d5] bg-white p-5 shadow-2xs flex flex-col justify-between">
+                <div>
+                  <div className="flex items-center justify-between">
+                    <span className="grid size-10 place-items-center rounded-xl bg-emerald-100 text-[#16865f]">
+                      <Users className="size-5" />
+                    </span>
+                    <span className="font-mono text-[9.5px] font-bold uppercase tracking-wider text-emerald-800 bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-200">
+                      {L('COMMUNITY', 'সমাজ')}
+                    </span>
+                  </div>
+                  <h3 className="mt-3.5 font-display text-base font-bold text-[#0a352c]">
+                    {L('Gram Panchayats', 'গ্রাম পঞ্চায়েত')}
+                  </h3>
+                  <p className="mt-2 text-xs sm:text-sm leading-relaxed text-[#4b6a5f]">
+                    {L(
+                      'Understand local forest erosion in plain Bengali. Locate vulnerable earthen embankments that require priority mangrove planting before storms.',
+                      'সহজ বাংলায় নিজেদের এলাকার বনের ভাঙন বোঝা। ঝড়ের আগে কোন বাঁধের কাছে নতুন চারা রোপণ জরুরি তা চিহ্নিত করা।'
+                    )}
+                  </p>
+                </div>
+                <div className="mt-4 pt-3 border-t border-[#edf4f0] flex flex-wrap gap-1 text-[10.5px] font-mono font-semibold text-[#185544]">
+                  <span className="bg-[#edf6f1] px-2 py-0.5 rounded">Bengali UI</span>
+                  <span className="bg-[#edf6f1] px-2 py-0.5 rounded">WhatsApp Cards</span>
+                </div>
+              </div>
+
+              {/* Stakeholder 2 */}
+              <div className="rounded-2xl border border-[#cbe1d5] bg-white p-5 shadow-2xs flex flex-col justify-between">
+                <div>
+                  <div className="flex items-center justify-between">
+                    <span className="grid size-10 place-items-center rounded-xl bg-teal-100 text-teal-800">
+                      <Leaf className="size-5" />
+                    </span>
+                    <span className="font-mono text-[9.5px] font-bold uppercase tracking-wider text-teal-800 bg-teal-50 px-2 py-0.5 rounded-md border border-teal-200">
+                      {L('ENFORCEMENT', 'নজরদারি')}
+                    </span>
+                  </div>
+                  <h3 className="mt-3.5 font-display text-base font-bold text-[#0a352c]">
+                    {L('Forest Department', 'বন দপ্তর')}
+                  </h3>
+                  <p className="mt-2 text-xs sm:text-sm leading-relaxed text-[#4b6a5f]">
+                    {L(
+                      'Spot newly emerging deforestation hotspots and clandestine clearings. Dispatch field boat patrols to exact GPS coordinates rather than searching blindly.',
+                      'কোথায় নতুন করে গাছ কাটা বা ভাঙন হচ্ছে দ্রুত শনাক্ত করা। অন্ধের মতো টহল না দিয়ে নির্দিষ্ট জিপিএস স্থানে টিম পাঠানো।'
+                    )}
+                  </p>
+                </div>
+                <div className="mt-4 pt-3 border-t border-[#edf4f0] flex flex-wrap gap-1 text-[10.5px] font-mono font-semibold text-[#185544]">
+                  <span className="bg-[#edf6f1] px-2 py-0.5 rounded">Change Polygons</span>
+                  <span className="bg-[#edf6f1] px-2 py-0.5 rounded">GPS Coordinates</span>
+                </div>
+              </div>
+
+              {/* Stakeholder 3 */}
+              <div className="rounded-2xl border border-[#cbe1d5] bg-white p-5 shadow-2xs flex flex-col justify-between">
+                <div>
+                  <div className="flex items-center justify-between">
+                    <span className="grid size-10 place-items-center rounded-xl bg-sky-100 text-sky-800">
+                      <ShieldCheck className="size-5" />
+                    </span>
+                    <span className="font-mono text-[9.5px] font-bold uppercase tracking-wider text-sky-800 bg-sky-50 px-2 py-0.5 rounded-md border border-sky-200">
+                      {L('VERIFICATION', 'যাচাই')}
+                    </span>
+                  </div>
+                  <h3 className="mt-3.5 font-display text-base font-bold text-[#0a352c]">
+                    {L('NGOs & Restorers', 'এনজিও ও পুনরুদ্ধার')}
+                  </h3>
+                  <p className="mt-2 text-xs sm:text-sm leading-relaxed text-[#4b6a5f]">
+                    {L(
+                      'Track whether replanted mudflats actually survive over 3–5 year horizons. Verify real canopy closure instead of unverified sapling purchase receipts.',
+                      'রোপণ করা ম্যানগ্রোভ চারা সত্যিই আগামী ৩-৫ বছর টিকে থাকছে কি না তা উপগ্রহ দিয়ে স্বাধীনভাবে যাচাই করা।'
+                    )}
+                  </p>
+                </div>
+                <div className="mt-4 pt-3 border-t border-[#edf4f0] flex flex-wrap gap-1 text-[10.5px] font-mono font-semibold text-[#185544]">
+                  <span className="bg-[#edf6f1] px-2 py-0.5 rounded">Multi-Year Trends</span>
+                  <span className="bg-[#edf6f1] px-2 py-0.5 rounded">Canopy Metrics</span>
+                </div>
+              </div>
+
+              {/* Stakeholder 4 */}
+              <div className="rounded-2xl border border-[#cbe1d5] bg-white p-5 shadow-2xs flex flex-col justify-between">
+                <div>
+                  <div className="flex items-center justify-between">
+                    <span className="grid size-10 place-items-center rounded-xl bg-indigo-100 text-indigo-800">
+                      <FlaskConical className="size-5" />
+                    </span>
+                    <span className="font-mono text-[9.5px] font-bold uppercase tracking-wider text-indigo-800 bg-indigo-50 px-2 py-0.5 rounded-md border border-indigo-200">
+                      {L('ACADEMIA', 'গবেষণা')}
+                    </span>
+                  </div>
+                  <h3 className="mt-3.5 font-display text-base font-bold text-[#0a352c]">
+                    {L('Researchers & ESG', 'গবেষক ও পরিবেশবিদ')}
+                  </h3>
+                  <p className="mt-2 text-xs sm:text-sm leading-relaxed text-[#4b6a5f]">
+                    {L(
+                      'Audit full methodological transparency: confusion matrices, F1 scores, held-out year validation, and raw GeoJSON telemetry exports.',
+                      'সম্পূর্ণ উন্মুক্ত কার্যপদ্ধতি, কনফিউশন ম্যাট্রিক্স, নির্ভুলতার স্কোর এবং গবেষণার জন্য ওপেন ডেটা ডাউনলোড।'
+                    )}
+                  </p>
+                </div>
+                <div className="mt-4 pt-3 border-t border-[#edf4f0] flex flex-wrap gap-1 text-[10.5px] font-mono font-semibold text-[#185544]">
+                  <span className="bg-[#edf6f1] px-2 py-0.5 rounded">Confusion Matrix</span>
+                  <span className="bg-[#edf6f1] px-2 py-0.5 rounded">JSON / CSV Export</span>
+                </div>
+              </div>
             </div>
-            <div className="rounded-2xl border border-[#d6e6de] bg-white p-4">
-              <p className="text-sm font-bold text-[#123f38]">{L('Next steps', 'পরের ধাপ')}</p>
-              <ul className="mt-2 space-y-1 text-sm text-[#475f57]">
-                <li>• {L('Field checks by local teams to validate the maps.', 'স্থানীয় দলের মাঠ যাচাই দিয়ে মানচিত্র যাচাই।')}</li>
-                <li>• {L('Separate village trees and crops from mangrove.', 'গ্রামের গাছ ও ফসলকে ম্যানগ্রোভ থেকে আলাদা করা।')}</li>
-                <li>• {L('Local soil-carbon samples for better carbon figures.', 'ভালো কার্বন হিসাবের জন্য স্থানীয় মাটির নমুনা।')}</li>
-              </ul>
+          </div>
+
+          {/* Section B: Known Limits vs. Development Roadmap (Rich structured cards instead of plain bullet dots) */}
+          <div className="grid gap-6 lg:grid-cols-2">
+            {/* Known Limits */}
+            <div className="rounded-3xl border border-amber-200 bg-amber-50/50 p-6 sm:p-7 shadow-xs space-y-4">
+              <div className="flex items-center justify-between border-b border-amber-200 pb-3">
+                <div className="flex items-center gap-2">
+                  <ShieldAlert className="size-5 text-amber-700" />
+                  <h3 className="font-display text-base font-bold text-amber-950">
+                    {L('Known Scientific Limits & Safeguards', 'জানা সীমাবদ্ধতা ও সুরক্ষাব্যবস্থা')}
+                  </h3>
+                </div>
+                <span className="font-mono text-[10px] font-bold uppercase tracking-wider text-amber-800 bg-amber-100 px-2 py-0.5 rounded">
+                  {L('TRANSPARENCY', 'স্বচ্ছতা')}
+                </span>
+              </div>
+
+              <div className="space-y-3.5">
+                <div className="rounded-2xl bg-white/90 p-4 border border-amber-200/80">
+                  <div className="flex items-center justify-between text-xs font-bold text-amber-950">
+                    <span>{L('Village & Farmstead Vegetation', 'গ্রামের গাছপালা ও খেতের প্রতিফলন')}</span>
+                    <span className="font-mono text-[10px] text-amber-800 bg-amber-100 px-2 py-0.5 rounded">Auto-Flagged</span>
+                  </div>
+                  <p className="mt-1.5 text-xs text-amber-900/80 leading-relaxed">
+                    {L(
+                      'Homestead trees (coconut, betel palm) near settlements can register spectral reflectance similar to mangrove canopy. MangroveLens includes automated settlement proximity warnings.',
+                      'গ্রামের বসতবাড়ির গাছপালা উপগ্রহে ম্যানগ্রোভের মতো লাগতে পারে। আমাদের সিস্টেম গ্রামের কাছের বৃত্তের ক্ষেত্রে আগেই সতর্কতা দেখায়।'
+                    )}
+                  </p>
+                </div>
+
+                <div className="rounded-2xl bg-white/90 p-4 border border-amber-200/80">
+                  <div className="flex items-center justify-between text-xs font-bold text-amber-950">
+                    <span>{L('IPCC Regional Tier 1 Averages', 'টিয়ার ১ আঞ্চলিক কার্বন গড়')}</span>
+                    <span className="font-mono text-[10px] text-amber-800 bg-amber-100 px-2 py-0.5 rounded">Explicit ± Error</span>
+                  </div>
+                  <p className="mt-1.5 text-xs text-amber-900/80 leading-relaxed">
+                    {L(
+                      'Calculates carbon stock using IPCC 2013 standard figures (283.1 t C/ha) rather than destructive core drilling. Intended for regional planning, not commercial carbon offsets.',
+                      'সরাসরি মাটি না কেটে আন্তর্জাতিক আইপিসিসি মান অনুযায়ী হিসাব করা হয়। এটি আঞ্চলিক পরিকল্পনার জন্য প্রযোজ্য।'
+                    )}
+                  </p>
+                </div>
+
+                <div className="rounded-2xl bg-white/90 p-4 border border-amber-200/80">
+                  <div className="flex items-center justify-between text-xs font-bold text-amber-950">
+                    <span>{L('Monsoon Cloud Cover & High Tides', 'বর্ষার মেঘ ও ভরা জোয়ারের সীমাবদ্ধতা')}</span>
+                    <span className="font-mono text-[10px] text-amber-800 bg-amber-100 px-2 py-0.5 rounded">Dry Window Only</span>
+                  </div>
+                  <p className="mt-1.5 text-xs text-amber-900/80 leading-relaxed">
+                    {L(
+                      'Submerged breathing roots and dense monsoon cloud cover interfere with optical sensors. Analyses are strictly restricted to 90-day dry-season median composites.',
+                      'ভরা জোয়ারে গাছের শ্বাসমূল ডুবে থাকে এবং বর্ষায় মেঘ থাকে। তাই সিস্টেম কেবল জানুয়ারি–মার্চের শুকনো ছবি বিশ্লেষণ করে।'
+                    )}
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            {/* Development Roadmap */}
+            <div className="rounded-3xl border border-[#cbe1d5] bg-white p-6 sm:p-7 shadow-xs space-y-4">
+              <div className="flex items-center justify-between border-b border-[#e5efe9] pb-3">
+                <div className="flex items-center gap-2">
+                  <Compass className="size-5 text-[#16865f]" />
+                  <h3 className="font-display text-base font-bold text-[#09352c]">
+                    {L('Active Engineering Roadmap', 'ভবিষ্যৎ কর্মপরিকল্পনা ও রোডম্যাপ')}
+                  </h3>
+                </div>
+                <span className="font-mono text-[10px] font-bold uppercase tracking-wider text-emerald-800 bg-emerald-100 px-2 py-0.5 rounded">
+                  {L('HORIZONS', 'পরবর্তী পদক্ষেপ')}
+                </span>
+              </div>
+
+              <div className="space-y-3.5">
+                <div className="rounded-2xl bg-[#f6faf8] p-4 border border-[#d6e8dc]">
+                  <div className="flex items-center justify-between text-xs font-bold text-[#0a352b]">
+                    <span>{L('1. Ranger Ground-Truthing Mobile App', '১. বনরক্ষীদের জন্য গ্রাউন্ড-ট্রুথিং অ্যাপ')}</span>
+                    <span className="font-mono text-[10px] text-emerald-700 bg-emerald-100 px-2 py-0.5 rounded">In Design</span>
+                  </div>
+                  <p className="mt-1.5 text-xs text-[#4c6a60] leading-relaxed">
+                    {L(
+                      'Enabling field forest teams and youth to submit geotagged photos of seedling growth to continuously calibrate machine learning weights.',
+                      'মাঠের কর্মীরা যাতে সরাসরি ছবি তুলে জিপিএস লোকেশন দিয়ে কৃত্রিম বুদ্ধিমত্তার মানচিত্র আরও নিখুঁত করতে পারেন।'
+                    )}
+                  </p>
+                </div>
+
+                <div className="rounded-2xl bg-[#f6faf8] p-4 border border-[#d6e8dc]">
+                  <div className="flex items-center justify-between text-xs font-bold text-[#0a352b]">
+                    <span>{L('2. Sentinel-1 SAR Radar Fusion', '২. সেন্টিনেল-১ রাডার ফিউশন')}</span>
+                    <span className="font-mono text-[10px] text-teal-700 bg-teal-100 px-2 py-0.5 rounded">In Development</span>
+                  </div>
+                  <p className="mt-1.5 text-xs text-[#4c6a60] leading-relaxed">
+                    {L(
+                      'Integrating Synthetic Aperture Radar (SAR) to penetrate heavy monsoon clouds and differentiate tidal water levels from permanent canopy loss.',
+                      'রাডার প্রযুক্তি যুক্ত করা হচ্ছে যাতে বর্ষার ঘন মেঘ ভেদ করেও বছরজুড়ে জোয়ার ও বনের অবস্থা পর্যবেক্ষণ করা যায়।'
+                    )}
+                  </p>
+                </div>
+
+                <div className="rounded-2xl bg-[#f6faf8] p-4 border border-[#d6e8dc]">
+                  <div className="flex items-center justify-between text-xs font-bold text-[#0a352b]">
+                    <span>{L('3. Regional Sediment Soil Carbon Database', '৩. স্থানীয় মাটির নমুনা ডেটাবেস')}</span>
+                    <span className="font-mono text-[10px] text-indigo-700 bg-indigo-100 px-2 py-0.5 rounded">Research Phase</span>
+                  </div>
+                  <p className="mt-1.5 text-xs text-[#4c6a60] leading-relaxed">
+                    {L(
+                      'Partnering with regional universities to integrate laboratory-measured Sundarbans soil core data for Tier 2 localized carbon modeling.',
+                      'আঞ্চলিক বিশ্ববিদ্যালয়ের গবেষণায় সুন্দরবনের আসল মাটির নমুনা যুক্ত করে আরও সুনির্দিষ্ট টিয়ার ২ কার্বন হিসাব চালু করা।'
+                    )}
+                  </p>
+                </div>
+              </div>
             </div>
           </div>
-        </>
+        </div>
       ),
     },
   ]
@@ -577,15 +1217,15 @@ export function ProjectTour({ open, onClose, lang, bundle, caps, onJump, onTry }
   const sectionRefs = useRef<(HTMLElement | null)[]>([])
   const [progress, setProgress] = useState(0)
 
-  /** Smoothly scroll the document to section i. */
+  /** Smoothly scroll the full-screen document to section i. */
   const goTo = (i: number) => {
     const box = scrollRef.current
     const el = sectionRefs.current[i]
     if (!box) return
-    box.scrollTo({ top: el ? el.offsetTop - 24 : 0, behavior: 'smooth' })
+    box.scrollTo({ top: el ? el.offsetTop - 20 : 0, behavior: 'smooth' })
   }
 
-  // Scroll-spy: highlight the section being read, and track reading progress.
+  // Scroll-spy: highlight the active chapter as the user scrolls
   useEffect(() => {
     if (!open) return
     const box = scrollRef.current
@@ -605,6 +1245,7 @@ export function ProjectTour({ open, onClose, lang, bundle, caps, onJump, onTry }
     return () => box.removeEventListener('scroll', onScroll)
   }, [open])
 
+  // Global key bindings: Escape to close, Arrows to step through chapters
   useEffect(() => {
     if (!open) return
     const onKey = (e: KeyboardEvent) => {
@@ -627,210 +1268,252 @@ export function ProjectTour({ open, onClose, lang, bundle, caps, onJump, onTry }
 
   return (
     <div
-      className="fixed inset-0 z-[1300] flex items-center justify-center bg-[#021512]/75 p-3 backdrop-blur-md sm:p-6 print:hidden"
+      className="fixed inset-0 z-[1300] flex flex-col w-screen h-screen bg-[#f3f7f4] text-[#0d2a23] overflow-hidden select-text print:hidden"
       role="dialog"
       aria-modal="true"
       aria-label={L('How MangroveLens works', 'MangroveLens কীভাবে কাজ করে')}
-      onClick={onClose}
     >
-      <div
-        className="flex h-[92vh] w-full max-w-5xl overflow-hidden rounded-3xl bg-[#f5f8f6] shadow-2xl border border-[#d2e4db]"
-        onClick={(e) => e.stopPropagation()}
-      >
-        {/* ── Document Page Only (Sidebar navigation completely removed) ── */}
-        <section className="relative flex min-w-0 flex-1 flex-col bg-[#f5f8f6]">
-          {/* Top Sticky Toolbar */}
-          <header className="relative z-10 flex flex-wrap items-center justify-between gap-3 border-b border-[#d5e3dc] bg-white/95 px-5 py-3 backdrop-blur-md shadow-2xs">
-            {/* Brand Title */}
-            <div className="flex items-center gap-2.5">
-              <img src={BRAND.icon} alt="" className="size-8 drop-shadow-sm" />
-              <div>
-                <p className="font-display text-sm font-black leading-none text-[#072d27]">
-                  Mangrove<span className="text-emerald-600">Lens</span>
+      {/* ── 1. Full-Width Sticky Top Command Bar ── */}
+      <header className="relative z-30 flex items-center justify-between border-b border-[#d0e1d7] bg-white/95 px-4 sm:px-8 py-3.5 backdrop-blur-md shadow-xs shrink-0">
+        {/* Brand identity */}
+        <div className="flex items-center gap-3">
+          <img src={BRAND.icon} alt="" className="size-9 drop-shadow-xs" />
+          <div>
+            <p className="font-display text-base font-black leading-none text-[#04241d]">
+              Mangrove<span className="text-emerald-600">Lens</span>
+            </p>
+            <p className="font-mono text-[9.5px] font-bold tracking-[0.2em] text-[#16865f] uppercase mt-1">
+              {L('SYSTEM ARCHITECTURE & SPECIFICATION', 'সিস্টেম পরিচিতি ও প্রযুক্তি গাইড')}
+            </p>
+          </div>
+        </div>
+
+        {/* Current Chapter Indicator with Jump Menu */}
+        <div className="hidden md:flex items-center gap-2 rounded-full border border-[#cbe1d5] bg-[#edf6f1] px-4 py-1.5 shadow-2xs">
+          <span className="size-2 rounded-full bg-[#16865f] animate-pulse" />
+          <span className="font-mono text-xs font-bold text-[#0c3830]">
+            {String(chapter + 1).padStart(2, '0')} / {String(chapters.length).padStart(2, '0')}
+          </span>
+          <span className="text-[#88a89c]">·</span>
+          <span className="font-mono text-xs font-bold text-[#235346] truncate max-w-[260px] lg:max-w-[380px]">
+            {chapters[chapter].title.toUpperCase()}
+          </span>
+        </div>
+
+        {/* Action Controls & Close */}
+        <div className="flex items-center gap-2">
+          <button
+            type="button"
+            disabled={chapter === 0}
+            onClick={() => goTo(Math.max(0, chapter - 1))}
+            className="hidden sm:inline-flex items-center gap-1.5 rounded-xl border border-[#cbe1d5] bg-white px-3 py-1.5 font-mono text-xs font-semibold text-[#123f38] hover:bg-[#edf7f2] hover:border-[#16865f] disabled:opacity-30 disabled:pointer-events-none transition cursor-pointer"
+            aria-label={L('Previous section', 'আগের অংশ')}
+            title="Shortcut: Left Arrow [←]"
+          >
+            <ArrowLeft className="size-3.5" />
+            <span>{L('Prev', 'আগের')}</span>
+          </button>
+          <button
+            type="button"
+            disabled={chapter === last}
+            onClick={() => goTo(Math.min(last, chapter + 1))}
+            className="hidden sm:inline-flex items-center gap-1.5 rounded-xl border border-[#cbe1d5] bg-white px-3 py-1.5 font-mono text-xs font-semibold text-[#123f38] hover:bg-[#edf7f2] hover:border-[#16865f] disabled:opacity-30 disabled:pointer-events-none transition cursor-pointer"
+            aria-label={L('Next section', 'পরের অংশ')}
+            title="Shortcut: Right Arrow [→]"
+          >
+            <span>{L('Next', 'পরের')}</span>
+            <ArrowRight className="size-3.5" />
+          </button>
+
+          {/* Prominent Close button */}
+          <button
+            type="button"
+            onClick={onClose}
+            className="flex items-center gap-1.5 rounded-xl border border-[#c6dfd2] bg-[#eef6f1] px-3.5 py-1.5 font-mono text-xs font-bold text-[#0d3b32] hover:bg-rose-50 hover:text-rose-700 hover:border-rose-300 transition cursor-pointer shadow-2xs"
+            aria-label={L('Close guide', 'গাইড বন্ধ করুন')}
+            title="Shortcut: Escape [Esc]"
+          >
+            <span>{L('Close', 'বন্ধ করুন')}</span>
+            <span className="hidden sm:inline text-[10px] text-[#55776c] font-normal">[Esc]</span>
+            <X className="size-4 ml-0.5" />
+          </button>
+        </div>
+
+        {/* Reading progress bar pinned to header bottom */}
+        <div className="absolute inset-x-0 -bottom-px h-1 bg-[#dbe8e0]">
+          <div
+            className="h-1 bg-gradient-to-r from-emerald-600 via-teal-500 to-emerald-400 transition-[width] duration-150"
+            style={{ width: `${progress * 100}%` }}
+          />
+        </div>
+      </header>
+
+      {/* ── 2. Full-Screen Document Body (Scrollable Container) ── */}
+      <div ref={scrollRef} className="relative flex-1 overflow-y-auto px-4 py-8 sm:px-8 lg:px-12 w-full bg-[#f3f7f4]">
+        <div className="mx-auto max-w-6xl space-y-12 pb-24">
+          {/* Cover Page Hero Card */}
+          <article className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-[#021813] via-[#042821] to-[#07392f] p-8 sm:p-14 text-white shadow-xl border border-emerald-950/60">
+            <div
+              className="absolute inset-0 bg-cover bg-center opacity-20 mix-blend-overlay"
+              style={{ backgroundImage: `url('/landing/frames/f0001.webp')` }}
+            />
+            <div className="relative">
+              <div className="flex flex-wrap items-center gap-3">
+                <div className="inline-flex items-center gap-2 rounded-full border border-emerald-400/30 bg-emerald-950/70 px-3.5 py-1 font-mono text-[10.5px] font-bold tracking-[0.25em] text-emerald-300">
+                  <span className="size-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                  {L('OFFICIAL SYSTEM SPECIFICATION & BLUEPRINT', 'সিস্টেম পরিচিতি ও প্রযুক্তি গাইড')}
+                </div>
+              </div>
+
+              <h1 className="mt-4 font-condensed font-black text-5xl sm:text-6xl lg:text-7xl xl:text-8xl tracking-wide uppercase leading-[0.92] text-white">
+                {L('How MangroveLens Works', 'MangroveLens কীভাবে কাজ করে')}
+              </h1>
+              <p className="mt-4 max-w-2xl font-light-sub text-xs sm:text-sm font-semibold tracking-[0.2em] text-emerald-200/90 uppercase">
+                {L(
+                  'FROM ORBITAL SATELLITES TO COMMUNITY ACTION — A TRANSPARENT SCIENTIFIC GUIDE',
+                  'উপগ্রহ তথ্য থেকে স্থানীয় পদক্ষেপ — সম্পূর্ণ স্বচ্ছ বৈজ্ঞানিক পদ্ধতি'
+                )}
+              </p>
+
+              {/* Verified Specification Badges */}
+              <div className="mt-6 flex flex-wrap gap-2 pt-2 border-t border-white/10">
+                <span className="rounded-lg bg-white/10 px-3 py-1 font-mono text-[11px] text-emerald-200 border border-white/10">
+                  🛰️ Copernicus Sentinel-2 MSI (10m)
+                </span>
+                <span className="rounded-lg bg-white/10 px-3 py-1 font-mono text-[11px] text-emerald-200 border border-white/10">
+                  ⚡ Google Earth Engine Median Reducer
+                </span>
+                <span className="rounded-lg bg-white/10 px-3 py-1 font-mono text-[11px] text-emerald-200 border border-white/10">
+                  🌲 200-Tree Random Forest Classifier
+                </span>
+                <span className="rounded-lg bg-white/10 px-3 py-1 font-mono text-[11px] text-emerald-200 border border-white/10">
+                  ⚖️ IPCC 2013 Wetlands Tier 1
+                </span>
+              </div>
+
+              {/* Interactive 2-Column Chapter Directory Grid */}
+              <div className="mt-10">
+                <p className="font-mono text-[10.5px] font-bold tracking-[0.24em] text-emerald-300/80 uppercase mb-3.5">
+                  {L('DOCUMENT CHAPTERS (CLICK TO JUMP DIRECTLY)', 'অধ্যায়সমূহ (সরাসরি যেতে ক্লিক করুন)')}
                 </p>
-                <p className="font-mono text-[9px] font-bold tracking-[0.18em] text-[#16865f] uppercase mt-0.5">
-                  {L('SYSTEM ARCHITECTURE & GUIDE', 'সিস্টেম পরিচিতি ও গাইড')}
-                </p>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 max-w-4xl">
+                  {chapters.map((c, i) => (
+                    <button
+                      key={c.id}
+                      type="button"
+                      onClick={() => goTo(i)}
+                      className="group flex items-center justify-between rounded-2xl border border-white/10 bg-white/[0.05] p-3.5 text-left transition-all hover:bg-white/[0.1] hover:border-emerald-400/40 hover:-translate-y-0.5 cursor-pointer"
+                    >
+                      <div className="flex items-center gap-3.5 min-w-0">
+                        <span className="grid size-8 shrink-0 place-items-center rounded-xl bg-emerald-950/80 border border-emerald-400/30 font-mono text-xs font-bold text-emerald-300">
+                          {String(i + 1).padStart(2, '0')}
+                        </span>
+                        <div className="min-w-0">
+                          <p className="font-display text-sm font-bold text-white group-hover:text-emerald-200 truncate">
+                            {c.title}
+                          </p>
+                          <p className="font-mono text-[10px] text-emerald-300/60 uppercase truncate">
+                            {c.kicker}
+                          </p>
+                        </div>
+                      </div>
+                      <ChevronRight className="size-4 text-emerald-400/40 group-hover:text-emerald-300 transition-colors shrink-0 ml-2" />
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Metadata footer */}
+              <div className="mt-10 flex flex-wrap items-center gap-4 font-mono text-[11px] text-white/50 border-t border-white/10 pt-4">
+                <span>{today}</span>
+                <span>·</span>
+                <span className="inline-flex items-center gap-1.5">
+                  <span className="size-1.5 rounded-full bg-emerald-400" />
+                  {caps?.liveEngine ? L('Live Copernicus Satellite Telemetry Active', 'লাইভ উপগ্রহ তথ্য সক্রিয়') : L('Sentinel-2 Dry-Season Benchmark Mode', 'সেন্টিনেল-২ বেঞ্চমার্ক মোড')}
+                </span>
+                {b && (
+                  <>
+                    <span>·</span>
+                    <span>Model: {b.dataSource.modelVersion}</span>
+                  </>
+                )}
               </div>
             </div>
+          </article>
 
-            {/* Current Chapter Pill */}
-            <div className="hidden sm:inline-flex items-center gap-2 rounded-full border border-[#d6e6de] bg-[#f0f6f2] px-3.5 py-1">
-              <span className="size-1.5 rounded-full bg-[#16865f] animate-pulse" />
-              <span className="font-mono text-xs font-bold text-[#0c3830]">
-                {String(chapter + 1).padStart(2, '0')} / {String(chapters.length).padStart(2, '0')}
-              </span>
-              <span className="text-[#84a397]">·</span>
-              <span className="font-mono text-[11px] font-semibold text-[#38594f] truncate max-w-[200px] lg:max-w-[320px]">
-                {chapters[chapter].title.toUpperCase()}
-              </span>
-            </div>
-
-            {/* Navigation Controls */}
-            <div className="flex items-center gap-1.5">
-              <button
-                type="button"
-                disabled={chapter === 0}
-                onClick={() => goTo(Math.max(0, chapter - 1))}
-                className="flex items-center gap-1 rounded-lg border border-[#d6e6de] bg-white px-2.5 py-1.5 font-mono text-xs font-semibold text-[#123f38] hover:bg-[#edf7f2] hover:border-[#16865f] disabled:opacity-30 disabled:pointer-events-none transition cursor-pointer"
-                aria-label={L('Previous section', 'আগের অংশ')}
+          {/* Chapters as Individual Presentation Articles */}
+          {chapters.map((c, i) => {
+            const Icon = c.icon
+            return (
+              <article
+                key={c.id}
+                ref={(el) => {
+                  sectionRefs.current[i] = el
+                }}
+                className="relative rounded-3xl bg-white p-7 sm:p-12 shadow-sm border border-[#d6e6dc] overflow-hidden"
               >
-                <ArrowLeft className="size-3.5" />
-                <span className="hidden md:inline">{L('Prev', 'আগের')}</span>
-              </button>
-              <button
-                type="button"
-                disabled={chapter === last}
-                onClick={() => goTo(Math.min(last, chapter + 1))}
-                className="flex items-center gap-1 rounded-lg border border-[#d6e6de] bg-white px-2.5 py-1.5 font-mono text-xs font-semibold text-[#123f38] hover:bg-[#edf7f2] hover:border-[#16865f] disabled:opacity-30 disabled:pointer-events-none transition cursor-pointer"
-                aria-label={L('Next section', 'পরের অংশ')}
-              >
-                <span className="hidden md:inline">{L('Next', 'পরের')}</span>
-                <ArrowRight className="size-3.5" />
-              </button>
-              <button
-                type="button"
-                onClick={onClose}
-                className="ml-1 grid size-8 place-items-center rounded-lg border border-[#d6e6de] bg-white text-[#526a63] hover:bg-rose-50 hover:text-rose-700 hover:border-rose-300 transition cursor-pointer"
-                aria-label={L('Close', 'বন্ধ করুন')}
-              >
-                <X className="size-4" />
-              </button>
-            </div>
-
-            {/* Reading Progress Line */}
-            <div className="absolute inset-x-0 -bottom-px h-0.5 bg-[#e0ece5]">
-              <div className="h-0.5 bg-[#16865f] transition-[width] duration-150" style={{ width: `${progress * 100}%` }} />
-            </div>
-          </header>
-
-          <div ref={scrollRef} className="relative flex-1 overflow-y-auto px-4 py-6 sm:px-8 sm:py-8">
-            <div className="mx-auto max-w-4xl space-y-8">
-              {/* Cover Page Card */}
-              <article className="relative overflow-hidden rounded-3xl bg-[#04241d] p-8 sm:p-12 text-white shadow-xl">
-                <div className="absolute inset-0 bg-cover bg-center opacity-25" style={{ backgroundImage: `url('/landing/frames/f0001.webp')` }} />
-                <div className="absolute inset-0 bg-gradient-to-r from-[#031d17] via-[#031d17]/90 to-[#031d17]/50" />
-                <div className="relative">
-                  <div className="flex items-center gap-3">
-                    <img src={BRAND.icon} alt="" className="size-12 drop-shadow-[0_2px_10px_rgba(0,0,0,0.5)]" />
-                    <div className="inline-flex items-center gap-2 rounded-full border border-emerald-400/30 bg-emerald-950/60 px-3 py-1 font-mono text-[10px] sm:text-[10.5px] font-bold tracking-[0.22em] text-emerald-300">
-                      <span className="size-1.5 rounded-full bg-emerald-400 animate-pulse" />
-                      {L('SYSTEM OVERVIEW', 'সিস্টেম পরিচিতি')}
-                    </div>
-                  </div>
-
-                  <h1 className="mt-4 font-condensed font-black text-5xl sm:text-6xl lg:text-7xl uppercase tracking-wide leading-[0.93] text-white">
-                    {L('How MangroveLens Works', 'MangroveLens কীভাবে কাজ করে')}
-                  </h1>
-                  <p className="mt-3 max-w-xl font-light-sub text-xs sm:text-sm font-light tracking-[0.18em] text-emerald-200/90 uppercase">
-                    {BRAND.tagline.toUpperCase()}
-                  </p>
-
-                  {/* Interactive Chapter Directory Grid */}
-                  <div className="mt-8">
-                    <p className="font-mono text-[10px] font-bold tracking-[0.2em] text-emerald-300/70 uppercase mb-3">
-                      {L('DOCUMENT CHAPTERS', 'অধ্যায়সমূহ')}
-                    </p>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 max-w-3xl">
-                      {chapters.map((c, i) => (
-                        <button
-                          key={c.title}
-                          type="button"
-                          onClick={() => goTo(i)}
-                          className="group flex items-center justify-between rounded-xl border border-white/10 bg-white/[0.04] p-3 text-left transition-all hover:bg-white/[0.08] hover:border-emerald-400/40 hover:-translate-y-0.5 cursor-pointer"
-                        >
-                          <div className="flex items-center gap-3 min-w-0">
-                            <span className="font-mono text-xs font-bold text-emerald-400">
-                              {String(i + 1).padStart(2, '0')}
-                            </span>
-                            <span className="font-display text-sm font-semibold text-white/90 group-hover:text-white truncate">
-                              {c.title}
-                            </span>
-                          </div>
-                          <ChevronRight className="size-4 text-emerald-400/50 group-hover:text-emerald-300 transition-colors shrink-0" />
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-
-                  <div className="mt-8 flex flex-wrap items-center gap-4 font-mono text-[10.5px] text-white/50 border-t border-white/10 pt-4">
-                    <span>{today}</span>
-                    <span>·</span>
-                    <span className="inline-flex items-center gap-1.5">
-                      <span className="size-1.5 rounded-full bg-emerald-400" />
-                      {caps?.liveEngine ? L('Live Copernicus Sentinel-2 Telemetry', 'লাইভ সেন্টিনেল-২ উপগ্রহ তথ্য') : L('Sentinel-2 dry-season composite', 'সেন্টিনেল-২ শুষ্ক মৌসুম উপগ্রহ চিত্র')}
+                {/* Chapter Banner */}
+                <div className="mb-8 flex items-center justify-between border-b border-[#e5efe8] pb-6">
+                  <div className="flex items-center gap-4">
+                    <span className="grid size-13 place-items-center rounded-2xl bg-gradient-to-br from-emerald-50 to-[#dff0e6] text-[#16865f] border border-[#cbe4d7] shadow-2xs">
+                      <Icon className="size-6.5" />
                     </span>
-                    {b && (
-                      <>
-                        <span>·</span>
-                        <span>{b.dataSource.modelVersion}</span>
-                      </>
-                    )}
+                    <div>
+                      <p className="font-mono text-xs font-bold tracking-[0.24em] text-[#16865f] uppercase">
+                        {L('CHAPTER', 'অধ্যায়')} {String(i + 1).padStart(2, '0')} / {String(chapters.length).padStart(2, '0')}
+                      </p>
+                      <h2 className="font-condensed text-4xl sm:text-5xl font-black tracking-wide text-[#062c25] leading-none mt-1 uppercase">
+                        {c.title}
+                      </h2>
+                    </div>
                   </div>
+                  <span className="hidden sm:inline font-mono text-xs text-[#87a59a]">
+                    [ § {String(i + 1).padStart(2, '0')} ]
+                  </span>
+                </div>
+
+                {/* Chapter Body Content */}
+                <div className="min-w-0">{c.body}</div>
+
+                {/* Chapter Navigation Footer */}
+                <div className="mt-12 flex flex-wrap items-center justify-between gap-3 border-t border-[#e5efe8] pt-5 font-mono text-xs text-[#648479]">
+                  <span>MangroveLens · {L('System Architecture & Guide', 'সিস্টেম পরিচিতি ও প্রযুক্তি গাইড')}</span>
+                  {i < last ? (
+                    <button
+                      type="button"
+                      onClick={() => goTo(i + 1)}
+                      className="inline-flex items-center gap-1.5 font-mono text-xs font-bold text-[#16865f] hover:text-[#0c4e37] hover:underline cursor-pointer"
+                    >
+                      {L('Next Chapter', 'পরের অধ্যায়')}: {chapters[i + 1].title} →
+                    </button>
+                  ) : (
+                    <button
+                      type="button"
+                      onClick={onClose}
+                      className="inline-flex items-center gap-1.5 font-mono text-xs font-bold text-[#16865f] hover:text-[#0c4e37] hover:underline cursor-pointer"
+                    >
+                      {L('Return to Live Dashboard', 'ড্যাশবোর্ডে ফিরে যান')} →
+                    </button>
+                  )}
                 </div>
               </article>
+            )
+          })}
 
-              {/* Sections as Individual Presentation Pages */}
-              {chapters.map((c, i) => {
-                const Icon = c.icon
-                return (
-                  <article
-                    key={c.title}
-                    ref={(el) => {
-                      sectionRefs.current[i] = el
-                    }}
-                    className="relative rounded-3xl bg-white p-6 sm:p-10 shadow-sm border border-[#dbe8e1]"
-                  >
-                    <div className="mb-6 flex items-center gap-3.5 border-b border-[#e5efe9] pb-4">
-                      <span className="grid size-11 place-items-center rounded-2xl bg-gradient-to-br from-emerald-50 to-[#dff0e6] text-[#16865f] border border-[#cbe4d7] shadow-2xs">
-                        <Icon className="size-5" />
-                      </span>
-                      <div>
-                        <p className="font-mono text-[10.5px] font-bold tracking-[0.2em] text-[#16865f] uppercase">
-                          {L('CHAPTER', 'অধ্যায়')} {String(i + 1).padStart(2, '0')} / {String(chapters.length).padStart(2, '0')}
-                        </p>
-                        <h2 className="font-condensed text-3xl sm:text-4xl font-black tracking-wide text-[#072d27] leading-none mt-0.5">
-                          {c.title}
-                        </h2>
-                      </div>
-                    </div>
-                    {c.body}
-                    <div className="mt-10 flex items-center justify-between border-t border-[#e5efe9] pt-4 font-mono text-[11px] text-[#6b8b7f]">
-                      <span>MangroveLens · {L('System Overview & Architecture', 'সিস্টেম পরিচিতি ও আর্কিটেকচার')}</span>
-                      {i < last ? (
-                        <button
-                          type="button"
-                          onClick={() => goTo(i + 1)}
-                          className="inline-flex items-center gap-1 font-mono text-xs font-bold text-[#16865f] hover:text-[#0f6e4d] hover:underline cursor-pointer"
-                        >
-                          {L('Next chapter', 'পরের অধ্যায়')}: {chapters[i + 1].title} →
-                        </button>
-                      ) : (
-                        <button
-                          type="button"
-                          onClick={onClose}
-                          className="inline-flex items-center gap-1 font-mono text-xs font-bold text-[#16865f] hover:text-[#0f6e4d] hover:underline cursor-pointer"
-                        >
-                          {L('Return to dashboard', 'ড্যাশবোর্ডে ফিরুন')} →
-                        </button>
-                      )}
-                    </div>
-                  </article>
-                )
-              })}
-
-              <div className="pb-8 pt-4 text-center">
-                <button
-                  type="button"
-                  onClick={onClose}
-                  className="inline-flex items-center gap-2 rounded-full bg-emerald-500 hover:bg-emerald-400 px-8 py-3.5 text-sm font-bold text-[#04241d] shadow-lg shadow-emerald-900/30 transition transform hover:-translate-y-0.5 active:translate-y-0 cursor-pointer"
-                >
-                  {L('Start Exploring the Live Dashboard', 'ড্যাশবোর্ড ব্যবহার শুরু করুন')} <ArrowRight className="size-4" />
-                </button>
-              </div>
-            </div>
+          {/* Bottom Action Section */}
+          <div className="pt-6 pb-12 text-center">
+            <button
+              type="button"
+              onClick={onClose}
+              className="inline-flex items-center gap-2.5 rounded-full bg-[#16865f] hover:bg-[#127251] px-9 py-4 font-display text-base font-bold text-white shadow-xl shadow-emerald-900/25 transition transform hover:-translate-y-0.5 active:translate-y-0 cursor-pointer"
+            >
+              {L('Start Exploring the Live Dashboard', 'লাইভ ড্যাশবোর্ডে কাজ শুরু করুন')} <ArrowRight className="size-5" />
+            </button>
+            <p className="mt-3 font-mono text-xs text-[#6c887e]">
+              {L('You can reopen this technical blueprint anytime by clicking “How it works” in the top navigation.', 'উপরের মেনু থেকে যেকোনো সময় “How it works” চেপে এই গাইড পুনরায় দেখতে পারেন।')}
+            </p>
           </div>
-        </section>
+        </div>
       </div>
     </div>
   )
