@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState, type CSSProperties, type ReactNode } from 'react'
 import { ArrowDown, ArrowRight, Ban, BrainCircuit, FileText, Gauge, Leaf, Map as MapIcon, Satellite, ShieldCheck, TrendingDown, TriangleAlert, Users } from 'lucide-react'
+import { cn } from '../../lib/utils'
 import { HOME_TEXT, type HomeLang } from './content'
 import { FRAME_COUNT, FRAME_H, FRAME_W, coverBox, useFrameSequence } from './useFrameSequence'
 import { goToSnap, useSectionSnap } from './useSectionSnap'
@@ -86,24 +87,188 @@ function FrameLabel({ x, y, side, title, sub, o }: { x: number; y: number; side:
   )
 }
 
-/** Dark glass panel for the service sections, readable on top of the video. */
-function InfoPanel({ o, eyebrow, title, bn, children }: { o: number; eyebrow: string; title: string; bn: boolean; children: ReactNode }) {
+/** Dark glass panel for the service sections, readable on top of the video with balanced padding and max-height safeguards. */
+function InfoPanel({
+  o,
+  eyebrow,
+  title,
+  bn,
+  children,
+}: {
+  o: number
+  eyebrow: string
+  title: string
+  bn: boolean
+  children: ReactNode
+}) {
   return (
-    <div className="absolute inset-0 flex items-center justify-center px-[5vw] pt-16" style={panelStyle(o, 32)}>
-      <div className="w-full max-w-[1280px] rounded-3xl border border-white/10 bg-[#031a17]/70 p-8 shadow-[0_30px_80px_rgba(0,0,0,0.45)] backdrop-blur-md xl:p-12">
-        <p className="font-mono text-xs font-bold tracking-[0.24em] text-emerald-300">{eyebrow}</p>
-        <h2 className={`mt-3 max-w-4xl font-condensed text-5xl leading-[0.95] tracking-wide text-white xl:text-6xl ${bn ? 'font-bengali text-4xl font-bold' : ''}`}>
-          {title}
-        </h2>
-        <div className="mt-8">{children}</div>
+    <div
+      className="absolute inset-0 flex items-center justify-center px-4 sm:px-6 lg:px-8 py-8 sm:py-12 z-20"
+      style={panelStyle(o, 28)}
+    >
+      <div className="relative w-full max-w-[1320px] max-h-[88vh] overflow-y-auto overflow-x-hidden rounded-[2rem] border border-white/15 bg-gradient-to-b from-[#031d18]/92 via-[#021814]/94 to-[#01110e]/96 p-6 sm:p-8 md:p-9 lg:p-11 shadow-[0_32px_100px_rgba(0,0,0,0.7),inset_0_1px_1px_rgba(255,255,255,0.18)] backdrop-blur-2xl [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
+        {/* Subtle ambient lighting highlights */}
+        <div className="pointer-events-none absolute inset-x-12 top-0 h-px bg-gradient-to-r from-transparent via-emerald-400/50 to-transparent" />
+        <div className="pointer-events-none absolute -top-28 -right-28 size-96 rounded-full bg-emerald-500/12 blur-[90px]" />
+        <div className="pointer-events-none absolute -bottom-28 -left-28 size-96 rounded-full bg-teal-500/10 blur-[90px]" />
+
+        {/* Header Eyebrow & Title */}
+        <div className="relative z-10 flex flex-col items-start">
+          <div className="inline-flex items-center gap-2 rounded-full border border-emerald-400/30 bg-emerald-500/10 px-3.5 py-1 text-[11px] sm:text-xs font-mono font-bold tracking-[0.22em] text-emerald-300 shadow-[0_0_15px_rgba(16,185,129,0.15)] uppercase">
+            <span className="size-1.5 rounded-full bg-emerald-400 animate-pulse shadow-[0_0_6px_#34d399]" />
+            {eyebrow}
+          </div>
+
+          <h2
+            className={`mt-2.5 sm:mt-3.5 max-w-4xl font-condensed text-3xl sm:text-4xl md:text-5xl lg:text-[3.25rem] leading-[0.96] tracking-tight text-white drop-shadow-[0_2px_16px_rgba(0,0,0,0.5)] ${
+              bn ? 'font-bengali text-2xl sm:text-3xl lg:text-4xl font-bold' : ''
+            }`}
+          >
+            {title}
+          </h2>
+        </div>
+
+        {/* Content body */}
+        <div className="relative z-10 mt-6 sm:mt-8">{children}</div>
       </div>
     </div>
   )
 }
 
-const STEP_ICONS = [Satellite, BrainCircuit, Leaf, FileText]
-const WHY_ICONS = [TrendingDown, ShieldCheck, Users]
-const TRUST_ICONS = [MapIcon, Gauge, TriangleAlert, Ban]
+const WHY_CARD_META = [
+  {
+    step: '01',
+    tag: 'Ecosystem Dynamics',
+    tagBn: 'উপকূলের গতিপ্রকৃতি',
+    badge: 'Silent Loss',
+    badgeBn: 'নীরব অবক্ষয়',
+    icon: TrendingDown,
+    iconBox: 'border-rose-400/30 bg-rose-500/10 text-rose-300 shadow-[0_0_20px_rgba(244,63,94,0.15)]',
+    tagClass: 'text-rose-300/90',
+    dotColor: 'bg-rose-400',
+    highlight: 'Unnoticed tidal erosion & fringe retreat',
+    highlightBn: 'ভাঙন ও জোয়ারের কারণে নীরবে জমি হারায়',
+    hoverBorder: 'hover:border-rose-400/40 hover:bg-[#1a0f14]/85',
+  },
+  {
+    step: '02',
+    tag: 'Uncertainty & Verification',
+    tagBn: 'যাচাইযোগ্যতার অভাব',
+    badge: 'Trust Gap',
+    badgeBn: 'বিশ্বস্ততার ঘাটতি',
+    icon: ShieldCheck,
+    iconBox: 'border-amber-400/30 bg-amber-500/10 text-amber-300 shadow-[0_0_20px_rgba(245,158,11,0.15)]',
+    tagClass: 'text-amber-300/90',
+    dotColor: 'bg-amber-400',
+    highlight: 'Hidden error margins & unvalidated claims',
+    highlightBn: 'পরিমাপের যথার্থতা ও ত্রুটি গোপন থাকে',
+    hoverBorder: 'hover:border-amber-400/40 hover:bg-[#1a1608]/85',
+  },
+  {
+    step: '03',
+    tag: 'Grassroots Access',
+    tagBn: 'তৃণমূলের দূরত্ব',
+    badge: 'Last Mile',
+    badgeBn: 'শেষ মাইল বাধা',
+    icon: Users,
+    iconBox: 'border-sky-400/30 bg-sky-500/10 text-sky-300 shadow-[0_0_20px_rgba(56,189,248,0.15)]',
+    tagClass: 'text-sky-300/90',
+    dotColor: 'bg-sky-400',
+    highlight: 'Locked in English & academic silos',
+    highlightBn: 'ইংরেজিতে জটিল রূপ যা স্থানীয় কাজে আসে না',
+    hoverBorder: 'hover:border-sky-400/40 hover:bg-[#071d24]/85',
+  },
+]
+
+const HOW_STEP_META = [
+  {
+    step: '01',
+    badge: 'OPTICAL SATELLITE',
+    badgeBn: 'উপগ্রহ ছবি',
+    sub: 'Sentinel-2 L2A (10m)',
+    subBn: '১০ মিটার রেজোলিউশন',
+    icon: Satellite,
+    highlight: 'Dry-season cloud-filtered tiles',
+    highlightBn: 'মেঘমুক্ত শুকনো মৌসুমের ছবি',
+  },
+  {
+    step: '02',
+    badge: 'AI CLASSIFIER',
+    badgeBn: 'মেশিন লার্নিং',
+    sub: 'Random Forest Model',
+    subBn: 'CGMD-AFCC30 গ্রাউন্ড ট্রুথ',
+    icon: BrainCircuit,
+    highlight: 'Supervised mangrove detection',
+    highlightBn: 'বৈজ্ঞানিক মানচিত্রে প্রশিক্ষিত',
+  },
+  {
+    step: '03',
+    badge: 'TEMPORAL DELTA',
+    badgeBn: 'সময়ভিত্তিক তুলনা',
+    sub: 'Pixel-to-Pixel Net Change',
+    subBn: 'পিক্সেল-টু-পিক্সেল তুলনা',
+    icon: Leaf,
+    highlight: 'Confirmed canopy gains vs loss',
+    highlightBn: 'বাস্তব বৃদ্ধি বনাম ক্ষতি',
+  },
+  {
+    step: '04',
+    badge: 'ACTIONABLE INSIGHT',
+    badgeBn: 'পরিষ্কার ফলাফল',
+    sub: 'Bilingual & Verified Export',
+    subBn: 'দ্বিভাষিক সহজ উত্তর',
+    icon: FileText,
+    highlight: 'Confidence-stamped report',
+    highlightBn: 'নির্ভরযোগ্যতার সংকেতসহ',
+  },
+]
+
+const TRUST_CARD_META = [
+  {
+    badge: 'Ground Truth',
+    badgeBn: 'বৈজ্ঞানিক মানচিত্র',
+    icon: MapIcon,
+    iconBox: 'border-emerald-400/35 bg-emerald-500/15 text-emerald-300 shadow-[0_0_20px_rgba(16,185,129,0.18)]',
+    tagBadge: 'border-emerald-400/30 bg-emerald-500/10 text-emerald-300',
+    dotColor: 'bg-emerald-400',
+    footer: 'CGMD-AFCC30 Reference Map',
+    footerBn: 'স্বাধীন বিজ্ঞানীদের রেফারেন্স মানচিত্র',
+    hoverBorder: 'hover:border-emerald-400/40 hover:bg-[#062c25]/85',
+  },
+  {
+    badge: 'Certainty Tiers',
+    badgeBn: 'নিশ্চয়তার মাত্রা',
+    icon: Gauge,
+    iconBox: 'border-sky-400/35 bg-sky-500/15 text-sky-300 shadow-[0_0_20px_rgba(56,189,248,0.18)]',
+    tagBadge: 'border-sky-400/30 bg-sky-500/10 text-sky-300',
+    dotColor: 'bg-sky-400',
+    footer: 'Green / Yellow / Red Reliability',
+    footerBn: 'স্পষ্ট ট্রাফিক-লাইট সংকেত',
+    hoverBorder: 'hover:border-sky-400/40 hover:bg-[#07242c]/85',
+  },
+  {
+    badge: 'Known Limits',
+    badgeBn: 'সতর্কতা ও সীমাবদ্ধতা',
+    icon: TriangleAlert,
+    iconBox: 'border-amber-400/40 bg-amber-500/15 text-amber-300 shadow-[0_0_20px_rgba(245,158,11,0.22)]',
+    tagBadge: 'border-amber-400/30 bg-amber-500/10 text-amber-300',
+    dotColor: 'bg-amber-400',
+    footer: 'Flags Edge Ambiguity & Tides',
+    footerBn: 'গ্রামের কিনারা ও মৌসুমি বিভ্রান্তি সতর্কতা',
+    hoverBorder: 'hover:border-amber-400/40 hover:bg-[#251e08]/85',
+  },
+  {
+    badge: 'Ethical Science',
+    badgeBn: 'নীতিগত স্বচ্ছতা',
+    icon: Ban,
+    iconBox: 'border-teal-400/35 bg-teal-500/15 text-teal-300 shadow-[0_0_20px_rgba(20,184,166,0.18)]',
+    tagBadge: 'border-teal-400/30 bg-teal-500/10 text-teal-300',
+    dotColor: 'bg-teal-400',
+    footer: 'Conservation Only · No Credits',
+    footerBn: 'কোনো আর্থিক বা কার্বন ক্রেডিট দাবি নেই',
+    hoverBorder: 'hover:border-teal-400/40 hover:bg-[#062925]/85',
+  },
+]
 
 export function DiveSequence({ lang, onOpenDashboard }: { lang: HomeLang; onOpenDashboard: () => void }) {
   const T = HOME_TEXT[lang]
@@ -288,14 +453,53 @@ export function DiveSequence({ lang, onOpenDashboard }: { lang: HomeLang; onOpen
 
         {/* THE PROBLEM */}
         <InfoPanel o={problem} eyebrow={T.why.eyebrow} title={T.why.title} bn={bn}>
-          <div className="grid gap-5 md:grid-cols-3">
+          <div className="grid gap-4 sm:gap-5 md:grid-cols-3">
             {T.why.cards.map(([title, body], i) => {
-              const Icon = WHY_ICONS[i]
+              const meta = WHY_CARD_META[i]
+              const Icon = meta.icon
               return (
-                <article key={title} className="rounded-2xl border border-white/10 bg-white/[0.05] p-6">
-                  <Icon className="size-7 text-emerald-300" />
-                  <h3 className="mt-4 font-display text-xl font-bold text-white">{title}</h3>
-                  <p className="mt-2 text-sm leading-relaxed text-white/75">{body}</p>
+                <article
+                  key={title}
+                  className={cn(
+                    'group relative flex flex-col justify-between overflow-hidden rounded-2xl border border-white/10 bg-white/[0.04] p-5 sm:p-6 lg:p-7 backdrop-blur-xl transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_20px_48px_rgba(0,0,0,0.5)]',
+                    meta.hoverBorder,
+                  )}
+                >
+                  {/* Subtle top edge line highlight */}
+                  <div className="pointer-events-none absolute inset-x-6 top-0 h-px bg-gradient-to-r from-transparent via-white/15 group-hover:via-white/40 to-transparent transition-all" />
+
+                  <div>
+                    {/* Top icon and step chip */}
+                    <div className="flex items-center justify-between gap-3">
+                      <div className={cn('flex size-12 sm:size-13 items-center justify-center rounded-xl border transition-transform duration-300 group-hover:scale-105', meta.iconBox)}>
+                        <Icon className="size-6" />
+                      </div>
+                      <span className="font-mono text-[11px] font-bold tracking-widest text-white/50 px-2.5 py-1 rounded-full border border-white/10 bg-white/5">
+                        {meta.step}
+                      </span>
+                    </div>
+
+                    {/* Tag & Title */}
+                    <div className="mt-4 sm:mt-5">
+                      <span className={cn('inline-block font-mono text-[10.5px] font-bold tracking-wider uppercase mb-1.5', meta.tagClass)}>
+                        {bn ? meta.tagBn : meta.tag}
+                      </span>
+                      <h3 className="font-display text-lg sm:text-xl font-bold tracking-tight text-white group-hover:text-white transition-colors">
+                        {title}
+                      </h3>
+                      <p className="mt-2 text-[13px] sm:text-sm leading-relaxed text-white/75 group-hover:text-white/90 transition-colors">
+                        {body}
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Footer takeaway chip */}
+                  <div className="mt-5 pt-3.5 border-t border-white/10 flex items-center gap-2">
+                    <span className={cn('size-1.5 rounded-full shrink-0', meta.dotColor)} />
+                    <span className="font-mono text-[11px] text-white/60 tracking-wide font-medium truncate">
+                      {bn ? meta.highlightBn : meta.highlight}
+                    </span>
+                  </div>
                 </article>
               )
             })}
@@ -304,36 +508,103 @@ export function DiveSequence({ lang, onOpenDashboard }: { lang: HomeLang; onOpen
 
         {/* HOW IT WORKS */}
         <InfoPanel o={how} eyebrow={T.how.eyebrow} title={T.how.title} bn={bn}>
-          <ol className="relative grid gap-6 md:grid-cols-4">
-            <div className="absolute left-0 right-0 top-7 hidden h-px bg-gradient-to-r from-emerald-400/0 via-emerald-400/50 to-emerald-400/0 md:block" />
-            {T.how.steps.map(([title, body], i) => {
-              const Icon = STEP_ICONS[i]
-              return (
-                <li key={title} className="relative">
-                  <div className="relative z-10 grid size-14 place-items-center rounded-2xl border border-emerald-300/40 bg-[#062f29] shadow-[0_0_24px_rgba(16,185,129,0.25)]">
-                    <Icon className="size-6 text-emerald-300" />
-                  </div>
-                  <p className="mt-5 font-mono text-[11px] font-bold tracking-[0.2em] text-emerald-300/80">{`0${i + 1}`}</p>
-                  <h3 className="mt-1 font-display text-xl font-bold text-white">{title}</h3>
-                  <p className="mt-2 text-sm leading-relaxed text-white/75">{body}</p>
-                </li>
-              )
-            })}
-          </ol>
+          <div className="relative">
+            {/* Horizontal connecting track on desktop */}
+            <div className="pointer-events-none absolute left-8 right-8 top-10 hidden h-px bg-gradient-to-r from-emerald-400/10 via-emerald-400/40 to-emerald-400/10 lg:block" />
+
+            <ol className="grid gap-4 sm:gap-5 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
+              {T.how.steps.map(([title, body], i) => {
+                const meta = HOW_STEP_META[i]
+                const Icon = meta.icon
+                return (
+                  <li
+                    key={title}
+                    className="group relative flex flex-col justify-between overflow-hidden rounded-2xl border border-white/10 bg-white/[0.04] p-5 sm:p-6 backdrop-blur-xl transition-all duration-300 hover:-translate-y-1 hover:border-emerald-400/40 hover:bg-[#062c25]/85 hover:shadow-[0_20px_48px_rgba(0,0,0,0.5),0_0_24px_rgba(16,185,129,0.15)]"
+                  >
+                    {/* Subtle top edge line highlight */}
+                    <div className="pointer-events-none absolute inset-x-6 top-0 h-px bg-gradient-to-r from-transparent via-emerald-400/30 group-hover:via-emerald-400/70 to-transparent transition-all" />
+
+                    <div>
+                      {/* Step header: Icon + Step number chip */}
+                      <div className="flex items-center justify-between gap-3">
+                        <div className="relative flex size-12 items-center justify-center rounded-xl border border-emerald-400/40 bg-gradient-to-br from-emerald-500/25 to-[#052721] text-emerald-300 shadow-[0_0_20px_rgba(16,185,129,0.25)] transition-transform duration-300 group-hover:scale-105">
+                          <Icon className="size-6" />
+                        </div>
+                        <span className="font-mono text-xs font-bold tracking-wider text-emerald-300 px-2.5 py-0.5 rounded-full border border-emerald-400/30 bg-emerald-500/15">
+                          {`STEP ${meta.step}`}
+                        </span>
+                      </div>
+
+                      {/* Sub-badge & Title */}
+                      <div className="mt-4">
+                        <span className="font-mono text-[10.5px] font-bold uppercase tracking-wider text-emerald-300/80">
+                          {bn ? meta.subBn : meta.sub}
+                        </span>
+                        <h3 className="mt-1 font-display text-lg sm:text-xl font-bold tracking-tight text-white group-hover:text-emerald-100 transition-colors">
+                          {title}
+                        </h3>
+                        <p className="mt-2 text-[13px] sm:text-[13.5px] leading-relaxed text-white/75 group-hover:text-white/90 transition-colors">
+                          {body}
+                        </p>
+                      </div>
+                    </div>
+
+                    {/* Micro footer info */}
+                    <div className="mt-5 pt-3.5 border-t border-white/10 flex items-center justify-between text-[11px] font-mono text-white/55">
+                      <span className="truncate">{bn ? meta.highlightBn : meta.highlight}</span>
+                      {i < 3 && <ArrowRight className="size-3.5 text-emerald-400/60 hidden lg:block shrink-0 ml-1" />}
+                    </div>
+                  </li>
+                )
+              })}
+            </ol>
+          </div>
         </InfoPanel>
 
         {/* WHY TRUST IT — plain promises, no figures claimed */}
         <InfoPanel o={trust} eyebrow={T.trust.eyebrow} title={T.trust.title} bn={bn}>
-          <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-4">
+          <div className="grid gap-4 sm:gap-5 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
             {T.trust.points.map(([title, body], i) => {
-              const Icon = TRUST_ICONS[i]
+              const meta = TRUST_CARD_META[i]
+              const Icon = meta.icon
               return (
-                <article key={title} className="rounded-2xl border border-white/10 bg-white/[0.05] p-6">
-                  <span className={`grid size-11 place-items-center rounded-xl ${i === 2 ? 'bg-amber-400/15 text-amber-300' : 'bg-emerald-400/15 text-emerald-300'}`}>
-                    <Icon className="size-6" />
-                  </span>
-                  <h3 className="mt-4 font-display text-lg font-bold text-white">{title}</h3>
-                  <p className="mt-2 text-sm leading-relaxed text-white/75">{body}</p>
+                <article
+                  key={title}
+                  className={cn(
+                    'group relative flex flex-col justify-between overflow-hidden rounded-2xl border border-white/10 bg-white/[0.04] p-5 sm:p-6 backdrop-blur-xl transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_20px_48px_rgba(0,0,0,0.5)]',
+                    meta.hoverBorder,
+                  )}
+                >
+                  {/* Subtle top edge line highlight */}
+                  <div className="pointer-events-none absolute inset-x-6 top-0 h-px bg-gradient-to-r from-transparent via-white/15 group-hover:via-white/40 to-transparent transition-all" />
+
+                  <div>
+                    {/* Header icon + tag badge */}
+                    <div className="flex items-center justify-between gap-3">
+                      <div className={cn('flex size-12 items-center justify-center rounded-xl border transition-transform duration-300 group-hover:scale-105', meta.iconBox)}>
+                        <Icon className="size-6" />
+                      </div>
+                      <span className={cn('font-mono text-[10.5px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-md border', meta.tagBadge)}>
+                        {bn ? meta.badgeBn : meta.badge}
+                      </span>
+                    </div>
+
+                    <div className="mt-4">
+                      <h3 className="font-display text-lg sm:text-xl font-bold tracking-tight text-white group-hover:text-emerald-100 transition-colors">
+                        {title}
+                      </h3>
+                      <p className="mt-2 text-[13px] sm:text-[13.5px] leading-relaxed text-white/75 group-hover:text-white/90 transition-colors">
+                        {body}
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="mt-5 pt-3.5 border-t border-white/10 flex items-center gap-2">
+                    <span className={cn('size-1.5 rounded-full shrink-0', meta.dotColor)} />
+                    <span className="font-mono text-[11px] text-white/60 tracking-wide font-medium truncate">
+                      {bn ? meta.footerBn : meta.footer}
+                    </span>
+                  </div>
                 </article>
               )
             })}
@@ -377,10 +648,39 @@ export function DiveSequence({ lang, onOpenDashboard }: { lang: HomeLang; onOpen
           </div>
         </div>
 
-        {/* Section dots (for the service part) */}
-        <div className="absolute bottom-8 left-1/2 flex -translate-x-1/2 gap-2" style={{ opacity: info }} aria-hidden>
-          {[problem, how, trust, cta].map((o, i) => (
-            <span key={i} className={`h-1.5 rounded-full transition-all ${o > 0.5 ? 'w-8 bg-emerald-300' : 'w-3 bg-white/35'}`} />
+        {/* Interactive section navigation pill bar */}
+        <div
+          className="absolute bottom-6 sm:bottom-8 left-1/2 flex -translate-x-1/2 items-center gap-1.5 rounded-full border border-white/15 bg-[#021512]/80 px-3 py-1.5 shadow-[0_8px_32px_rgba(0,0,0,0.5)] backdrop-blur-xl transition-all duration-300 z-30"
+          style={{ opacity: info, pointerEvents: info > 0.5 ? 'auto' : 'none' }}
+        >
+          {[
+            { label: 'The Problem', bn: 'সমস্যা', snap: 5, active: problem > 0.5 },
+            { label: 'How It Works', bn: 'পদ্ধতি', snap: 6, active: how > 0.5 },
+            { label: 'Why Trust It', bn: 'স্বচ্ছতা', snap: 7, active: trust > 0.5 },
+            { label: 'Get Started', bn: 'শুরু করুন', snap: 8, active: cta > 0.5 },
+          ].map((s) => (
+            <button
+              key={s.label}
+              type="button"
+              onClick={() => goToSnap(s.snap)}
+              className={cn(
+                'group flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-mono font-medium transition-all duration-200 cursor-pointer',
+                s.active
+                  ? 'bg-emerald-400/20 text-emerald-300 border border-emerald-400/40 shadow-[0_0_12px_rgba(52,211,153,0.3)]'
+                  : 'text-white/50 hover:text-white/90 hover:bg-white/5',
+              )}
+              title={bn ? s.bn : s.label}
+            >
+              <span
+                className={cn(
+                  'size-1.5 rounded-full transition-all duration-300',
+                  s.active ? 'bg-emerald-400 shadow-[0_0_6px_#34d399] scale-125' : 'bg-white/30 group-hover:bg-white/60',
+                )}
+              />
+              <span className={cn('hidden sm:inline text-[11px]', s.active ? 'font-bold' : '')}>
+                {bn ? s.bn : s.label}
+              </span>
+            </button>
           ))}
         </div>
 

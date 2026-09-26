@@ -22,7 +22,7 @@ export const axisTick = { fontSize: 11, fill: '#6c817a', fontFamily: 'var(--font
 export function yearTicks(min: number, max: number) {
   const a = Math.ceil(min)
   const b = Math.floor(max)
-  const step = b - a > 10 ? 5 : b - a > 7 ? 2 : 1
+  const step = b - a > 14 ? 5 : b - a > 7 ? 2 : 1
   const out: number[] = []
   for (let y = a; y <= b; y += step) out.push(y)
   return out
