@@ -1,7 +1,6 @@
 import { useState } from 'react'
 import {
   Activity,
-  ArrowUpRight,
   BarChart3,
   Calendar,
   CheckCircle2,
@@ -207,8 +206,8 @@ function SureMeter({ bundle: b, lang }: { bundle: AnalysisBundle; lang: Lang }) 
           <CheckCircle2 className="size-3.5 shrink-0 text-emerald-600" />
           <span>
             {lang === 'bn'
-              ? 'পরিষ্কার উপগ্রহ ছবি, একই মৌসুম, আর বৈজ্ঞানিক মানচিত্রের সঙ্গে মিল — সব ঠিক আছে।'
-              : 'Clear satellite telemetry, verified dry-season alignment, and verified canopy spectral index agreement.'}
+              ? 'সব স্বয়ংক্রিয় যাচাই পাস: যথেষ্ট মেঘমুক্ত ছবি, দুই সময়ের মৌসুম মেলে, আলাদা ম্যানগ্রোভ মানচিত্রের সঙ্গে আয়তন মেলে, আর না-দেখা বছরে মডেল ভালো করেছে।'
+              : 'All automatic checks passed: enough clear photos, matching seasons, area agrees with an independent mangrove map, and the model scored well on a year it had not seen.'}
           </span>
         </p>
       )}
@@ -334,186 +333,182 @@ export function SimpleCards({ bundle: b, lang }: { bundle: AnalysisBundle; lang:
   )
 }
 
+const CO2_PER_C = 44 / 12
+
+function windowText(from: string, to: string, lang: Lang) {
+  const loc = lang === 'bn' ? 'bn-IN' : 'en-GB'
+  const f = (d: string) => new Date(`${d}T00:00:00`).toLocaleDateString(loc, { day: 'numeric', month: 'short', year: 'numeric' })
+  return `${f(from)} – ${f(to)}`
+}
+
+const signedInt = (v: number, lang: Lang, d = 0) => `${v > 0 ? '+' : v < 0 ? '−' : ''}${fmt(Math.abs(v), d, lang)}`
+
 /**
- * State-of-the-art interactive chart with Spline Area & Capsule Bar toggles,
- * Metric toggling (Canopy Area vs Carbon Stock vs YoY Delta),
- * Baseline benchmark lines, and luminous frosted glass tooltip.
+ * Mapped mangrove area for every period the engine measured (start, each dry
+ * season, end) with the ±area-error band. Every label comes from the data.
  */
 export function YearsChart({ bundle: b, lang }: { bundle: AnalysisBundle; lang: Lang }) {
   const [chartMode, setChartMode] = useState<'spline' | 'bars'>('spline')
   const [metric, setMetric] = useState<'area' | 'carbon' | 'delta'>('area')
   const dim = b.reliability.level === 'low'
   const bn = lang === 'bn'
-
+  const u = (b.carbon.areaUncertaintyPct || 0) / 100
   const MONTHS_EN = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
   const MONTHS_BN = ['জানু', 'ফেব্রু', 'মার্চ', 'এপ্রিল', 'মে', 'জুন', 'জুলাই', 'আগস্ট', 'সেপ্টে', 'অক্টো', 'নভে', 'ডিসে']
+  const seriesByKey = new Map(b.carbon.series.map((s) => [s.key, s]))
+  const co2PerHa = b.carbon.end.co2eMg / (b.summary.end.mangroveHa || 1)
 
-  // Carbon factor: t CO₂e per ha
-  const carbonDensity = (b.carbon.end.co2eMg / (b.summary.end.mangroveHa || 1)) || 1038
-
-  const rawRows = b.timeline.map((p, i, arr) => {
+  const years = b.timeline.map((p) => p.midDate.slice(0, 4))
+  const first = b.timeline[0]
+  const rows = b.timeline.map((p, i, arr) => {
+    const year = years[i]
     const m = Number(p.midDate.slice(5, 7))
-    const dry = m >= 1 && m <= 3
-    const year = p.midDate.slice(0, 4)
-    const label = dry ? year : `${(bn ? MONTHS_BN : MONTHS_EN)[m - 1]} ${year}`
-
-    const areaVal = p.mangroveHa
-    const carbonVal = Math.round(p.mangroveHa * carbonDensity)
-    const prevArea = i === 0 ? arr[0].mangroveHa : arr[i - 1].mangroveHa
-    const deltaVal = Math.round(p.mangroveHa - prevArea)
-
+    // Only add the month when two periods fall in the same year.
+    const label = years.filter((y) => y === year).length > 1 ? `${(bn ? MONTHS_BN : MONTHS_EN)[m - 1]} ${year}` : year
+    const cs = seriesByKey.get(p.key)
+    const carbon = cs ? cs.co2eMg : p.mangroveHa * co2PerHa
+    const carbonLow = cs ? cs.carbonLowMgC * CO2_PER_C : carbon * (1 - u)
+    const carbonHigh = cs ? cs.carbonHighMgC * CO2_PER_C : carbon * (1 + u)
+    const delta = i === 0 ? null : p.mangroveHa - arr[i - 1].mangroveHa
+    const val = metric === 'area' ? p.mangroveHa : metric === 'carbon' ? carbon : delta
+    const band: [number, number] | null =
+      metric === 'area' ? [p.mangroveHa * (1 - u), p.mangroveHa * (1 + u)] : metric === 'carbon' ? [carbonLow, carbonHigh] : null
     return {
-      year: label,
-      rawYear: year,
-      area: areaVal,
-      carbon: carbonVal,
-      delta: deltaVal,
-      val: metric === 'area' ? areaVal : metric === 'carbon' ? carbonVal : deltaVal,
-      baselineDiff: p.mangroveHa - arr[0].mangroveHa,
-      baselinePct: ((p.mangroveHa - arr[0].mangroveHa) / (arr[0].mangroveHa || 1)) * 100,
+      label,
+      window: windowText(p.startDate, p.endDate, lang),
+      images: p.imageCount,
+      unsureHa: p.lowConfidenceHa,
+      area: p.mangroveHa,
+      val,
+      band,
+      isFirst: i === 0,
+      baselineDiff: p.mangroveHa - first.mangroveHa,
+      baselinePct: ((p.mangroveHa - first.mangroveHa) / (first.mangroveHa || 1)) * 100,
     }
   })
 
-  const baselineVal = rawRows[0]?.val ?? 0
-  const maxVal = Math.max(...rawRows.map((r) => r.val))
-  const minVal = Math.min(...rawRows.map((r) => r.val))
-  const peakRow = rawRows.reduce((prev, curr) => (curr.val > prev.val ? curr : prev), rawRows[0])
+  const plotted = rows.filter((r): r is (typeof rows)[number] & { val: number } => r.val !== null)
+  const lows = plotted.map((r) => (r.band ? r.band[0] : r.val))
+  const highs = plotted.map((r) => (r.band ? r.band[1] : r.val))
+  const minVal = Math.min(...lows, ...(metric === 'delta' ? [0] : []))
+  const maxVal = Math.max(...highs, ...(metric === 'delta' ? [0] : []))
+  const pad = (maxVal - minVal) * 0.12 || Math.abs(maxVal) * 0.05 || 1
+  const domain: [number, number] = [metric === 'delta' ? minVal - pad : Math.max(0, minVal - pad), maxVal + pad]
+  const peak = plotted.reduce((a, c) => (c.val > a.val ? c : a), plotted[0])
+  const low = plotted.reduce((a, c) => (c.val < a.val ? c : a), plotted[0])
+  const firstRow = rows[0]
+  const lastRow = rows[rows.length - 1]
+  const mapDiff = lastRow.area - firstRow.area
+  const confirmed = b.change.netChangeHa
 
-  const metricLabels = {
-    area: { unit: bn ? 'হেক্টর' : 'ha', title: bn ? 'ক্যানোপি আয়তন' : 'Canopy Area' },
-    carbon: { unit: bn ? 'টন CO₂e' : 't CO₂e', title: bn ? 'কার্বন মজুত' : 'Carbon Stock' },
-    delta: { unit: bn ? 'বার্ষিক পরিবর্তন' : 'Annual Delta', title: bn ? 'বৃদ্ধি / সংকোচন' : 'YoY Delta' },
-  }[metric]
+  const unit = metric === 'carbon' ? (bn ? 'টন CO₂e' : 't CO₂e') : bn ? 'হেক্টর' : 'ha'
+  const tooltip = <ModernChartTooltip lang={lang} metric={metric} unit={unit} u={u} />
 
   return (
     <div className={`space-y-3 ${dim ? 'opacity-50' : ''}`}>
-      {/* Interactive Controls Bar: Mode Switcher & Metric Selector */}
       <div className="flex flex-wrap items-center justify-between gap-2.5 border-b border-[#e5efe9] pb-3">
-        {/* Metric Selector Pills */}
         <div className="flex items-center rounded-xl bg-[#f2f6f3] p-0.5 border border-[#d6e6de] text-xs font-semibold">
-          {(['area', 'carbon', 'delta'] as const).map((m) => {
-            const active = metric === m
-            return (
-              <button
-                key={m}
-                type="button"
-                onClick={() => setMetric(m)}
-                className={`rounded-lg px-2.5 py-1 transition-all text-[11.5px] ${
-                  active
-                    ? 'bg-[#16865f] text-white shadow-xs font-bold'
-                    : 'text-[#526a63] hover:text-[#123f38]'
-                }`}
-              >
-                {m === 'area' ? (bn ? 'আয়তন (হেক্টর)' : 'Area (ha)') : m === 'carbon' ? (bn ? 'কার্বন (CO₂e)' : 'Carbon (CO₂e)') : (bn ? 'বার্ষিক পরিবর্তন' : 'Annual Δ')}
-              </button>
-            )
-          })}
+          {(['area', 'carbon', 'delta'] as const).map((m) => (
+            <button
+              key={m}
+              type="button"
+              onClick={() => setMetric(m)}
+              className={`rounded-lg px-2.5 py-1 transition-all text-[11.5px] ${
+                metric === m ? 'bg-[#16865f] text-white shadow-xs font-bold' : 'text-[#526a63] hover:text-[#123f38]'
+              }`}
+            >
+              {m === 'area' ? (bn ? 'আয়তন (হেক্টর)' : 'Area (ha)') : m === 'carbon' ? (bn ? 'কার্বন (CO₂e)' : 'Carbon (CO₂e)') : bn ? 'আগের তুলনায় বদল' : 'Change vs previous'}
+            </button>
+          ))}
         </div>
-
-        {/* View Mode Toggle: Spline Area vs Capsule Bars */}
         <div className="flex items-center gap-1 rounded-xl bg-[#f2f6f3] p-0.5 border border-[#d6e6de]">
-          <button
-            type="button"
-            onClick={() => setChartMode('spline')}
-            className={`flex items-center gap-1 rounded-lg px-2 py-1 text-xs font-semibold transition ${
-              chartMode === 'spline' ? 'bg-white text-emerald-800 shadow-xs' : 'text-[#6c817a] hover:text-[#123f38]'
-            }`}
-            title="Spline Area Flow"
-          >
-            <Activity className="size-3.5" />
-            <span className="hidden sm:inline">{bn ? 'কার্ভ ভিউ' : 'Spline'}</span>
-          </button>
-          <button
-            type="button"
-            onClick={() => setChartMode('bars')}
-            className={`flex items-center gap-1 rounded-lg px-2 py-1 text-xs font-semibold transition ${
-              chartMode === 'bars' ? 'bg-white text-emerald-800 shadow-xs' : 'text-[#6c817a] hover:text-[#123f38]'
-            }`}
-            title="Capsule Bar Chart"
-          >
-            <BarChart3 className="size-3.5" />
-            <span className="hidden sm:inline">{bn ? 'বার ভিউ' : 'Bars'}</span>
-          </button>
+          {(['spline', 'bars'] as const).map((mode) => (
+            <button
+              key={mode}
+              type="button"
+              onClick={() => setChartMode(mode)}
+              className={`flex items-center gap-1 rounded-lg px-2 py-1 text-xs font-semibold transition ${
+                chartMode === mode ? 'bg-white text-emerald-800 shadow-xs' : 'text-[#6c817a] hover:text-[#123f38]'
+              }`}
+            >
+              {mode === 'spline' ? <Activity className="size-3.5" /> : <BarChart3 className="size-3.5" />}
+              <span className="hidden sm:inline">{mode === 'spline' ? (bn ? 'রেখা' : 'Line') : bn ? 'স্তম্ভ' : 'Bars'}</span>
+            </button>
+          ))}
         </div>
       </div>
 
-      {/* KPI Micro-Badges Bar */}
+      {/* KPI strip — every value is read from the chart's own rows */}
       <div className="flex flex-wrap items-center justify-between gap-2 font-mono text-[11px] text-[#6c817a] bg-[#f7faf7] p-2.5 rounded-xl border border-[#e5efe9]">
-        <div className="flex items-center gap-1.5">
-          <span className="size-2 rounded-full bg-emerald-500" />
-          <span>
-            {bn ? 'শুরুর বেসলাইন' : '2020 Baseline'}: <strong className="text-[#0f352e]">{fmt(baselineVal, 0, lang)} {metricLabels.unit}</strong>
-          </span>
-        </div>
-        <div className="flex items-center gap-1.5">
-          <span className="size-2 rounded-full bg-teal-500" />
-          <span>
-            {bn ? 'সর্বোচ্চ রেকর্ড' : 'Peak'}: <strong className="text-[#0f352e]">{fmt(peakRow.val, 0, lang)} {metricLabels.unit} ({peakRow.year})</strong>
-          </span>
-        </div>
-        <div className="flex items-center gap-1 font-semibold text-emerald-700 bg-emerald-50 border border-emerald-200 rounded px-2 py-0.5">
-          <ArrowUpRight className="size-3" />
-          <span>
-            {bn ? 'নিট পরিবর্তন' : 'Net'}: {fmt(rawRows.at(-1)!.val - baselineVal, 0, lang)} {metricLabels.unit}
-          </span>
-        </div>
+        {metric === 'delta' ? (
+          <>
+            <span>
+              {bn ? 'সবচেয়ে বেশি বৃদ্ধি' : 'Biggest rise'}: <strong className="text-[#0f352e]">{signedInt(peak.val, lang)} ha ({peak.label})</strong>
+            </span>
+            <span>
+              {bn ? 'সবচেয়ে বেশি কমা' : 'Biggest drop'}: <strong className="text-[#0f352e]">{signedInt(low.val, lang)} ha ({low.label})</strong>
+            </span>
+          </>
+        ) : (
+          <>
+            <span className="flex items-center gap-1.5">
+              <span className="size-2 rounded-full bg-emerald-500" />
+              {bn ? 'শুরু' : 'Start'} ({firstRow.label}): <strong className="text-[#0f352e]">{fmt(firstRow.val ?? 0, 0, lang)} {unit}</strong>
+            </span>
+            <span className="flex items-center gap-1.5">
+              <span className="size-2 rounded-full bg-teal-500" />
+              {bn ? 'সর্বোচ্চ' : 'Highest'}: <strong className="text-[#0f352e]">{fmt(peak.val, 0, lang)} {unit} ({peak.label})</strong>
+            </span>
+            <span className="flex items-center gap-1.5">
+              <span className="size-2 rounded-full bg-amber-500" />
+              {bn ? 'সর্বনিম্ন' : 'Lowest'}: <strong className="text-[#0f352e]">{fmt(low.val, 0, lang)} {unit} ({low.label})</strong>
+            </span>
+          </>
+        )}
       </div>
 
-      {/* Chart Canvas */}
       <div className="h-64 w-full pt-2">
         <ResponsiveContainer width="100%" height="100%">
           {chartMode === 'spline' ? (
-            <AreaChart data={rawRows} margin={{ top: 18, right: 14, bottom: 0, left: -10 }}>
+            <AreaChart data={rows} margin={{ top: 18, right: 14, bottom: 0, left: 14 }}>
               <defs>
                 <linearGradient id="splineEmeraldGrad" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%" stopColor="#10b981" stopOpacity={0.45} />
-                  <stop offset="50%" stopColor="#059669" stopOpacity={0.15} />
+                  <stop offset="0%" stopColor="#10b981" stopOpacity={0.3} />
                   <stop offset="100%" stopColor="#047857" stopOpacity={0.01} />
                 </linearGradient>
-                <filter id="neonGlow" x="-20%" y="-20%" width="140%" height="140%">
-                  <feDropShadow dx="0" dy="3" stdDeviation="4" floodColor="#10b981" floodOpacity="0.35" />
-                </filter>
               </defs>
-              <XAxis dataKey="year" tick={{ fontSize: 11.5, fill: '#526a63', fontFamily: 'var(--font-mono)' }} axisLine={false} tickLine={false} />
-              <YAxis domain={[Math.max(0, minVal * 0.9), maxVal * 1.1]} hide />
-              <Tooltip content={<ModernChartTooltip lang={lang} metricLabels={metricLabels} />} cursor={{ stroke: 'rgba(16, 185, 129, 0.3)', strokeWidth: 1.5, strokeDasharray: '4 4' }} />
-              <ReferenceLine y={baselineVal} stroke="#6c817a" strokeDasharray="3 3" strokeOpacity={0.6} />
+              <XAxis dataKey="label" interval={0} tick={{ fontSize: 11.5, fill: '#526a63', fontFamily: 'var(--font-mono)' }} axisLine={false} tickLine={false} />
+              <YAxis domain={domain} hide />
+              <Tooltip content={tooltip} cursor={{ stroke: 'rgba(16, 185, 129, 0.3)', strokeWidth: 1.5, strokeDasharray: '4 4' }} />
+              {metric !== 'delta' && (
+                <Area type="monotone" dataKey="band" stroke="none" fill="#10b981" fillOpacity={0.14} isAnimationActive={false} activeDot={false} />
+              )}
+              <ReferenceLine y={metric === 'delta' ? 0 : (firstRow.val ?? 0)} stroke="#6c817a" strokeDasharray="3 3" strokeOpacity={0.6} />
               <Area
                 type="monotone"
                 dataKey="val"
+                connectNulls
                 stroke="#10b981"
                 strokeWidth={3}
-                fill="url(#splineEmeraldGrad)"
+                fill={metric === 'delta' ? 'none' : 'url(#splineEmeraldGrad)'}
                 dot={{ r: 4, fill: '#ffffff', stroke: '#059669', strokeWidth: 2.5 }}
-                activeDot={{ r: 6, fill: '#10b981', stroke: '#ffffff', strokeWidth: 2, className: 'animate-ping' }}
+                activeDot={{ r: 6, fill: '#10b981', stroke: '#ffffff', strokeWidth: 2 }}
               />
             </AreaChart>
           ) : (
-            <BarChart data={rawRows} margin={{ top: 22, right: 12, bottom: 0, left: -10 }}>
-              <defs>
-                <linearGradient id="barLatestGrad" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%" stopColor="#34d399" stopOpacity={1} />
-                  <stop offset="100%" stopColor="#059669" stopOpacity={0.9} />
-                </linearGradient>
-                <linearGradient id="barHistGrad" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%" stopColor="#a7f3d0" stopOpacity={0.85} />
-                  <stop offset="100%" stopColor="#34d399" stopOpacity={0.65} />
-                </linearGradient>
-              </defs>
-              <XAxis dataKey="year" tick={{ fontSize: 11.5, fill: '#526a63', fontFamily: 'var(--font-mono)' }} axisLine={false} tickLine={false} />
-              <YAxis hide domain={[0, maxVal * 1.15]} />
-              <Tooltip content={<ModernChartTooltip lang={lang} metricLabels={metricLabels} />} cursor={{ fill: 'rgba(16, 185, 129, 0.05)' }} />
-              <Bar dataKey="val" radius={[8, 8, 2, 2]} maxBarSize={48}>
-                {rawRows.map((_, i) => (
-                  <Cell
-                    key={i}
-                    fill={dim ? '#9ca3af' : i === rawRows.length - 1 ? 'url(#barLatestGrad)' : 'url(#barHistGrad)'}
-                  />
+            <BarChart data={rows} margin={{ top: 22, right: 12, bottom: 0, left: 12 }}>
+              <XAxis dataKey="label" interval={0} tick={{ fontSize: 11.5, fill: '#526a63', fontFamily: 'var(--font-mono)' }} axisLine={false} tickLine={false} />
+              <YAxis hide domain={metric === 'delta' ? domain : [0, maxVal * 1.12]} />
+              <Tooltip content={tooltip} cursor={{ fill: 'rgba(16, 185, 129, 0.05)' }} />
+              {metric === 'delta' && <ReferenceLine y={0} stroke="#6c817a" />}
+              <Bar dataKey="val" radius={[6, 6, 2, 2]} maxBarSize={48}>
+                {rows.map((r, i) => (
+                  <Cell key={i} fill={dim ? '#9ca3af' : (r.val ?? 0) < 0 ? '#f43f5e' : i === rows.length - 1 ? '#10b981' : '#6ee7b7'} />
                 ))}
                 <LabelList
                   dataKey="val"
                   position="top"
-                  formatter={(v: number) => fmt(v, 0, lang)}
+                  formatter={(v: unknown) => (typeof v !== 'number' ? '' : metric === 'delta' ? signedInt(v, lang) : fmt(v, 0, lang))}
                   style={{ fontSize: 11, fill: '#0f352e', fontWeight: 800, fontFamily: 'var(--font-mono)' }}
                 />
               </Bar>
@@ -522,54 +517,110 @@ export function YearsChart({ bundle: b, lang }: { bundle: AnalysisBundle; lang: 
         </ResponsiveContainer>
       </div>
 
-      {/* Footer Meta */}
+      {/* Reading guide: yearly map totals vs the confirmed pixel-level change */}
+      <div className="rounded-xl border border-amber-200/70 bg-amber-50/60 p-3 text-xs leading-relaxed text-[#5b4a1c]">
+        {bn ? (
+          <>
+            প্রতিটি বছরের মোট আয়তন আলাদা ছবি থেকে মাপা, তাই এটি প্রায় ±{fmt(u * 100, 1, lang)}% ওঠানামা করে (সবুজ ছায়া)। প্রথম ও শেষ মানচিত্রের মোটের পার্থক্য{' '}
+            <strong>{signedInt(mapDiff, lang)} হেক্টর</strong>, কিন্তু পিক্সেল ধরে নিশ্চিত পরিবর্তন (বৃদ্ধি − ক্ষতি) হলো <strong>{signedInt(confirmed, lang, 1)} হেক্টর</strong> —
+            শিরোনাম ও ভবিষ্যৎ প্রক্ষেপণ এই নিশ্চিত সংখ্যাটি ব্যবহার করে।
+          </>
+        ) : (
+          <>
+            Each year&apos;s total is measured from a different set of photos, so it wobbles by about ±{fmt(u * 100, 1)}% (green shading). The first and last map totals
+            differ by <strong>{signedInt(mapDiff, lang)} ha</strong>, but the confirmed change counted pixel by pixel (gain − loss) is{' '}
+            <strong>{signedInt(confirmed, lang, 1)} ha</strong> — the headline and the 5-year outlook use this confirmed figure.
+          </>
+        )}
+      </div>
+
       <div className="flex flex-wrap items-center justify-between gap-2 border-t border-[#e5efe9] pt-2 text-xs text-[#6c817a]">
         <span>
           {bn
-            ? 'প্রতিটি বিন্দু/স্তম্ভ = সেন্টিনেল-২ উপগ্রহ ছবির জানু–মার্চ ড্রাই সিজন কম্পোজিট।'
-            : 'Each point represents validated cloud-free Jan–Mar Sentinel-2 dry-season composite.'}
+            ? 'প্রতিটি বিন্দু = ওই সময়ের মেঘমুক্ত সেন্টিনেল-২ ছবি থেকে মাপা আয়তন (তারিখ দেখতে বিন্দুর উপর রাখুন)।'
+            : 'Each point = area mapped from the cloud-free Sentinel-2 photos of that window (hover for exact dates).'}
         </span>
-        <span className="font-mono text-[11px] text-emerald-800 font-semibold">
-          {bn ? 'ইউরোপীয় মহাকাশ সংস্থা (ESA)' : 'ESA Sentinel-2 MSI L2A'}
-        </span>
+        <span className="font-mono text-[11px] text-emerald-800 font-semibold">ESA Sentinel-2 L2A</span>
       </div>
     </div>
   )
 }
 
-function ModernChartTooltip({ active, payload, lang, metricLabels }: any) {
+type ChartRow = {
+  label: string
+  window: string
+  images: number
+  unsureHa: number
+  area: number
+  val: number | null
+  band: [number, number] | null
+  isFirst: boolean
+  baselineDiff: number
+  baselinePct: number
+}
+
+function ModernChartTooltip({
+  active,
+  payload,
+  lang,
+  metric,
+  unit,
+  u,
+}: {
+  active?: boolean
+  payload?: { dataKey?: unknown; payload: ChartRow }[]
+  lang: Lang
+  metric: 'area' | 'carbon' | 'delta'
+  unit: string
+  u: number
+}) {
   if (!active || !payload?.length) return null
   const item = payload[0].payload
   const bn = lang === 'bn'
 
   return (
-    <div className="rounded-xl border border-emerald-500/35 bg-[#031d17]/95 p-3 text-white shadow-2xl backdrop-blur-md min-w-[210px]">
-      <div className="flex items-center justify-between border-b border-emerald-500/20 pb-1.5 mb-2">
+    <div className="rounded-xl border border-emerald-500/35 bg-[#031d17]/95 p-3 text-white shadow-2xl backdrop-blur-md min-w-[230px]">
+      <div className="flex items-center justify-between border-b border-emerald-500/20 pb-1.5 mb-1.5">
         <span className="flex items-center gap-1 font-mono text-xs font-bold text-emerald-400">
           <Calendar className="size-3" />
-          {item.year}
+          {item.label}
         </span>
-        <span className="font-mono text-[10px] text-emerald-300/80 bg-emerald-500/20 px-1.5 py-0.5 rounded">
-          MSI L2A
+        <span className="font-mono text-[10px] text-emerald-300/80">
+          {fmt(item.images, 0, lang)} {bn ? 'টি ছবি' : 'photos'}
         </span>
       </div>
+      <p className="font-mono text-[10.5px] text-emerald-200/80">{item.window}</p>
 
-      <div className="flex items-baseline justify-between">
+      <div className="mt-1.5 flex items-baseline justify-between">
         <span className="font-condensed text-2xl font-bold tracking-wide text-white">
-          {fmt(item.val, 0, lang)}
+          {item.val == null ? '—' : metric === 'delta' ? signedInt(item.val, lang) : fmt(item.val, 0, lang)}
         </span>
-        <span className="text-xs text-emerald-300 font-sans">{metricLabels.unit}</span>
+        <span className="text-xs text-emerald-300 font-sans">{unit}</span>
       </div>
+      {item.band && (
+        <p className="font-mono text-[10.5px] text-emerald-200/70">
+          {bn ? 'সম্ভাব্য পরিসর' : 'likely range'} {fmt(item.band[0], 0, lang)}–{fmt(item.band[1], 0, lang)}
+        </p>
+      )}
+      {metric === 'delta' && item.val == null && (
+        <p className="text-[10.5px] text-emerald-200/70">{bn ? 'প্রথম সময়কাল — আগের কোনো মাপ নেই' : 'First period — nothing earlier to compare'}</p>
+      )}
 
       <div className="mt-2 space-y-1 text-[11px] border-t border-emerald-500/20 pt-1.5">
-        <div className="flex items-center justify-between text-emerald-200">
-          <span>{bn ? '২০২০ বেসলাইন থেকে:' : 'vs 2020 Baseline:'}</span>
-          <span className={`font-mono font-bold ${item.baselineDiff >= 0 ? 'text-emerald-400' : 'text-rose-400'}`}>
-            {item.baselineDiff >= 0 ? '+' : ''}{fmt(item.baselineDiff, 0, lang)} ha ({item.baselinePct >= 0 ? '+' : ''}{fmt(item.baselinePct, 1, lang)}%)
-          </span>
+        {!item.isFirst && (
+          <div className="flex items-center justify-between gap-3 text-emerald-200">
+            <span>{bn ? 'শুরুর মানচিত্রের তুলনায়' : 'vs start map'}</span>
+            <span className={`font-mono font-bold ${item.baselineDiff >= 0 ? 'text-emerald-400' : 'text-rose-400'}`}>
+              {signedInt(item.baselineDiff, lang)} ha ({signedInt(item.baselinePct, lang, 1)}%)
+            </span>
+          </div>
+        )}
+        <div className="flex items-center justify-between gap-3 text-emerald-200/80">
+          <span>{bn ? 'অনিশ্চিত পিক্সেল' : 'Unsure pixels'}</span>
+          <span className="font-mono">{fmt(item.unsureHa, 0, lang)} ha</span>
         </div>
         <p className="text-[10.5px] text-emerald-300/70 italic">
-          {areaInWords(item.area, lang)}
+          {areaInWords(item.area, lang)} · ±{fmt(u * 100, 1, lang)}%
         </p>
       </div>
     </div>
@@ -577,166 +628,129 @@ function ModernChartTooltip({ active, payload, lang, metricLabels }: any) {
 }
 
 /**
- * State-of-the-Art Interactive 5-Year Horizon Scenarios Simulator.
- * Features selectable scenario cards with glowing active ring,
- * interactive projected impact calculations, and comparative scenario bars.
+ * The three 5-year "what if" lines computed by the backend. Descriptions are
+ * built from the real rates the backend used.
  */
 export function FutureBoxes({ bundle: b, lang }: { bundle: AnalysisBundle; lang: Lang }) {
   const [activeScenarioId, setActiveScenarioId] = useState<'current_trend' | 'higher_loss' | 'recovery'>('current_trend')
   const dim = b.reliability.level === 'low'
-  const now = b.summary.end.mangroveHa
   const bn = lang === 'bn'
-
-  const carbonDensity = (b.carbon.end.co2eMg / (b.summary.end.mangroveHa || 1)) || 1038
+  const pr = b.projection
 
   const meta = {
     current_trend: {
-      en: 'Business-as-Usual',
-      bn: 'বর্তমান ধারা বহাল',
-      descEn: 'Historical erosion and natural regeneration rate maintained without extra policy intervention.',
-      descBn: 'পূর্বের ভাঙন ও বৃদ্ধির স্বাভাবিক গতি বজায় থাকলে বন এই ধারায় চলবে।',
-      badgeColor: 'bg-sky-100 text-sky-800 border-sky-200',
-      activeBorder: 'border-sky-500 ring-2 ring-sky-400/30',
       icon: '➡️',
+      activeBorder: 'border-sky-500 ring-2 ring-sky-400/30',
+      badgeColor: 'bg-sky-100 text-sky-800 border-sky-200',
+      desc: bn
+        ? `এখন পর্যন্ত নিশ্চিত পরিবর্তন (বৃদ্ধি − ক্ষতি) বছরে ${signedInt(pr.trendHaPerYear, lang, 2)} হেক্টর — এই হার চলতে থাকলে।`
+        : `The confirmed change so far (gain − loss), ${signedInt(pr.trendHaPerYear, lang, 2)} ha per year, keeps going.`,
     },
     higher_loss: {
-      en: 'Stressed / High Loss',
-      bn: 'ঘূর্ণিঝড় ও ভাঙনজনিত চাপ',
-      descEn: 'Severe weather events, storm surges or coastal erosion doubling the historical rate of loss.',
-      descBn: 'ঘূর্ণিঝড় বা তীব্র নদীভাঙনে ক্ষতির মাত্রা দ্বিগুণ হলে সম্ভাব্য প্রক্ষেপণ।',
-      badgeColor: 'bg-rose-100 text-rose-800 border-rose-200',
-      activeBorder: 'border-rose-500 ring-2 ring-rose-400/30',
       icon: '⚠️',
+      activeBorder: 'border-rose-500 ring-2 ring-rose-400/30',
+      badgeColor: 'bg-rose-100 text-rose-800 border-rose-200',
+      desc: bn
+        ? `ক্ষতি দ্বিগুণ হলে: বর্তমান ধারার উপর বছরে আরও −${fmt(pr.observedGrossLossHaPerYear, 1, lang)} হেক্টর (যেমন বেশি ভাঙন)।`
+        : `If loss doubled: another −${fmt(pr.observedGrossLossHaPerYear, 1)} ha per year on top of the current trend (e.g. stronger erosion).`,
     },
     recovery: {
-      en: 'Community Conservation',
-      bn: 'সম্প্রদায়ভিত্তিক পুনরুদ্ধার',
-      descEn: 'Aggressive community afforestation and biological embankment stabilization on newly formed mudflats.',
-      descBn: 'সক্রিয় সামাজিক বনায়ন ও বাঁধ সুরক্ষায় নতুন চরে গাছ লাগালে সর্বোত্তম অগ্রগতি।',
-      badgeColor: 'bg-emerald-100 text-emerald-800 border-emerald-200',
-      activeBorder: 'border-emerald-500 ring-2 ring-emerald-400/30',
       icon: '🌱',
+      activeBorder: 'border-emerald-500 ring-2 ring-emerald-400/30',
+      badgeColor: 'bg-emerald-100 text-emerald-800 border-emerald-200',
+      desc: bn
+        ? 'ক্ষতি অর্ধেক আর নতুন বৃদ্ধি দেড় গুণ হলে (যেমন সুরক্ষা ও বনায়ন)।'
+        : 'If loss halved and regrowth rose by half (e.g. protection plus planting).',
     },
   } as const
 
-  const activeScenario = b.projection.scenarios.find((s) => s.id === activeScenarioId)!
-  const activeEndpoint = activeScenario.points.at(-1)!
-  const activeDelta = activeEndpoint.mangroveHa - now
-  const projectedCarbonDelta = Math.round(activeDelta * carbonDensity)
+  const active = pr.scenarios.find((s) => s.id === activeScenarioId) ?? pr.scenarios[0]
+  const p0 = active.points[0]
+  const pEnd = active.points[active.points.length - 1]
+  const activeDelta = pEnd.mangroveHa - p0.mangroveHa
+  const carbonDelta = (pEnd.carbonMgC - p0.carbonMgC) * CO2_PER_C
 
   return (
     <div className={`space-y-4 ${dim ? 'opacity-50' : ''}`}>
-      {/* 3 Selectable Scenario Cards */}
       <div className="grid gap-3 sm:grid-cols-3">
-        {b.projection.scenarios.map((sc) => {
-          const p = sc.points.at(-1)!
-          const d = p.mangroveHa - now
-          const isSelected = activeScenarioId === sc.id
+        {pr.scenarios.map((sc) => {
+          const start = sc.points[0]
+          const p = sc.points[sc.points.length - 1]
+          const d = p.mangroveHa - start.mangroveHa
+          const isSelected = active.id === sc.id
           const m = meta[sc.id]
-
           return (
             <button
               key={sc.id}
               type="button"
               onClick={() => setActiveScenarioId(sc.id)}
               className={`group relative text-left rounded-2xl border p-4 transition-all duration-300 cursor-pointer ${
-                isSelected
-                  ? `bg-white shadow-lg ${m.activeBorder}`
-                  : 'bg-white/80 border-[#e5efe9] hover:border-emerald-300 hover:shadow-md'
+                isSelected ? `bg-white shadow-lg ${m.activeBorder}` : 'bg-white/80 border-[#e5efe9] hover:border-emerald-300 hover:shadow-md'
               }`}
             >
-              {isSelected && (
-                <div className="absolute top-2 right-2 size-2 rounded-full bg-emerald-500 animate-ping" />
-              )}
-              <div className="flex items-center justify-between">
+              <div className="flex items-center justify-between gap-2">
                 <span className="flex items-center gap-1.5 text-xs font-bold text-[#0f352e]">
                   <span>{m.icon}</span>
-                  <span>{m[bn ? 'bn' : 'en']}</span>
+                  <span>{bn ? sc.nameBn : sc.name}</span>
                 </span>
-                <span className={`font-mono text-[9.5px] font-bold rounded px-1.5 py-0.5 border ${m.badgeColor}`}>
-                  {p.year}
-                </span>
+                <span className={`font-mono text-[9.5px] font-bold rounded px-1.5 py-0.5 border ${m.badgeColor}`}>{p.year}</span>
               </div>
-
               <div className="mt-2.5 flex items-baseline">
                 <span className="font-condensed text-3xl font-bold tracking-wide text-[#0f352e]">
                   <AnimatedNumber value={p.mangroveHa} digits={0} lang={lang} />
                 </span>
                 <span className="ml-1 text-xs font-normal text-[#6c817a] font-sans">{bn ? 'হেক্টর' : 'ha'}</span>
               </div>
-
               <p className={`mt-1 font-mono text-xs font-bold ${d < -0.5 ? 'text-rose-600' : 'text-emerald-700'}`}>
-                {Math.abs(d) < 0.5
-                  ? bn ? `≈ কোনো পরিবর্তন নেই` : `≈ stable baseline`
-                  : `${d > 0 ? '+' : '−'}${fmt(Math.abs(d), 0, lang)} ${bn ? 'হেক্টর' : 'ha'}`}
+                {Math.abs(d) < 0.5 ? (bn ? '≈ কোনো পরিবর্তন নেই' : '≈ no change') : `${signedInt(d, lang)} ${bn ? 'হেক্টর' : 'ha'}`}
+              </p>
+              <p className="mt-1 font-mono text-[10.5px] text-[#7d958d]">
+                {bn ? 'পরিসর' : 'range'} {fmt(p.lowHa, 0, lang)}–{fmt(p.highHa, 0, lang)}
               </p>
             </button>
           )
         })}
       </div>
 
-      {/* Interactive Scenario Deep-Dive Panel */}
       <div className="rounded-2xl border border-emerald-900/15 bg-gradient-to-br from-[#f7faf8] to-[#edf6f2] p-4 text-xs text-[#0f352e] shadow-xs">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-emerald-200/60 pb-2.5">
           <div className="flex items-center gap-2">
             <span className="font-mono text-[10.5px] font-bold uppercase tracking-wider text-emerald-800 bg-emerald-100 px-2 py-0.5 rounded-md">
-              {bn ? 'নির্বাচিত দৃশ্যপট বিশ্লেষণ' : 'ACTIVE SCENARIO SIMULATION'}
+              {bn ? 'নির্বাচিত দৃশ্যপট' : 'Selected scenario'}
             </span>
-            <span className="font-bold text-sm text-[#0f352e]">
-              {meta[activeScenarioId][bn ? 'bn' : 'en']}
-            </span>
+            <span className="font-bold text-sm text-[#0f352e]">{bn ? active.nameBn : active.name}</span>
           </div>
           <span className="font-mono text-[11px] text-[#6c817a]">
-            {bn ? '২০২৬ → ২০৩১ প্রক্ষেপণ' : '2026 → 2031 Trajectory'}
+            {p0.year} → {pEnd.year}
           </span>
         </div>
-
-        <p className="mt-2 text-xs text-[#40564f] leading-relaxed">
-          {meta[activeScenarioId][bn ? 'descBn' : 'descEn']}
-        </p>
-
-        {/* Dynamic Impact Counters */}
+        <p className="mt-2 text-xs text-[#40564f] leading-relaxed">{meta[active.id].desc}</p>
         <div className="mt-3 grid grid-cols-2 gap-2 font-mono">
           <div className="rounded-xl bg-white/90 p-2.5 border border-emerald-200/80 shadow-2xs">
-            <p className="text-[10px] text-[#6c817a] uppercase font-bold tracking-wider">
-              {bn ? 'প্রত্যাশিত নেট বন বিস্তার' : 'PROJECTED CANOPY DELTA'}
-            </p>
+            <p className="text-[10px] text-[#6c817a] uppercase font-bold tracking-wider">{bn ? 'বনের আয়তনে পরিবর্তন' : 'Change in forest area'}</p>
             <p className={`mt-1 font-condensed text-2xl font-bold tracking-wide ${activeDelta < 0 ? 'text-rose-600' : 'text-emerald-700'}`}>
-              <AnimatedNumber
-                value={Math.abs(activeDelta)}
-                digits={0}
-                lang={lang}
-                prefix={activeDelta >= 0 ? '+' : '−'}
-              />
+              <AnimatedNumber value={Math.abs(activeDelta)} digits={0} lang={lang} prefix={activeDelta >= 0 ? '+' : '−'} />
               <span className="ml-1 text-xs font-sans text-[#6c817a]">{bn ? 'হেক্টর' : 'ha'}</span>
             </p>
           </div>
-
           <div className="rounded-xl bg-white/90 p-2.5 border border-emerald-200/80 shadow-2xs">
-            <p className="text-[10px] text-[#6c817a] uppercase font-bold tracking-wider">
-              {bn ? 'কার্বন প্রভাব (CO₂ সমতুল্য)' : 'NET CARBON OFFSET'}
-            </p>
-            <p className={`mt-1 font-condensed text-2xl font-bold tracking-wide ${projectedCarbonDelta < 0 ? 'text-rose-600' : 'text-emerald-700'}`}>
-              <AnimatedNumber
-                value={Math.abs(projectedCarbonDelta)}
-                digits={0}
-                lang={lang}
-                prefix={projectedCarbonDelta >= 0 ? '+' : '−'}
-              />
-              <span className="ml-1 text-xs font-sans text-[#6c817a]">{bn ? 'টন CO₂' : 't CO₂e'}</span>
+            <p className="text-[10px] text-[#6c817a] uppercase font-bold tracking-wider">{bn ? 'জমা কার্বনে পরিবর্তন' : 'Change in stored carbon'}</p>
+            <p className={`mt-1 font-condensed text-2xl font-bold tracking-wide ${carbonDelta < 0 ? 'text-rose-600' : 'text-emerald-700'}`}>
+              <AnimatedNumber value={Math.abs(carbonDelta)} digits={0} lang={lang} prefix={carbonDelta >= 0 ? '+' : '−'} />
+              <span className="ml-1 text-xs font-sans text-[#6c817a]">{bn ? 'টন CO₂e' : 't CO₂e'}</span>
             </p>
           </div>
         </div>
       </div>
 
-      <div className="flex items-center justify-between text-xs text-[#6c817a]">
+      <div className="flex items-center justify-between gap-3 text-xs text-[#6c817a]">
         <p>
           {bn
-            ? 'এগুলো মন্টে-কার্লো গাণিতিক প্রক্ষেপণ ("হোয়াট-ইফ"), জলবায়ু পরিবর্তনের ওপর নির্ভরশীল।'
-            : 'Monte-Carlo projection model for planning — subject to climate variability.'}
+            ? 'এগুলো সহজ "যদি এমন হয়" রেখা, পূর্বাভাস নয়। পরিসরে মানচিত্রের ত্রুটি ও বছর-বছর ওঠানামা ধরা আছে।'
+            : 'Simple "what if" lines from the measured rates — not a forecast. Ranges include map error and year-to-year noise.'}
         </p>
-        <span className="font-mono text-[10px] bg-emerald-50 text-emerald-800 border border-emerald-200 px-2.5 py-0.5 rounded-full font-bold">
-          2031 Horizon
+        <span className="shrink-0 font-mono text-[10px] bg-emerald-50 text-emerald-800 border border-emerald-200 px-2.5 py-0.5 rounded-full font-bold">
+          {bn ? `${fmt(pr.horizonYears, 0, lang)} বছরের দৃশ্য` : `${pr.horizonYears}-year outlook`}
         </span>
       </div>
     </div>

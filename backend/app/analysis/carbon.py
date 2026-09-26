@@ -75,7 +75,10 @@ def carbon_change(
     area_unc_pct: float,
 ) -> Dict[str, Any]:
     d = DENSITY_MG_C_PER_HA
-    delta_area = end_ha - start_ha
+    # Confirmed pixel-level net change (the headline figure). The difference of
+    # the two map totals also carries image-to-image noise, so it is only
+    # reported alongside, never used for the carbon change.
+    delta_area = gain_ha - loss_ha
     delta_c = delta_area * d
     u_area = area_unc_pct / 100.0
     u_delta_area = math.sqrt(uncertain_ha ** 2 + (u_area * (gain_ha + loss_ha)) ** 2)
@@ -83,6 +86,7 @@ def carbon_change(
     years = max(span_years, 1e-6)
     return {
         "netAreaChangeHa": round(delta_area, 2),
+        "mapTotalDifferenceHa": round(end_ha - start_ha, 2),
         "carbonChangeMgC": round(delta_c, 1),
         "co2eChangeMg": round(delta_c * CO2_TO_C_RATIO, 1),
         "carbonChangeRangeMgC": [round(delta_c - u_delta_c, 1), round(delta_c + u_delta_c, 1)],

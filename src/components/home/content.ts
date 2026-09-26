@@ -36,9 +36,9 @@ export const HOME_TEXT = {
     carbon: {
       step: '03 · BLUE CARBON',
       number: '283 t',
-      unit: 'of carbon in every hectare of mangrove',
+      unit: 'of carbon in an average hectare of mangrove',
       body: '≈ 1,038 t CO₂ — as much as about 519 people in India emit in a year. Most of it (64%) sits in the soil, not the trees.',
-      source: 'IPCC 2013 Wetlands Supplement, Tier 1',
+      source: 'IPCC 2013 Wetlands Supplement, Tier 1 default — real stands vary',
     },
     gauge: ['Canopy', 'Surface', 'Roots', 'Sediment'],
     why: {
@@ -111,9 +111,9 @@ export const HOME_TEXT = {
     carbon: {
       step: '০৩ · ব্লু কার্বন',
       number: '২৮৩ টন',
-      unit: 'কার্বন প্রতি হেক্টর ম্যানগ্রোভে',
+      unit: 'কার্বন গড়ে প্রতি হেক্টর ম্যানগ্রোভে',
       body: '≈ ১,০৩৮ টন CO₂ — প্রায় ৫১৯ জন ভারতীয়ের এক বছরের নিঃসরণের সমান। বেশিরভাগ (৬৪%) থাকে মাটিতে, গাছে নয়।',
-      source: 'IPCC ২০১৩ জলাভূমি নির্দেশিকা, টিয়ার ১',
+      source: 'IPCC ২০১৩ জলাভূমি নির্দেশিকা, টিয়ার ১ গড় মান — আসল বন ভিন্ন হতে পারে',
     },
     gauge: ['ছাউনি', 'জলতল', 'শিকড়', 'কাদা'],
     why: {

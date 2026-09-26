@@ -430,7 +430,7 @@ export function AnalyticsDashboard({ onNavigate }: { onNavigate?: (path: string)
                   {activePreset ? (bn ? activePreset.nameBn : activePreset.name) : (bn ? 'কাস্টম স্থানাঙ্ক এলাকা' : 'TARGET AREA OF INTEREST')}
                 </h1>
                 <p className="font-mono text-[11px] text-[#6c817a] truncate mt-1">
-                  {params.lat.toFixed(4)}°N, {params.lon.toFixed(4)}°E · {params.radiusKm * 2} km swath · Sentinel-2 MSI (10m Multispectral)
+                  {params.lat.toFixed(4)}°N, {params.lon.toFixed(4)}°E · {params.radiusKm * 2} km swath · Sentinel-2 MSI (10 m sensor)
                 </p>
               </div>
             </div>
@@ -912,7 +912,7 @@ export function AnalyticsDashboard({ onNavigate }: { onNavigate?: (path: string)
                       subtitle={
                         lang === 'bn'
                           ? 'সেন্টিনেল-২ উপগ্রহ ভিত্তিক বনের ক্যানোপি ও সময়ের ধারাবাহিক পরিবর্তন'
-                          : 'Multi-temporal Sentinel-2 MSI canopy dynamics (10m RF)'
+                          : `Multi-temporal Sentinel-2 canopy dynamics (Random Forest, ${b.request.scaleM} m analysis)`
                       }
                       icon={<Activity className="size-4 text-[#16865f]" />}
                       className="lg:col-span-2"

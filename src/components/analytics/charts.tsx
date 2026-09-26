@@ -118,7 +118,7 @@ export function TimelineChart({ bundle, lang }: { bundle: AnalysisBundle; lang: 
             )}
           >
             <History className={cn('size-3.5', showHistory ? 'text-white' : 'text-purple-600')} />
-            <span>{lang === 'bn' ? 'CGMD ইতিহাস (১৯৮৫–২০১৮)' : 'CGMD History (1985–2018)'}</span>
+            <span>{lang === 'bn' ? 'CGMD ইতিহাস' : 'CGMD History'} ({fmt(history[0].year, 0, lang).replace(/,/g, '')}–{fmt(history[history.length - 1].year, 0, lang).replace(/,/g, '')})</span>
             <span className={cn('size-1.5 rounded-full ml-0.5', showHistory ? 'bg-white' : 'bg-purple-400')} />
           </button>
         )}

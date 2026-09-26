@@ -112,7 +112,7 @@ export function BeforeAfterMap({ bundle: b, lang }: { bundle: AnalysisBundle; la
   const chip = unreliable
     ? { tone: 'amber', icon: TriangleAlert, text: bn ? 'নির্ভরযোগ্য নয় — সিদ্ধান্ত দেখুন' : 'Not reliable — see the verdict' }
     : Math.abs(pctChange) < 2
-    ? { tone: 'green', icon: TreePine, text: bn ? `প্রায় একই (${fmt(Math.abs(diff), 0, lang)} হেক্টর)` : `Stable forest (±${fmt(Math.abs(diff), 0)} ha)` }
+    ? { tone: 'green', icon: TreePine, text: bn ? `প্রায় একই (${diff >= 0 ? '+' : '−'}${fmt(Math.abs(diff), 0, lang)} হেক্টর)` : `Stable forest (${diff >= 0 ? '+' : '−'}${fmt(Math.abs(diff), 0)} ha)` }
     : diff > 0
     ? { tone: 'green', icon: Sparkles, text: bn ? `বন বেড়েছে (+${fmt(diff, 0, lang)} হেক্টর)` : `Regrowth detected (+${fmt(diff, 0)} ha)` }
     : { tone: 'red', icon: TriangleAlert, text: bn ? `বন কমেছে (−${fmt(-diff, 0, lang)} হেক্টর)` : `Loss detected (−${fmt(-diff, 0)} ha)` }
@@ -213,7 +213,7 @@ export function BeforeAfterMap({ bundle: b, lang }: { bundle: AnalysisBundle; la
             {bn ? `${fmt(radiusKm * 2, 0, lang)} কিমি চওড়া এলাকা` : `${fmt(radiusKm * 2, 0)} km-wide area`}
           </p>
           <p className="font-mono text-[10px] text-emerald-200/80">
-            {lat.toFixed(3)}°N · {lon.toFixed(3)}°E · Sentinel-2 · 10 m
+            {lat.toFixed(3)}°N · {lon.toFixed(3)}°E · Sentinel-2 · {b.request.scaleM} m
           </p>
         </div>
         <div className={`pointer-events-none absolute bottom-7 right-3 z-[650] flex sm:right-4 items-center gap-1.5 rounded-xl border bg-[#062f29]/90 px-3 py-1.5 text-xs font-bold shadow-lg backdrop-blur ${chipCls}`}>

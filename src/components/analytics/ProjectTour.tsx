@@ -111,9 +111,10 @@ function Pipeline({ L }: { L: L }) {
         'ইউরোপিয়ান স্পেস এজেন্সির সেন্টিনেল-২ উপগ্রহ প্রতি ৫ দিনে ১০ মিটার রেজোলিউশনে ছবি তোলে।'
       ),
       simple: L(
-        'The satellite takes photographs of the Sundarbans in multiple color and infrared wavelengths. We only select images from the exact same dry season (January–March) across all years to avoid false loss from seasonal monsoons and high spring tides.',
+        'The satellite photographs the Sundarbans across visible, red-edge, and shortwave-infrared wavelengths. We select scenes from the exact same dry season (January–March) across all years to eliminate false loss caused by seasonal monsoons and high spring tides.',
         'উপগ্রহ বিভিন্ন আলো ও ইনফ্রারেড তরঙ্গে সুন্দরবনের ছবি তোলে। প্রতি বছর ঠিক একই শুকনো মৌসুমে (জানুয়ারি–মার্চ) ছবি বাছা হয় যাতে বর্ষা বা জোয়ারের জলকে বন হারানো বলে ভুল না হয়।'
       ),
+      hasImage: true,
       specs: [
         { k: 'Sensor', v: 'Copernicus Sentinel-2 MSI (Level-2A BOA)' },
         { k: 'Resolution', v: '10 m (B2, B3, B4, B8) / 20 m (B11, B12)' },
@@ -131,9 +132,10 @@ function Pipeline({ L }: { L: L }) {
         'গুগল আর্থ ইঞ্জিন একাধিক দৃশ্য একত্র করে প্রতি বছরের জন্য মেঘ ও ছায়ামুক্ত পরিষ্কার ছবি তৈরি করে।'
       ),
       simple: L(
-        'Tropical estuaries have frequent cloud cover and shifting shadows. Google Earth Engine screens every pixel across the 90-day window, filters out clouds and water spray, and calculates the per-pixel median reflectance.',
+        'Tropical estuaries have frequent cloud banks and shifting shadows. Google Earth Engine screens every pixel across the 90-day window, filters out clouds and water spray, and calculates the per-pixel median surface reflectance.',
         'সুন্দরবনে মেঘ ও মেঘের ছায়া বেশি থাকে। আর্থ ইঞ্জিন ৯০ দিনের সব ছবির প্রতিটি পিক্সেল যাচাই করে মেঘ দূর করে এবং একটি নিখুঁত বাৎসরিক চিত্র তৈরি করে।'
       ),
+      hasImage: false,
       specs: [
         { k: 'Engine', v: 'Google Earth Engine Python REST API' },
         { k: 'Masking', v: 'SCL (Scene Classification) + QA60 bitmask' },
@@ -154,6 +156,7 @@ function Pipeline({ L }: { L: L }) {
         'The machine-learning classifier was trained on long-term verified mangrove baselines (CGMD-AFCC30). It inspects 8 spectral features per pixel to decide whether canopy is present and produces an honest confidence score.',
         'বিজ্ঞানীদের ৪০ বছরের ঐতিহাসিক মানচিত্রে মডেলটি প্রশিক্ষণপ্রাপ্ত। এটি প্রতি পিক্সেলের বর্ণালী বৈশিষ্ট্য দেখে বন নির্ধারণ করে এবং নিজস্ব নির্ভুলতার স্কোর জানায়।'
       ),
+      hasImage: false,
       specs: [
         { k: 'Model', v: 'Random Forest (200 trees, balanced depth)' },
         { k: 'Training Data', v: 'CGMD-AFCC30 (1984–2022 stable pixels)' },
@@ -174,6 +177,7 @@ function Pipeline({ L }: { L: L }) {
         'Comparing baseline vs target years produces a categorical change map: forest gain, forest loss, stable canopy, and uncertain transitions. Carbon is computed transparently with error intervals.',
         'দুই বছরের মানচিত্র তুলনা করে দেখা হয় কোথায় বন বেড়েছে, কোথায় কমেছে আর কোথায় অনিশ্চিত। কোনো কৃত্রিম সংখ্যা নয়, আন্তর্জাতিক গণিত মেনে কার্বন হিসাব হয়।'
       ),
+      hasImage: false,
       specs: [
         { k: 'Threshold', v: '0.6 minimum classification confidence' },
         { k: 'MMU Filter', v: '0.5 hectare Minimum Mapping Unit' },
@@ -194,6 +198,7 @@ function Pipeline({ L }: { L: L }) {
         'No confusing academic jargon. The system outputs a clear verdict, a before/after photo slider, reliability traffic lights, and direct WhatsApp sharing links so village panchayats and forest guards can take swift action.',
         'জটিল বৈজ্ঞানিক ভাষা বাদ দিয়ে সহজ সিদ্ধান্ত, আগে-পরের স্লাইডার এবং বিশ্বস্ততার সবুজ-হলুদ-লাল সংকেত দেওয়া হয় যা এক ক্লিকে হোয়াটসঅ্যাপে পাঠানো যায়।'
       ),
+      hasImage: false,
       specs: [
         { k: 'Languages', v: 'Bengali (বাংলা) & English' },
         { k: 'Outputs', v: 'WhatsApp cards, Printable PDF, JSON API' },
@@ -212,7 +217,6 @@ function Pipeline({ L }: { L: L }) {
       {/* Step Selector Horizontal Bar */}
       <div className="grid grid-cols-2 sm:grid-cols-5 gap-2 bg-[#eaf2ed] p-1.5 rounded-2xl border border-[#cbe0d4]">
         {steps.map((s, i) => {
-          const StepIcon = s.icon
           const on = i === active
           return (
             <button
@@ -233,7 +237,7 @@ function Pipeline({ L }: { L: L }) {
                 {s.num}
               </div>
               <div className="min-w-0">
-                <p className="truncate text-xs sm:text-xs leading-tight">{s.title}</p>
+                <p className="truncate text-xs leading-tight">{s.title}</p>
               </div>
             </button>
           )
@@ -242,6 +246,28 @@ function Pipeline({ L }: { L: L }) {
 
       {/* Active Stage Detailed Presentation Card */}
       <div className="rounded-3xl border border-[#cde0d5] bg-white p-6 sm:p-8 shadow-sm">
+        {/* Visual asset for step 1 */}
+        {active === 0 && (
+          <div className="relative overflow-hidden rounded-2xl border border-emerald-950/40 shadow-xs mb-6 group">
+            <img
+              src="/images/tour/sentinel-satellite.jpg"
+              alt="Sentinel-2 Satellite in Low Earth Orbit"
+              className="h-44 sm:h-56 w-full object-cover group-hover:scale-101 transition-transform duration-500"
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-[#021813] via-[#021813]/40 to-transparent flex items-end p-4 sm:p-5">
+              <div className="flex flex-wrap items-center justify-between gap-2 w-full font-mono text-xs text-emerald-200">
+                <span className="font-bold flex items-center gap-1.5">
+                  <Satellite className="size-3.5 text-emerald-400" />
+                  Copernicus Sentinel-2 MSI · ESA Sun-Synchronous Orbit
+                </span>
+                <span className="bg-black/40 backdrop-blur-md px-2.5 py-1 rounded-md border border-white/10 text-[11px]">
+                  Altitude: 786 km · Swath: 290 km
+                </span>
+              </div>
+            </div>
+          </div>
+        )}
+
         <div className="flex flex-wrap items-center justify-between gap-3 border-b border-[#e6efe9] pb-5">
           <div className="flex items-center gap-3">
             <span className="grid size-12 place-items-center rounded-2xl bg-gradient-to-br from-emerald-50 to-[#dff0e6] text-[#16865f] border border-[#cbe4d7]">
@@ -426,7 +452,7 @@ function HonestyChecks({ L, bundle }: { L: L; bundle: AnalysisBundle | null }) {
   )
 }
 
-// ───────────────────────── main full-screen presentation ─────────────────────────
+// ───────────────────────── main popup presentation ─────────────────────────
 
 export function ProjectTour({ open, onClose, lang, bundle, caps, onJump, onTry }: Props) {
   const L: L = (en, bn) => (lang === 'bn' ? bn : en)
@@ -509,12 +535,30 @@ export function ProjectTour({ open, onClose, lang, bundle, caps, onJump, onTry }
       title: L('A Crucial Carbon Sink Guarded by Too Few Eyes', 'বিশাল কার্বন ভাণ্ডার, নজরদারির অভাব'),
       body: (
         <div className="space-y-6">
-          <p className="max-w-4xl text-sm sm:text-base leading-relaxed text-[#3d5f54]">
-            {L(
-              'The Sundarbans spans over 10,000 km² across India and Bangladesh, forming the planet’s largest continuous mangrove biome. It defends millions of coastal villagers against deadly tropical cyclones while trapping gigatons of blue carbon. Yet frontline monitoring has faced persistent roadblocks.',
-              'ভারত ও বাংলাদেশ জুড়ে বিস্তৃত সুন্দরবন পৃথিবীর বৃহত্তম ম্যানগ্রোভ বনভূমি। এটি লাখ লাখ উপকূলবাসীকে প্রলয়ঙ্করী ঘূর্ণিঝড় থেকে বাঁচায় এবং বিপুল পরিমাণ ব্লু কার্বন আটকে রাখে। কিন্তু এতদিন কার্যকর নজরদারিতে বড় কিছু বাধা ছিল।'
-            )}
-          </p>
+          {/* Visual Showcase Card with Generated AI Aerial Image */}
+          <div className="relative overflow-hidden rounded-3xl border border-[#cbe1d5] shadow-xs group">
+            <img
+              src="/images/tour/sundarbans-aerial.jpg"
+              alt="High Altitude Satellite View of Sundarbans Delta"
+              className="h-56 sm:h-72 w-full object-cover group-hover:scale-101 transition-transform duration-700"
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-[#021c17] via-[#021c17]/60 to-transparent flex items-end p-6 sm:p-7">
+              <div>
+                <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-500/25 backdrop-blur-md px-3 py-1 font-mono text-[10.5px] font-bold text-emerald-300 border border-emerald-400/30">
+                  <Globe className="size-3.5" /> {L('VULNERABLE TIDAL ECOSYSTEM', 'ঝুঁকিপূর্ণ উপকূলীয় বাস্তুতন্ত্র')}
+                </span>
+                <p className="mt-2 font-display text-lg sm:text-2xl font-bold text-white leading-snug">
+                  {L('~4,200 km² of Mangrove Forest Shielding 4.5+ Million People', '৪,২০০ বর্গকিমির বেশি ম্যানগ্রোভ বন যা ৪৫ লাখের বেশি মানুষকে রক্ষা করে')}
+                </p>
+                <p className="mt-1 font-sans text-xs sm:text-sm text-emerald-100/80 max-w-2xl hidden sm:block">
+                  {L(
+                    'The Sundarbans forms the planet’s largest continuous mangrove biome, dampening deadly cyclone surges and sequestering gigatons of coastal blue carbon.',
+                    'সুন্দরবন পৃথিবীর বৃহত্তম ম্যানগ্রোভ বনভূমি, যা উপকূলীয় প্রলয়ঙ্করী ঘূর্ণিঝড় আটকে দেয় এবং কোটি কোটি টন ব্লু কার্বন ধরে রাখে।'
+                  )}
+                </p>
+              </div>
+            </div>
+          </div>
 
           <div className="grid gap-4 lg:grid-cols-3">
             <div className="rounded-2xl border border-rose-200 bg-rose-50/50 p-5">
@@ -806,7 +850,26 @@ export function ProjectTour({ open, onClose, lang, bundle, caps, onJump, onTry }
                 <span className="font-mono text-xs font-bold text-[#16865f]">283.1 Mg C / ha</span>
               </div>
 
-              <div className="rounded-2xl bg-[#03231c] p-4 text-center font-mono text-sm text-emerald-200">
+              {/* Visual asset of mangrove stilt roots & sediment */}
+              <div className="relative overflow-hidden rounded-2xl border border-[#cbe1d5] shadow-xs group">
+                <img
+                  src="/images/tour/mangrove-roots.jpg"
+                  alt="Mangrove Roots and Soil Organic Carbon Sediment"
+                  className="h-44 sm:h-52 w-full object-cover group-hover:scale-101 transition-transform duration-500"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-[#021f1a] via-[#021f1a]/40 to-transparent flex items-end p-4">
+                  <div>
+                    <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-500/25 backdrop-blur-md px-2.5 py-0.5 font-mono text-[10px] font-bold text-emerald-300 border border-emerald-400/30">
+                      <Leaf className="size-3" /> {L('DEEP TIDAL MUD SEDIMENT', 'গভীর মাটির কার্বন সঞ্চয়')}
+                    </span>
+                    <p className="mt-1 font-display text-xs sm:text-sm font-bold text-white">
+                      {L('63.6% of blue carbon is locked below ground in anaerobic mud (180.0 t C/ha)', '৬৩.৬% ব্লু কার্বন মাটির নিচের কাদায় জমা থাকে (১৮০.০ টন/হেক্টর)')}
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="rounded-2xl bg-[#03231c] p-4 text-center font-mono text-xs sm:text-sm text-emerald-200">
                 Carbon = Mangrove Area (ha) × 283.1 t C/ha × 3.667 CO₂e
               </div>
 
@@ -863,7 +926,7 @@ export function ProjectTour({ open, onClose, lang, bundle, caps, onJump, onTry }
                     <ArrowRight className="size-4 text-[#16865f]" /> {L('Status Quo Continuation', 'বর্তমান ধারা')}
                   </div>
                   <p className="mt-1 text-xs text-[#527267] leading-relaxed">
-                    {L('Extrapolates the observed annual rate of net canopy change forward by 5 years.', 'সাম্প্রতিক বছরগুলোর পরিবর্তনের গতি অনুসারেই বন বাড়বে বা কমবে।')}
+                    {L('Extrapolates the confirmed annual rate of net canopy change forward by 5 years.', 'সাম্প্রতিক বছরের নিশ্চিত পরিবর্তনের গতি অনুসারেই বন বাড়বে বা কমবে।')}
                   </p>
                 </div>
 
@@ -977,6 +1040,31 @@ export function ProjectTour({ open, onClose, lang, bundle, caps, onJump, onTry }
       title: L('From Satellite Sensors to Local Action', 'উপগ্রহ থেকে স্থানীয় বাস্তব পদক্ষেপ'),
       body: (
         <div className="space-y-8">
+          {/* Visual Showcase Card with Generated AI Community Planting Image */}
+          <div className="relative overflow-hidden rounded-3xl border border-[#cbe1d5] shadow-xs group">
+            <img
+              src="/images/tour/community-action.jpg"
+              alt="Community Mangrove Planting in the Sundarbans Delta"
+              className="h-56 sm:h-72 w-full object-cover group-hover:scale-101 transition-transform duration-700"
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-[#021813] via-[#021813]/60 to-transparent flex items-end p-6 sm:p-7">
+              <div>
+                <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-500/25 backdrop-blur-md px-3 py-1 font-mono text-[10.5px] font-bold text-emerald-300 border border-emerald-400/30">
+                  <Users className="size-3.5" /> {L('GRASSROOTS COASTAL RESILIENCE', 'স্থানীয় জনগণের অংশগ্রহণ')}
+                </span>
+                <h3 className="mt-2 font-display text-xl sm:text-2xl font-bold text-white leading-tight">
+                  {L('Empowering Panchayats & Forest Guards with Actionable Satellite Telemetry', 'পঞ্চায়েত ও বনকর্মীদের জন্য উপগ্রহ ভিত্তিক কার্যকর তথ্য')}
+                </h3>
+                <p className="mt-1 font-sans text-xs sm:text-sm text-emerald-100/80 max-w-2xl hidden sm:block">
+                  {L(
+                    'Transforming complex remote sensing data into on-the-ground embankment protection, sapling planting, and rapid loss response.',
+                    'মহাকাশের জটিল তথ্যকে মাটিতে বাঁধ রক্ষা, চারা রোপণ ও দ্রুত ব্যবস্থা গ্রহণের হাতিয়ারে রূপান্তর।'
+                  )}
+                </p>
+              </div>
+            </div>
+          </div>
+
           {/* Section A: 4 Stakeholders with rich high-density design */}
           <div>
             <p className="font-mono text-xs font-bold uppercase tracking-[0.2em] text-[#16865f] mb-3.5">
@@ -1217,7 +1305,7 @@ export function ProjectTour({ open, onClose, lang, bundle, caps, onJump, onTry }
   const sectionRefs = useRef<(HTMLElement | null)[]>([])
   const [progress, setProgress] = useState(0)
 
-  /** Smoothly scroll the full-screen document to section i. */
+  /** Smoothly scroll the popup document to section i. */
   const goTo = (i: number) => {
     const box = scrollRef.current
     const el = sectionRefs.current[i]
@@ -1225,7 +1313,7 @@ export function ProjectTour({ open, onClose, lang, bundle, caps, onJump, onTry }
     box.scrollTo({ top: el ? el.offsetTop - 20 : 0, behavior: 'smooth' })
   }
 
-  // Scroll-spy: highlight the active chapter as the user scrolls
+  // Scroll-spy: highlight the active chapter as the user scrolls inside the popup
   useEffect(() => {
     if (!open) return
     const box = scrollRef.current
@@ -1268,250 +1356,258 @@ export function ProjectTour({ open, onClose, lang, bundle, caps, onJump, onTry }
 
   return (
     <div
-      className="fixed inset-0 z-[1300] flex flex-col w-screen h-screen bg-[#f3f7f4] text-[#0d2a23] overflow-hidden select-text print:hidden"
+      className="fixed inset-0 z-[1300] flex items-center justify-center p-3 sm:p-5 md:p-6 lg:p-8 bg-black/65 backdrop-blur-md print:hidden animate-in fade-in duration-200"
       role="dialog"
       aria-modal="true"
       aria-label={L('How MangroveLens works', 'MangroveLens কীভাবে কাজ করে')}
+      onClick={onClose}
     >
-      {/* ── 1. Full-Width Sticky Top Command Bar ── */}
-      <header className="relative z-30 flex items-center justify-between border-b border-[#d0e1d7] bg-white/95 px-4 sm:px-8 py-3.5 backdrop-blur-md shadow-xs shrink-0">
-        {/* Brand identity */}
-        <div className="flex items-center gap-3">
-          <img src={BRAND.icon} alt="" className="size-9 drop-shadow-xs" />
-          <div>
-            <p className="font-display text-base font-black leading-none text-[#04241d]">
-              Mangrove<span className="text-emerald-600">Lens</span>
-            </p>
-            <p className="font-mono text-[9.5px] font-bold tracking-[0.2em] text-[#16865f] uppercase mt-1">
-              {L('SYSTEM ARCHITECTURE & SPECIFICATION', 'সিস্টেম পরিচিতি ও প্রযুক্তি গাইড')}
-            </p>
-          </div>
-        </div>
-
-        {/* Current Chapter Indicator with Jump Menu */}
-        <div className="hidden md:flex items-center gap-2 rounded-full border border-[#cbe1d5] bg-[#edf6f1] px-4 py-1.5 shadow-2xs">
-          <span className="size-2 rounded-full bg-[#16865f] animate-pulse" />
-          <span className="font-mono text-xs font-bold text-[#0c3830]">
-            {String(chapter + 1).padStart(2, '0')} / {String(chapters.length).padStart(2, '0')}
-          </span>
-          <span className="text-[#88a89c]">·</span>
-          <span className="font-mono text-xs font-bold text-[#235346] truncate max-w-[260px] lg:max-w-[380px]">
-            {chapters[chapter].title.toUpperCase()}
-          </span>
-        </div>
-
-        {/* Action Controls & Close */}
-        <div className="flex items-center gap-2">
-          <button
-            type="button"
-            disabled={chapter === 0}
-            onClick={() => goTo(Math.max(0, chapter - 1))}
-            className="hidden sm:inline-flex items-center gap-1.5 rounded-xl border border-[#cbe1d5] bg-white px-3 py-1.5 font-mono text-xs font-semibold text-[#123f38] hover:bg-[#edf7f2] hover:border-[#16865f] disabled:opacity-30 disabled:pointer-events-none transition cursor-pointer"
-            aria-label={L('Previous section', 'আগের অংশ')}
-            title="Shortcut: Left Arrow [←]"
-          >
-            <ArrowLeft className="size-3.5" />
-            <span>{L('Prev', 'আগের')}</span>
-          </button>
-          <button
-            type="button"
-            disabled={chapter === last}
-            onClick={() => goTo(Math.min(last, chapter + 1))}
-            className="hidden sm:inline-flex items-center gap-1.5 rounded-xl border border-[#cbe1d5] bg-white px-3 py-1.5 font-mono text-xs font-semibold text-[#123f38] hover:bg-[#edf7f2] hover:border-[#16865f] disabled:opacity-30 disabled:pointer-events-none transition cursor-pointer"
-            aria-label={L('Next section', 'পরের অংশ')}
-            title="Shortcut: Right Arrow [→]"
-          >
-            <span>{L('Next', 'পরের')}</span>
-            <ArrowRight className="size-3.5" />
-          </button>
-
-          {/* Prominent Close button */}
-          <button
-            type="button"
-            onClick={onClose}
-            className="flex items-center gap-1.5 rounded-xl border border-[#c6dfd2] bg-[#eef6f1] px-3.5 py-1.5 font-mono text-xs font-bold text-[#0d3b32] hover:bg-rose-50 hover:text-rose-700 hover:border-rose-300 transition cursor-pointer shadow-2xs"
-            aria-label={L('Close guide', 'গাইড বন্ধ করুন')}
-            title="Shortcut: Escape [Esc]"
-          >
-            <span>{L('Close', 'বন্ধ করুন')}</span>
-            <span className="hidden sm:inline text-[10px] text-[#55776c] font-normal">[Esc]</span>
-            <X className="size-4 ml-0.5" />
-          </button>
-        </div>
-
-        {/* Reading progress bar pinned to header bottom */}
-        <div className="absolute inset-x-0 -bottom-px h-1 bg-[#dbe8e0]">
-          <div
-            className="h-1 bg-gradient-to-r from-emerald-600 via-teal-500 to-emerald-400 transition-[width] duration-150"
-            style={{ width: `${progress * 100}%` }}
-          />
-        </div>
-      </header>
-
-      {/* ── 2. Full-Screen Document Body (Scrollable Container) ── */}
-      <div ref={scrollRef} className="relative flex-1 overflow-y-auto px-4 py-8 sm:px-8 lg:px-12 w-full bg-[#f3f7f4]">
-        <div className="mx-auto max-w-6xl space-y-12 pb-24">
-          {/* Cover Page Hero Card */}
-          <article className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-[#021813] via-[#042821] to-[#07392f] p-8 sm:p-14 text-white shadow-xl border border-emerald-950/60">
-            <div
-              className="absolute inset-0 bg-cover bg-center opacity-20 mix-blend-overlay"
-              style={{ backgroundImage: `url('/landing/frames/f0001.webp')` }}
-            />
-            <div className="relative">
-              <div className="flex flex-wrap items-center gap-3">
-                <div className="inline-flex items-center gap-2 rounded-full border border-emerald-400/30 bg-emerald-950/70 px-3.5 py-1 font-mono text-[10.5px] font-bold tracking-[0.25em] text-emerald-300">
-                  <span className="size-1.5 rounded-full bg-emerald-400 animate-pulse" />
-                  {L('OFFICIAL SYSTEM SPECIFICATION & BLUEPRINT', 'সিস্টেম পরিচিতি ও প্রযুক্তি গাইড')}
-                </div>
-              </div>
-
-              <h1 className="mt-4 font-condensed font-black text-5xl sm:text-6xl lg:text-7xl xl:text-8xl tracking-wide uppercase leading-[0.92] text-white">
-                {L('How MangroveLens Works', 'MangroveLens কীভাবে কাজ করে')}
-              </h1>
-              <p className="mt-4 max-w-2xl font-light-sub text-xs sm:text-sm font-semibold tracking-[0.2em] text-emerald-200/90 uppercase">
-                {L(
-                  'FROM ORBITAL SATELLITES TO COMMUNITY ACTION — A TRANSPARENT SCIENTIFIC GUIDE',
-                  'উপগ্রহ তথ্য থেকে স্থানীয় পদক্ষেপ — সম্পূর্ণ স্বচ্ছ বৈজ্ঞানিক পদ্ধতি'
-                )}
+      {/* ── Elevated Floating Popup Modal Container ── */}
+      <div
+        className="relative flex flex-col w-full max-w-6xl h-[92vh] max-h-[960px] rounded-3xl bg-[#f3f7f4] text-[#0d2a23] shadow-2xl border border-white/20 overflow-hidden ring-1 ring-black/10 select-text"
+        onClick={(e) => e.stopPropagation()}
+      >
+        {/* ── 1. Top Command Header Bar (Pinned Inside Popup) ── */}
+        <header className="relative z-30 flex items-center justify-between border-b border-[#d0e1d7] bg-white/95 px-4 sm:px-8 py-3.5 backdrop-blur-md shadow-xs shrink-0">
+          {/* Brand identity */}
+          <div className="flex items-center gap-3">
+            <img src={BRAND.icon} alt="" className="size-9 drop-shadow-xs" />
+            <div>
+              <p className="font-display text-base font-black leading-none text-[#04241d]">
+                Mangrove<span className="text-emerald-600">Lens</span>
               </p>
-
-              {/* Verified Specification Badges */}
-              <div className="mt-6 flex flex-wrap gap-2 pt-2 border-t border-white/10">
-                <span className="rounded-lg bg-white/10 px-3 py-1 font-mono text-[11px] text-emerald-200 border border-white/10">
-                  🛰️ Copernicus Sentinel-2 MSI (10m)
-                </span>
-                <span className="rounded-lg bg-white/10 px-3 py-1 font-mono text-[11px] text-emerald-200 border border-white/10">
-                  ⚡ Google Earth Engine Median Reducer
-                </span>
-                <span className="rounded-lg bg-white/10 px-3 py-1 font-mono text-[11px] text-emerald-200 border border-white/10">
-                  🌲 200-Tree Random Forest Classifier
-                </span>
-                <span className="rounded-lg bg-white/10 px-3 py-1 font-mono text-[11px] text-emerald-200 border border-white/10">
-                  ⚖️ IPCC 2013 Wetlands Tier 1
-                </span>
-              </div>
-
-              {/* Interactive 2-Column Chapter Directory Grid */}
-              <div className="mt-10">
-                <p className="font-mono text-[10.5px] font-bold tracking-[0.24em] text-emerald-300/80 uppercase mb-3.5">
-                  {L('DOCUMENT CHAPTERS (CLICK TO JUMP DIRECTLY)', 'অধ্যায়সমূহ (সরাসরি যেতে ক্লিক করুন)')}
-                </p>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 max-w-4xl">
-                  {chapters.map((c, i) => (
-                    <button
-                      key={c.id}
-                      type="button"
-                      onClick={() => goTo(i)}
-                      className="group flex items-center justify-between rounded-2xl border border-white/10 bg-white/[0.05] p-3.5 text-left transition-all hover:bg-white/[0.1] hover:border-emerald-400/40 hover:-translate-y-0.5 cursor-pointer"
-                    >
-                      <div className="flex items-center gap-3.5 min-w-0">
-                        <span className="grid size-8 shrink-0 place-items-center rounded-xl bg-emerald-950/80 border border-emerald-400/30 font-mono text-xs font-bold text-emerald-300">
-                          {String(i + 1).padStart(2, '0')}
-                        </span>
-                        <div className="min-w-0">
-                          <p className="font-display text-sm font-bold text-white group-hover:text-emerald-200 truncate">
-                            {c.title}
-                          </p>
-                          <p className="font-mono text-[10px] text-emerald-300/60 uppercase truncate">
-                            {c.kicker}
-                          </p>
-                        </div>
-                      </div>
-                      <ChevronRight className="size-4 text-emerald-400/40 group-hover:text-emerald-300 transition-colors shrink-0 ml-2" />
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              {/* Metadata footer */}
-              <div className="mt-10 flex flex-wrap items-center gap-4 font-mono text-[11px] text-white/50 border-t border-white/10 pt-4">
-                <span>{today}</span>
-                <span>·</span>
-                <span className="inline-flex items-center gap-1.5">
-                  <span className="size-1.5 rounded-full bg-emerald-400" />
-                  {caps?.liveEngine ? L('Live Copernicus Satellite Telemetry Active', 'লাইভ উপগ্রহ তথ্য সক্রিয়') : L('Sentinel-2 Dry-Season Benchmark Mode', 'সেন্টিনেল-২ বেঞ্চমার্ক মোড')}
-                </span>
-                {b && (
-                  <>
-                    <span>·</span>
-                    <span>Model: {b.dataSource.modelVersion}</span>
-                  </>
-                )}
-              </div>
+              <p className="font-mono text-[9.5px] font-bold tracking-[0.2em] text-[#16865f] uppercase mt-1">
+                {L('SYSTEM ARCHITECTURE & SPECIFICATION', 'সিস্টেম পরিচিতি ও প্রযুক্তি গাইড')}
+              </p>
             </div>
-          </article>
+          </div>
 
-          {/* Chapters as Individual Presentation Articles */}
-          {chapters.map((c, i) => {
-            const Icon = c.icon
-            return (
-              <article
-                key={c.id}
-                ref={(el) => {
-                  sectionRefs.current[i] = el
-                }}
-                className="relative rounded-3xl bg-white p-7 sm:p-12 shadow-sm border border-[#d6e6dc] overflow-hidden"
-              >
-                {/* Chapter Banner */}
-                <div className="mb-8 flex items-center justify-between border-b border-[#e5efe8] pb-6">
-                  <div className="flex items-center gap-4">
-                    <span className="grid size-13 place-items-center rounded-2xl bg-gradient-to-br from-emerald-50 to-[#dff0e6] text-[#16865f] border border-[#cbe4d7] shadow-2xs">
-                      <Icon className="size-6.5" />
-                    </span>
-                    <div>
-                      <p className="font-mono text-xs font-bold tracking-[0.24em] text-[#16865f] uppercase">
-                        {L('CHAPTER', 'অধ্যায়')} {String(i + 1).padStart(2, '0')} / {String(chapters.length).padStart(2, '0')}
-                      </p>
-                      <h2 className="font-condensed text-4xl sm:text-5xl font-black tracking-wide text-[#062c25] leading-none mt-1 uppercase">
-                        {c.title}
-                      </h2>
-                    </div>
-                  </div>
-                  <span className="hidden sm:inline font-mono text-xs text-[#87a59a]">
-                    [ § {String(i + 1).padStart(2, '0')} ]
-                  </span>
-                </div>
+          {/* Current Chapter Indicator */}
+          <div className="hidden md:flex items-center gap-2 rounded-full border border-[#cbe1d5] bg-[#edf6f1] px-4 py-1.5 shadow-2xs">
+            <span className="size-2 rounded-full bg-[#16865f] animate-pulse" />
+            <span className="font-mono text-xs font-bold text-[#0c3830]">
+              {String(chapter + 1).padStart(2, '0')} / {String(chapters.length).padStart(2, '0')}
+            </span>
+            <span className="text-[#88a89b]">·</span>
+            <span className="font-mono text-xs font-bold text-[#235346] truncate max-w-[260px] lg:max-w-[380px]">
+              {chapters[chapter].title.toUpperCase()}
+            </span>
+          </div>
 
-                {/* Chapter Body Content */}
-                <div className="min-w-0">{c.body}</div>
+          {/* Action Controls & Close */}
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              disabled={chapter === 0}
+              onClick={() => goTo(Math.max(0, chapter - 1))}
+              className="hidden sm:inline-flex items-center gap-1.5 rounded-xl border border-[#cbe1d5] bg-white px-3 py-1.5 font-mono text-xs font-semibold text-[#123f38] hover:bg-[#edf7f2] hover:border-[#16865f] disabled:opacity-30 disabled:pointer-events-none transition cursor-pointer"
+              aria-label={L('Previous section', 'আগের অংশ')}
+              title="Shortcut: Left Arrow [←]"
+            >
+              <ArrowLeft className="size-3.5" />
+              <span>{L('Prev', 'আগের')}</span>
+            </button>
+            <button
+              type="button"
+              disabled={chapter === last}
+              onClick={() => goTo(Math.min(last, chapter + 1))}
+              className="hidden sm:inline-flex items-center gap-1.5 rounded-xl border border-[#cbe1d5] bg-white px-3 py-1.5 font-mono text-xs font-semibold text-[#123f38] hover:bg-[#edf7f2] hover:border-[#16865f] disabled:opacity-30 disabled:pointer-events-none transition cursor-pointer"
+              aria-label={L('Next section', 'পরের অংশ')}
+              title="Shortcut: Right Arrow [→]"
+            >
+              <span>{L('Next', 'পরের')}</span>
+              <ArrowRight className="size-3.5" />
+            </button>
 
-                {/* Chapter Navigation Footer */}
-                <div className="mt-12 flex flex-wrap items-center justify-between gap-3 border-t border-[#e5efe8] pt-5 font-mono text-xs text-[#648479]">
-                  <span>MangroveLens · {L('System Architecture & Guide', 'সিস্টেম পরিচিতি ও প্রযুক্তি গাইড')}</span>
-                  {i < last ? (
-                    <button
-                      type="button"
-                      onClick={() => goTo(i + 1)}
-                      className="inline-flex items-center gap-1.5 font-mono text-xs font-bold text-[#16865f] hover:text-[#0c4e37] hover:underline cursor-pointer"
-                    >
-                      {L('Next Chapter', 'পরের অধ্যায়')}: {chapters[i + 1].title} →
-                    </button>
-                  ) : (
-                    <button
-                      type="button"
-                      onClick={onClose}
-                      className="inline-flex items-center gap-1.5 font-mono text-xs font-bold text-[#16865f] hover:text-[#0c4e37] hover:underline cursor-pointer"
-                    >
-                      {L('Return to Live Dashboard', 'ড্যাশবোর্ডে ফিরে যান')} →
-                    </button>
-                  )}
-                </div>
-              </article>
-            )
-          })}
-
-          {/* Bottom Action Section */}
-          <div className="pt-6 pb-12 text-center">
+            {/* Prominent Close button */}
             <button
               type="button"
               onClick={onClose}
-              className="inline-flex items-center gap-2.5 rounded-full bg-[#16865f] hover:bg-[#127251] px-9 py-4 font-display text-base font-bold text-white shadow-xl shadow-emerald-900/25 transition transform hover:-translate-y-0.5 active:translate-y-0 cursor-pointer"
+              className="flex items-center gap-1.5 rounded-xl border border-[#c6dfd2] bg-[#eef6f1] px-3.5 py-1.5 font-mono text-xs font-bold text-[#0d3b32] hover:bg-rose-50 hover:text-rose-700 hover:border-rose-300 transition cursor-pointer shadow-2xs"
+              aria-label={L('Close guide', 'গাইড বন্ধ করুন')}
+              title="Shortcut: Escape [Esc]"
             >
-              {L('Start Exploring the Live Dashboard', 'লাইভ ড্যাশবোর্ডে কাজ শুরু করুন')} <ArrowRight className="size-5" />
+              <span>{L('Close', 'বন্ধ করুন')}</span>
+              <span className="hidden sm:inline text-[10px] text-[#55776c] font-normal">[Esc]</span>
+              <X className="size-4 ml-0.5" />
             </button>
-            <p className="mt-3 font-mono text-xs text-[#6c887e]">
-              {L('You can reopen this technical blueprint anytime by clicking “How it works” in the top navigation.', 'উপরের মেনু থেকে যেকোনো সময় “How it works” চেপে এই গাইড পুনরায় দেখতে পারেন।')}
-            </p>
+          </div>
+
+          {/* Reading progress bar pinned to header bottom */}
+          <div className="absolute inset-x-0 -bottom-px h-1 bg-[#dbe8e0]">
+            <div
+              className="h-1 bg-gradient-to-r from-emerald-600 via-teal-500 to-emerald-400 transition-[width] duration-150"
+              style={{ width: `${progress * 100}%` }}
+            />
+          </div>
+        </header>
+
+        {/* ── 2. Scrollable Body Inside the Popup ── */}
+        <div ref={scrollRef} className="relative flex-1 overflow-y-auto px-4 py-8 sm:px-8 lg:px-12 w-full bg-[#f3f7f4]">
+          <div className="mx-auto max-w-5xl space-y-12 pb-24">
+            {/* Cover Page Hero Card with Photorealistic Sundarbans Aerial Background */}
+            <article className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-[#021813] via-[#042821] to-[#07392f] p-8 sm:p-14 text-white shadow-xl border border-emerald-950/60">
+              <div
+                className="absolute inset-0 bg-cover bg-center opacity-30 mix-blend-overlay"
+                style={{ backgroundImage: `url('/images/tour/sundarbans-aerial.jpg')` }}
+              />
+              <div className="absolute inset-0 bg-gradient-to-r from-[#021813]/95 via-[#042821]/80 to-[#07392f]/50" />
+              <div className="relative">
+                <div className="flex flex-wrap items-center gap-3">
+                  <div className="inline-flex items-center gap-2 rounded-full border border-emerald-400/30 bg-emerald-950/70 px-3.5 py-1 font-mono text-[10.5px] font-bold tracking-[0.25em] text-emerald-300">
+                    <span className="size-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                    {L('OFFICIAL SYSTEM SPECIFICATION & BLUEPRINT', 'সিস্টেম পরিচিতি ও প্রযুক্তি গাইড')}
+                  </div>
+                </div>
+
+                <h1 className="mt-4 font-condensed font-black text-5xl sm:text-6xl lg:text-7xl xl:text-8xl tracking-wide uppercase leading-[0.92] text-white">
+                  {L('How MangroveLens Works', 'MangroveLens কীভাবে কাজ করে')}
+                </h1>
+                <p className="mt-4 max-w-2xl font-light-sub text-xs sm:text-sm font-semibold tracking-[0.2em] text-emerald-200/90 uppercase">
+                  {L(
+                    'FROM ORBITAL SATELLITES TO COMMUNITY ACTION — A TRANSPARENT SCIENTIFIC GUIDE',
+                    'উপগ্রহ তথ্য থেকে স্থানীয় পদক্ষেপ — সম্পূর্ণ স্বচ্ছ বৈজ্ঞানিক পদ্ধতি'
+                  )}
+                </p>
+
+                {/* Verified Specification Badges */}
+                <div className="mt-6 flex flex-wrap gap-2 pt-2 border-t border-white/10">
+                  <span className="rounded-lg bg-white/10 px-3 py-1 font-mono text-[11px] text-emerald-200 border border-white/10">
+                    🛰️ Copernicus Sentinel-2 MSI (10m)
+                  </span>
+                  <span className="rounded-lg bg-white/10 px-3 py-1 font-mono text-[11px] text-emerald-200 border border-white/10">
+                    ⚡ Google Earth Engine Median Reducer
+                  </span>
+                  <span className="rounded-lg bg-white/10 px-3 py-1 font-mono text-[11px] text-emerald-200 border border-white/10">
+                    🌲 200-Tree Random Forest Classifier
+                  </span>
+                  <span className="rounded-lg bg-white/10 px-3 py-1 font-mono text-[11px] text-emerald-200 border border-white/10">
+                    ⚖️ IPCC 2013 Wetlands Tier 1
+                  </span>
+                </div>
+
+                {/* Interactive 2-Column Chapter Directory Grid */}
+                <div className="mt-10">
+                  <p className="font-mono text-[10.5px] font-bold tracking-[0.24em] text-emerald-300/80 uppercase mb-3.5">
+                    {L('DOCUMENT CHAPTERS (CLICK TO JUMP DIRECTLY)', 'অধ্যায়সমূহ (সরাসরি যেতে ক্লিক করুন)')}
+                  </p>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 max-w-4xl">
+                    {chapters.map((c, i) => (
+                      <button
+                        key={c.id}
+                        type="button"
+                        onClick={() => goTo(i)}
+                        className="group flex items-center justify-between rounded-2xl border border-white/10 bg-white/[0.05] p-3.5 text-left transition-all hover:bg-white/[0.1] hover:border-emerald-400/40 hover:-translate-y-0.5 cursor-pointer"
+                      >
+                        <div className="flex items-center gap-3.5 min-w-0">
+                          <span className="grid size-8 shrink-0 place-items-center rounded-xl bg-emerald-950/80 border border-emerald-400/30 font-mono text-xs font-bold text-emerald-300">
+                            {String(i + 1).padStart(2, '0')}
+                          </span>
+                          <div className="min-w-0">
+                            <p className="font-display text-sm font-bold text-white group-hover:text-emerald-200 truncate">
+                              {c.title}
+                            </p>
+                            <p className="font-mono text-[10px] text-emerald-300/60 uppercase truncate">
+                              {c.kicker}
+                            </p>
+                          </div>
+                        </div>
+                        <ChevronRight className="size-4 text-emerald-400/40 group-hover:text-emerald-300 transition-colors shrink-0 ml-2" />
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Metadata footer */}
+                <div className="mt-10 flex flex-wrap items-center gap-4 font-mono text-[11px] text-white/50 border-t border-white/10 pt-4">
+                  <span>{today}</span>
+                  <span>·</span>
+                  <span className="inline-flex items-center gap-1.5">
+                    <span className="size-1.5 rounded-full bg-emerald-400" />
+                    {caps?.liveEngine ? L('Live Copernicus Satellite Telemetry Active', 'লাইভ উপগ্রহ তথ্য সক্রিয়') : L('Sentinel-2 Dry-Season Benchmark Mode', 'সেন্টিনেল-২ বেঞ্চমার্ক মোড')}
+                  </span>
+                  {b && (
+                    <>
+                      <span>·</span>
+                      <span>Model: {b.dataSource.modelVersion}</span>
+                    </>
+                  )}
+                </div>
+              </div>
+            </article>
+
+            {/* Chapters as Individual Presentation Articles */}
+            {chapters.map((c, i) => {
+              const Icon = c.icon
+              return (
+                <article
+                  key={c.id}
+                  ref={(el) => {
+                    sectionRefs.current[i] = el
+                  }}
+                  className="relative rounded-3xl bg-white p-7 sm:p-12 shadow-sm border border-[#d6e6dc] overflow-hidden"
+                >
+                  {/* Chapter Banner */}
+                  <div className="mb-8 flex items-center justify-between border-b border-[#e5efe8] pb-6">
+                    <div className="flex items-center gap-4">
+                      <span className="grid size-13 place-items-center rounded-2xl bg-gradient-to-br from-emerald-50 to-[#dff0e6] text-[#16865f] border border-[#cbe4d7] shadow-2xs">
+                        <Icon className="size-6.5" />
+                      </span>
+                      <div>
+                        <p className="font-mono text-xs font-bold tracking-[0.24em] text-[#16865f] uppercase">
+                          {L('CHAPTER', 'অধ্যায়')} {String(i + 1).padStart(2, '0')} / {String(chapters.length).padStart(2, '0')}
+                        </p>
+                        <h2 className="font-condensed text-4xl sm:text-5xl font-black tracking-wide text-[#062c25] leading-none mt-1 uppercase">
+                          {c.title}
+                        </h2>
+                      </div>
+                    </div>
+                    <span className="hidden sm:inline font-mono text-xs text-[#87a59a]">
+                      [ § {String(i + 1).padStart(2, '0')} ]
+                    </span>
+                  </div>
+
+                  {/* Chapter Body Content */}
+                  <div className="min-w-0">{c.body}</div>
+
+                  {/* Chapter Navigation Footer */}
+                  <div className="mt-12 flex flex-wrap items-center justify-between gap-3 border-t border-[#e5efe8] pt-5 font-mono text-xs text-[#648479]">
+                    <span>MangroveLens · {L('System Architecture & Guide', 'সিস্টেম পরিচিতি ও প্রযুক্তি গাইড')}</span>
+                    {i < last ? (
+                      <button
+                        type="button"
+                        onClick={() => goTo(i + 1)}
+                        className="inline-flex items-center gap-1.5 font-mono text-xs font-bold text-[#16865f] hover:text-[#0c4e37] hover:underline cursor-pointer"
+                      >
+                        {L('Next Chapter', 'পরের অধ্যায়')}: {chapters[i + 1].title} →
+                      </button>
+                    ) : (
+                      <button
+                        type="button"
+                        onClick={onClose}
+                        className="inline-flex items-center gap-1.5 font-mono text-xs font-bold text-[#16865f] hover:text-[#0c4e37] hover:underline cursor-pointer"
+                      >
+                        {L('Return to Live Dashboard', 'ড্যাশবোর্ডে ফিরে যান')} →
+                      </button>
+                    )}
+                  </div>
+                </article>
+              )
+            })}
+
+            {/* Bottom Action Section */}
+            <div className="pt-6 pb-12 text-center">
+              <button
+                type="button"
+                onClick={onClose}
+                className="inline-flex items-center gap-2.5 rounded-full bg-[#16865f] hover:bg-[#127251] px-9 py-4 font-display text-base font-bold text-white shadow-xl shadow-emerald-900/25 transition transform hover:-translate-y-0.5 active:translate-y-0 cursor-pointer"
+              >
+                {L('Start Exploring the Live Dashboard', 'লাইভ ড্যাশবোর্ডে কাজ শুরু করুন')} <ArrowRight className="size-5" />
+              </button>
+              <p className="mt-3 font-mono text-xs text-[#6c887e]">
+                {L('You can reopen this technical blueprint anytime by clicking “How it works” in the top navigation.', 'উপরের মেনু থেকে যেকোনো সময় “How it works” চেপে এই গাইড পুনরায় দেখতে পারেন।')}
+              </p>
+            </div>
           </div>
         </div>
       </div>

@@ -99,6 +99,13 @@ def test_carbon_change_range_brackets_value():
     assert c["grossLossCarbonMgC"] == pytest.approx(30 * 283.1, abs=0.1)
 
 
+def test_carbon_change_uses_confirmed_change_not_map_totals():
+    c = carbon_change(1953, 2084, gain_ha=24.3, loss_ha=3.4, uncertain_ha=1.2, span_years=7, area_unc_pct=3.6)
+    assert c["netAreaChangeHa"] == pytest.approx(20.9, abs=0.01)
+    assert c["carbonChangeMgC"] == pytest.approx(20.9 * DENSITY_MG_C_PER_HA, abs=0.5)
+    assert c["mapTotalDifferenceHa"] == pytest.approx(131, abs=0.01)
+
+
 def test_linear_trend_exact_fit_and_two_point_fallback():
     slope, se = linear_trend([(2020, 100), (2021, 102), (2022, 104), (2023, 106)], 3.5)
     assert slope == pytest.approx(2.0)
