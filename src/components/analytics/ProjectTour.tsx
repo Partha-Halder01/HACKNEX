@@ -684,7 +684,7 @@ export function ProjectTour({ open, onClose, lang, bundle, caps, onJump, onTry }
                   <div className="rounded-xl border border-[#d2e3d8] bg-white p-4">
                     <p className="font-mono text-[11px] font-bold text-[#628076] uppercase">{L('Net Canopy Change', 'মোট পরিবর্তন')}</p>
                     <p className={`mt-1 font-condensed text-3xl font-black ${b.change.percentChange >= 0 ? 'text-[#16865f]' : 'text-rose-600'}`}>
-                      {signed(b.summary.end.mangroveHa - b.summary.start.mangroveHa, 1, lang)} <span className="font-sans text-sm font-semibold">ha</span>
+                      {signed(b.change.netChangeHa, 1, lang)} <span className="font-sans text-sm font-semibold">ha</span>
                     </p>
                     <p className="text-[11px] font-mono font-bold text-[#4c6d62] mt-0.5">
                       ({signed(b.change.percentChange, 1, lang)}%)

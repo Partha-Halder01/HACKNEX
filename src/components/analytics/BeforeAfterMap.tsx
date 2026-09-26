@@ -106,7 +106,7 @@ export function BeforeAfterMap({ bundle: b, lang }: { bundle: AnalysisBundle; la
   const { lat, lon, radiusKm } = b.request
   const bounds = L.latLng(lat, lon).toBounds(radiusKm * 1000 * 2 * 1.9)
 
-  const diff = b.summary.end.mangroveHa - b.summary.start.mangroveHa
+  const diff = b.change.netChangeHa
   const pctChange = b.change.percentChange
   const unreliable = b.reliability.level === 'low'
   const chip = unreliable

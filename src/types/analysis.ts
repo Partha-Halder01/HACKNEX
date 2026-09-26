@@ -155,6 +155,7 @@ export interface AnalysisBundle {
     rawAreaDifferenceHa: number
     annualNetChangeHa: number
     percentChange: number
+    rawPercentChange?: number
     minMappingUnitHa?: number
     confidenceThreshold?: number
   }

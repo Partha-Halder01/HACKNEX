@@ -61,7 +61,7 @@ const endYear = (b: AnalysisBundle) => b.request.endDate.slice(0, 4)
 export function AnswerCard({ bundle: b, lang }: { bundle: AnalysisBundle; lang: Lang }) {
   const rel = b.reliability
   const v = verdictOf(b)
-  const diff = b.summary.end.mangroveHa - b.summary.start.mangroveHa
+  const diff = b.change.netChangeHa
   const unreliable = rel.level === 'low' || rel.level === 'demo'
 
   const headline = (() => {
@@ -220,7 +220,7 @@ function SureMeter({ bundle: b, lang }: { bundle: AnalysisBundle; lang: Lang }) 
 export function SimpleCards({ bundle: b, lang }: { bundle: AnalysisBundle; lang: Lang }) {
   const dim = b.reliability.level === 'low'
   const end = b.summary.end
-  const diff = end.mangroveHa - b.summary.start.mangroveHa
+  const diff = b.change.netChangeHa
   const co2 = b.carbon.end.co2eMg
   const people = co2 / CO2_T_PER_PERSON_INDIA
   const trend = b.projection.scenarios.find((s) => s.id === 'current_trend')!.points.at(-1)!

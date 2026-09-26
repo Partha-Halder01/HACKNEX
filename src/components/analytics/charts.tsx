@@ -511,7 +511,7 @@ export function ChangeBreakdown({ bundle, lang }: { bundle: AnalysisBundle; lang
             <span className="text-xs font-semibold text-[#6c817a]">ha</span>
           </div>
           <div className="mt-1 text-[10px] text-[#6c817a]">
-            {lang === 'bn' ? 'গ্রস মোট পার্থক্য' : 'Gross boundary delta'}
+            {lang === 'bn' ? 'দুই মানচিত্রের মোটের পার্থক্য (ছবির তারতম্যসহ)' : 'Map-total difference (includes image noise)'}
           </div>
         </div>
       </div>
